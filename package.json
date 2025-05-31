@@ -14,15 +14,17 @@
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "npm run typecheck && electron-vite build",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps && flowbite-react patch && flowbite-react register",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "scriptinstall": "node scripts/fix-tailwind-version.js"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
+    "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.79.0",
     "@tanstack/react-table": "^8.21.3",
     "date-fns": "^4.1.0",
@@ -32,7 +34,10 @@
     "lucide-react": "^0.511.0",
     "npm": "^11.4.1",
     "react-hook-form": "^7.56.4",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.1",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^4.1.8",
     "zod": "^3.25.36"
   },
   "devDependencies": {
@@ -43,6 +48,7 @@
     "@types/react": "^19.1.1",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.21",
     "electron": "^35.1.5",
     "electron-builder": "^25.1.8",
     "electron-vite": "^3.1.0",
@@ -50,6 +56,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "postcss": "^8.5.4",
+    "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
