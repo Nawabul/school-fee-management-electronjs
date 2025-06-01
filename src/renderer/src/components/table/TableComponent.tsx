@@ -1,4 +1,6 @@
 import {
+  Button,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -17,8 +19,8 @@ import {
   getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import MultiSelectDropdown from '../MultiSelect'
 import EditButton from './EditButton'
+import MultiSelectDropdown from './MultiSelect'
 
 interface props {
   data: student[]
@@ -42,18 +44,60 @@ export function TableComponent({ data, columns }: props): JSX.Element {
     onGlobalFilterChange: setGlobleFilter
   })
 
+  const statusColumn = table.getColumn('termission_date')
+
+  const classOptions = Array.from(new Set(data.map((row) => row.class)))
+
   return (
     <>
       <div className="flex ml-auto gap-3 pb-2 justify-between">
-        <TextInput
-          placeholder="Filter here..."
-          onChange={(e) => setGlobleFilter(e.target.value)}
-          value={globleFilter}
-        />
-        <MultiSelectDropdown
-          options={table.getAllColumns().filter((column) => column.getCanHide())}
-          label="Columns Option"
-        />
+        <div className="flex gap-3">
+          <TextInput
+            placeholder="Filter here..."
+            value={globleFilter ?? ''}
+            onChange={(e) => setGlobleFilter(e.target.value)}
+          />
+          <Select
+            onChange={(e) => {
+              const value = e.target.value
+              statusColumn?.setFilterValue(value === 'both' ? undefined : value)
+            }}
+            //@ts-ignore
+            value={statusColumn?.getFilterValue() ?? 'both'}
+          >
+            <option value="both">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </Select>
+          {table.getHeaderGroups().map((headerGroup) =>
+            headerGroup.headers.map((header) => {
+              //@ts-ignore
+              const filterComponent = header.column.columnDef.meta?.filterComponent
+              return (
+                <React.Fragment key={header.id}>
+                  {filterComponent &&
+                    filterComponent({ column: header.column, options: classOptions })}
+                </React.Fragment>
+              )
+            })
+          )}
+        </div>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => {
+              table.resetColumnFilters()
+              table.resetGlobalFilter()
+            }}
+            className="bg-gray-700"
+            color={'alternative'}
+          >
+            Clear
+          </Button>
+          <MultiSelectDropdown
+            options={table.getAllColumns().filter((column) => column.getCanHide())}
+            label="Hide Columns"
+          />
+        </div>
       </div>
       <div className="overflow-x-auto">
         <Table hoverable>
