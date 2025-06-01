@@ -16,7 +16,7 @@ const Authlayer = (): React.ReactElement => {
       <div className="flex dark:text-white pt-1">
         <Sidebar />
         <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
-          <div className="dark:bg-gray-800 md:p-5 rounded-xl">
+          <div className="dark:bg-gray-800 rounded-xl">
             <Outlet />
           </div>
         </div>
