@@ -1,4 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
+import AmountFilter from '../table/AmountFilter'
+import FilterClass from '../table/FilterClass'
 
 export const studentColumns: ColumnDef<any>[] = [
   {
@@ -29,7 +31,14 @@ export const studentColumns: ColumnDef<any>[] = [
   {
     accessorKey: 'class',
     header: 'Class',
-    enableHiding: true
+    enableHiding: true,
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue.length === 0) return true // no filter applied
+      return filterValue.includes(row.getValue(columnId))
+    },
+    meta: {
+      filterComponent: FilterClass
+    }
   },
   {
     accessorKey: 'admission_date',
@@ -39,6 +48,12 @@ export const studentColumns: ColumnDef<any>[] = [
   {
     accessorKey: 'termission_date',
     header: 'Termission Date',
+    filterFn: (row, columnId, filterValue) => {
+      const date = row.getValue(columnId)
+      if (filterValue === 'active') return !date
+      if (filterValue === 'inactive') return !!date
+      return true // 'both' or undefined
+    },
     cell: ({ getValue }) => getValue<string | null>() || 'Active',
     enableHiding: true
   },
@@ -50,6 +65,26 @@ export const studentColumns: ColumnDef<any>[] = [
   {
     accessorKey: 'current_amount',
     header: 'Current Balance',
-    enableHiding: true
+    filterFn: (row, columnId, filterValue) => {
+      const rowValue = Number(row.getValue(columnId))
+      const { condition, value } = filterValue ?? {}
+
+      if (value === undefined || isNaN(value)) return true
+
+      switch (condition) {
+        case 'gt':
+          return rowValue > value
+        case 'lt':
+          return rowValue < value
+        case 'eq':
+          return rowValue === value
+        default:
+          return true
+      }
+    },
+    enableHiding: true,
+    meta: {
+      filterComponent: AmountFilter
+    }
   }
 ]
