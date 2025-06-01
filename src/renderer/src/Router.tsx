@@ -1,7 +1,7 @@
 import { RouterProvider, createHashRouter } from 'react-router-dom'
 import Authlayer from './layer/Authlayer'
 import Home from './pages/Home'
-import StudentRecord from './pages/student/StudentRecord'
+import { StudentInsert, StudentRecord } from './pages/student'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -20,6 +20,10 @@ const Router = (): React.ReactElement => (
               {
                 path: 'record',
                 element: <StudentRecord />
+              },
+              {
+                path: 'insert',
+                element: <StudentInsert />
               }
             ]
           }

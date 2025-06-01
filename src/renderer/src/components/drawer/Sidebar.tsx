@@ -49,7 +49,7 @@ const Sidebar = (): React.JSX.Element => {
             <SidebarItem as={Link} to="/student/record" icon={HiInbox}>
               All Students
             </SidebarItem>
-            <SidebarItem as={Link} to="/student/add" icon={HiInbox}>
+            <SidebarItem as={Link} to="/student/insert" icon={HiInbox}>
               Add Student
             </SidebarItem>
             <SidebarItem as={Link} to="/student/payment" icon={HiInbox}>
