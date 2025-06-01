@@ -1,17 +1,30 @@
 import { studentColumns } from '@renderer/components/student/columns'
 import { TableComponent } from '@renderer/components/table/TableComponent'
-import { Button } from 'flowbite-react'
 import { JSX } from 'react'
+import { Link } from 'react-router-dom'
+import { CgUserList } from 'react-icons/cg'
 
 const StudentRecord = (): JSX.Element => {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Student Record</h1>
-        <Button className="primary">Add Student</Button>
+    <>
+      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
+        <div className="flex gap-2 items-center">
+          <CgUserList size={40} />
+          <h1 className="text-2xl font-bold">Student Record</h1>
+        </div>
+        <div>
+          <Link
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            to="/student/insert"
+          >
+            Add Student
+          </Link>
+        </div>
       </div>
-      <TableComponent columns={studentColumns} data={datalist} />
-    </div>
+      <div className="md:p-5 ">
+        <TableComponent columns={studentColumns} data={datalist} />
+      </div>
+    </>
   )
 }
 
@@ -39,7 +52,7 @@ const datalist = [
     father_name: 'David Smith',
     mobile: '9123456780',
     admission_date: '2022-09-15',
-    termission_date: null,
+    termission_date: '2022-09-15',
     initial_amount: 6000,
     current_amount: 3000,
     last_fee_date: '2025-04-28'
