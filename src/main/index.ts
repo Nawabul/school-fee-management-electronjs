@@ -17,6 +17,9 @@ function createWindow(): void {
     }
   })
 
+  // routes
+
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
