@@ -18,6 +18,24 @@ class ClassController {
       return apiError('Error while creating class')
     }
   }
+  async update(
+    _: any,
+    id: number,
+    data: Omit<ClassTS, 'id'>
+  ): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      const result: boolean = await ClassService.update(id, data)
+      if (!result) {
+        return apiError('Class not found or no changes made')
+      }
+      return apiSuccess(result, 'Class updated successfully')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiError('Error while creating class: ' + error.message)
+      }
+      return apiError('Error while creating class')
+    }
+  }
   //@ts-ignore event name not used
   async list(): Promise<successResponse<ClassTS[]> | errorResponse> {
     try {

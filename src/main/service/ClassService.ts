@@ -3,7 +3,7 @@ import { Class } from '../../types/interfaces/class'
 import db from '../db/db'
 import Database from 'better-sqlite3'
 import { classes } from '../db/schema/class'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 class ClassService {
   db: BetterSQLite3Database<Record<string, never>> & {
@@ -28,7 +28,21 @@ class ClassService {
       }
     }
   }
+  async update(id: number, data: Omit<Class, 'id'>): Promise<boolean> {
+    try {
+      const result = this.db.update(classes).set(data).where(eq(classes.id, id)).run()
 
+      // .run() returns info about rows affected, not the updated row itself
+      return result.changes > 0
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating class: ' + error.message)
+      } else {
+        console.error('Unknown error while updating class:', error)
+        throw new Error('Unknown error while updating class')
+      }
+    }
+  }
   async list(id: number | number[] | null = null): Promise<Class[]> {
     try {
       const result = this.db

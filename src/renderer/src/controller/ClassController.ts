@@ -9,6 +9,13 @@ class ClassController {
     }
     throw result.message
   }
+  async update(id: number, data): Promise<number> {
+    const result = await window.class.update(id, data)
+    if (result.status) {
+      return (result as successResponse<number>).data
+    }
+    throw result.message
+  }
   async list(): Promise<Class[]> {
     const result = await window.class.list()
     console.log('result', result)

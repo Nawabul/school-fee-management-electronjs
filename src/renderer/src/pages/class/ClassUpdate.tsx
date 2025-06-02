@@ -5,21 +5,23 @@ import { Button } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { HiAcademicCap } from 'react-icons/hi'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 const ClassUpdate = (): React.JSX.Element => {
+  const id = useParams().id
+  const navigate = useNavigate()
   const classMutation = useMutation({
-    mutationFn: ClassController.create,
+    mutationFn: (data) => ClassController.update(Number(id), data),
     onSuccess: (data) => {
       console.log('Class created successfully:', data)
       // Optionally reset form or show success message
+      navigate('/class')
     },
     onError: (error) => {
       console.error('Error creating class:', error)
       // Optionally show error message
     }
   })
-  const id = useParams().id
   console.log('Class ID:', id)
   const handleFormSubmit = (data: any): void => {
     console.log('Form Data Submitted:', data)

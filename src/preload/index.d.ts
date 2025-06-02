@@ -7,6 +7,7 @@ declare global {
     api: unknown
     class: {
       create: (data: Class) => Promise<successResponse<number> | errorResponse>
+      update: (id: number, data: Class) => Promise<successResponse<boolean> | errorResponse>
       list: () => Promise<successResponse<Class[]> | errorResponse>
       fetch: (id: number) => Promise<successResponse<Class> | errorResponse>
     }

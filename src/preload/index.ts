@@ -15,6 +15,11 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('class', {
       create: async (data: Omit<Class, 'id'>): Promise<successResponse<number> | errorResponse> =>
         ipcRenderer.invoke('class:create', data),
+      update: async (
+        id: number,
+        data: Omit<Class, 'id'>
+      ): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('class:update', id, data),
       list: async (): Promise<successResponse<Class[]> | errorResponse> =>
         ipcRenderer.invoke('class:list'),
       fetch: async (id: number): Promise<successResponse<Class> | errorResponse> =>
