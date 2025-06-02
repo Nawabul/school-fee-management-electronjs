@@ -1,10 +1,12 @@
 import Sidebar from '@renderer/components/drawer/Sidebar'
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 
 const Authlayer = (): React.ReactElement => {
   const [height, setHeight] = useState(window.innerHeight)
 
+  const location = useLocation();
+  console.log('Current location:', location);
   useEffect(() => {
     const handleResize = ():void => setHeight(window.innerHeight)
     window.addEventListener('resize', handleResize)

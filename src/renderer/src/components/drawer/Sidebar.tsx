@@ -32,6 +32,9 @@ const Sidebar = (): React.JSX.Element => {
           <SidebarItem as={Link} href="#" icon={HiChartPie}>
             Dashboard
           </SidebarItem>
+          <SidebarItem as={Link} to="class" icon={HiChartPie}>
+            Class
+          </SidebarItem>
           <SidebarCollapse
             icon={MdManageAccounts}
             label="Manage Staff"

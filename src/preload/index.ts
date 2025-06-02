@@ -1,7 +1,7 @@
-import { contextBridge,ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import  { Class } from '../types/interfaces/class'
-import { successResponse,errorResponse } from '../types/utils/apiReturn'
+import { Class } from '../types/interfaces/class'
+import { successResponse, errorResponse } from '../types/utils/apiReturn'
 // Custom APIs for renderer
 const api = {}
 
@@ -13,7 +13,12 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('class', {
-      create: async (data:Class):Promise<successResponse<number>|errorResponse>=>ipcRenderer.invoke('class:create', data),
+      create: async (data: Omit<Class, 'id'>): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('class:create', data),
+      list: async (): Promise<successResponse<Class[]> | errorResponse> =>
+        ipcRenderer.invoke('class:list'),
+      fetch: async (id: number): Promise<successResponse<Class> | errorResponse> =>
+        ipcRenderer.invoke('class:fetch', id)
     })
   } catch (error) {
     console.error(error)
