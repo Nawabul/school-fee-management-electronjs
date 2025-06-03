@@ -1,10 +1,10 @@
 import { Class as ClassTS } from '../../types/interfaces/class'
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import ClassService from '../service/ClassService'
-
+import { IpcMainInvokeEvent } from 'electron'
 class ClassController {
   async create(
-    _: any,
+    _event: IpcMainInvokeEvent,
     data: Omit<ClassTS, 'id'>
   ): Promise<successResponse<number> | errorResponse> {
     try {
@@ -19,7 +19,7 @@ class ClassController {
     }
   }
   async update(
-    _: any,
+    _event: IpcMainInvokeEvent,
     id: number,
     data: Omit<ClassTS, 'id'>
   ): Promise<successResponse<boolean> | errorResponse> {
@@ -36,7 +36,10 @@ class ClassController {
       return apiError('Error while creating class')
     }
   }
-  async delete(_: any, id: number | number[]): Promise<successResponse<boolean> | errorResponse> {
+  async delete(
+    _event: IpcMainInvokeEvent,
+    id: number | number[]
+  ): Promise<successResponse<boolean> | errorResponse> {
     try {
       const result: boolean = await ClassService.delete(id)
       if (!result) {
@@ -64,7 +67,10 @@ class ClassController {
     }
   }
 
-  async fetch(_: any, id: number): Promise<successResponse<ClassTS> | errorResponse> {
+  async fetch(
+    _event: IpcMainInvokeEvent,
+    id: number
+  ): Promise<successResponse<ClassTS> | errorResponse> {
     try {
       const result = await ClassService.list(id)
       console.log('class fetch', result)
