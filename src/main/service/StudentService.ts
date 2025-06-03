@@ -127,7 +127,7 @@ class StudentService {
         .from(students)
         .innerJoin(classes, eq(students.class_id, classes.id))
 
-      return  query.all() || []
+      return query.all() || []
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error('Error while fetching students: ' + error.message)
