@@ -1,6 +1,4 @@
 import {
-  Button,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -17,16 +15,22 @@ import {
   getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import EditButton from './EditButton'
+
 import { Class_Record } from '@renderer/types/ts/class'
-import { Link } from 'react-router-dom'
 
 interface props {
   data: Class_Record[]
   columns: ColumnDef<Class_Record>[]
+  isLoading?: boolean
+  id?: number
 }
 
-export function SimpleTableComponent({ data, columns }: props): JSX.Element {
+export function SimpleTableComponent({
+  data,
+  columns,
+  isLoading = false,
+  id = 0
+}: props): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
 
   const table = useReactTable({
@@ -57,7 +61,6 @@ export function SimpleTableComponent({ data, columns }: props): JSX.Element {
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                <TableHeadCell>Id</TableHeadCell>
                 {headerGroup.headers.map((header) => (
                   <TableHeadCell key={header.id}>
                     {header.isPlaceholder
@@ -65,27 +68,26 @@ export function SimpleTableComponent({ data, columns }: props): JSX.Element {
                       : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHeadCell>
                 ))}
-                <TableHeadCell>Action</TableHeadCell>
               </TableRow>
             ))}
           </TableHead>
           <TableBody className="divide-y">
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, i) => (
+              table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    )
-                  })}
-                  <TableCell>
-                    <Link to={`class/update/${row.id}`}>
-                      <EditButton />
-                    </Link>
-                  </TableCell>
+                  {isLoading && id != 0 ? (
+                    <span>Loading</span>
+                  ) : (
+                    row.getVisibleCells().map((cell) => {
+                      // Render each cell in the row
+                      console.log('Cell Data:', cell.getContext().row.original)
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      )
+                    })
+                  )}
                 </TableRow>
               ))
             ) : (
