@@ -26,9 +26,12 @@ export const Student_Schema = z.object({
     .min(1, 'Mobile number cannot be empty'),
 
   is_whatsapp: z
-    .boolean({
-      required_error: 'Please specify if this number is on WhatsApp'
-    })
+    .preprocess(
+      (val) => !!val,
+      z.boolean({
+        required_error: 'Please specify if this number is on WhatsApp'
+      })
+    )
     .default(false),
 
   address: z
@@ -55,5 +58,6 @@ export const Student_Schema = z.object({
       required_error: 'Opening balance is required',
       invalid_type_error: 'Opening balance must be a number'
     })
+    .optional()
     .default(0)
 })

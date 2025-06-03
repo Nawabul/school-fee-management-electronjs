@@ -3,7 +3,7 @@ import { Student_Get, Student_Record, Student_Write } from '../../types/interfac
 import db from '../db/db'
 import Database from 'better-sqlite3'
 
-import { eq, inArray, sql } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
 import { classes } from '../db/schema/class'

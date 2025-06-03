@@ -1,8 +1,8 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import ClassController from '../controller/ClassController'
 import StudentController from '../controller/StudentController'
 
-export default async function routes(mainWindow: BrowserWindow): Promise<void> {
+export default async function routes(): Promise<void> {
   // class
   ipcMain.handle('class:create', ClassController.create)
   ipcMain.handle('class:list', ClassController.list)

@@ -1,14 +1,6 @@
-import {
-  Sidebar as Side,
-  SidebarCollapse,
-  SidebarItem,
-  SidebarItemGroup,
-  SidebarItems
-} from 'flowbite-react'
-import { twMerge } from 'tailwind-merge'
+import { Sidebar as Side, SidebarItem, SidebarItemGroup, SidebarItems } from 'flowbite-react'
 import { useEffect, useState } from 'react'
-import { HiChartPie, HiInbox, HiOutlineMinusSm, HiOutlinePlusSm } from 'react-icons/hi'
-import { MdManageAccounts } from 'react-icons/md'
+import { HiChartPie } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
 import { User } from 'lucide-react'
 
@@ -33,36 +25,14 @@ const Sidebar = (): React.JSX.Element => {
           <SidebarItem as={Link} href="#" icon={HiChartPie}>
             Dashboard
           </SidebarItem>
+          {/* @ts-ignore */}
           <SidebarItem as={Link} to="class" icon={HiChartPie}>
             Class
           </SidebarItem>
+          {/* @ts-ignore */}
           <SidebarItem as={Link} to="student" icon={User}>
             Student
           </SidebarItem>
-          <SidebarCollapse
-            icon={MdManageAccounts}
-            label="Manage Staff"
-            renderChevronIcon={(theme, open) => {
-              const IconComponent = open ? HiOutlineMinusSm : HiOutlinePlusSm
-
-              return (
-                <IconComponent
-                  aria-hidden
-                  className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])}
-                />
-              )
-            }}
-          >
-            <SidebarItem as={Link} to="/student/record" icon={HiInbox}>
-              All Students
-            </SidebarItem>
-            <SidebarItem as={Link} to="/student/insert" icon={HiInbox}>
-              Add Student
-            </SidebarItem>
-            <SidebarItem as={Link} to="/student/payment" icon={HiInbox}>
-              Fees Payment
-            </SidebarItem>
-          </SidebarCollapse>
         </SidebarItemGroup>
       </SidebarItems>
     </Side>

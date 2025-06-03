@@ -10,7 +10,6 @@ import {
   TextInput
 } from 'flowbite-react'
 import React, { JSX } from 'react'
-import student from '@utils/student'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -21,10 +20,10 @@ import {
 } from '@tanstack/react-table'
 import EditButton from './EditButton'
 import MultiSelectDropdown from './MultiSelect'
-
+import { Student_Record } from '@renderer/types/ts/student'
 interface props {
-  data: student[]
-  columns: ColumnDef<student>[]
+  data: Student_Record[]
+  columns: ColumnDef<Student_Record>[]
   id: number
   isLoading?: boolean
 }
@@ -48,7 +47,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
 
   const statusColumn = table.getColumn('transfer_date')
 
-  const classOptions = Array.from(new Set(data.map((row) => row.class)))
+  const classOptions = Array.from(new Set(data.map((row) => row.class_name)))
 
   return (
     <>
@@ -64,7 +63,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
               const value = e.target.value
               statusColumn?.setFilterValue(value === 'both' ? undefined : value)
             }}
-            //@ts-ignore
+            //@ts-ignore its working well
             value={statusColumn?.getFilterValue() ?? 'both'}
           >
             <option value="both">All</option>
@@ -73,7 +72,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           </Select>
           {table.getHeaderGroups().map((headerGroup) =>
             headerGroup.headers.map((header) => {
-              //@ts-ignore
+              //@ts-ignore we are using meta to pass filter component
               const filterComponent = header.column.columnDef.meta?.filterComponent
               return (
                 <React.Fragment key={header.id}>

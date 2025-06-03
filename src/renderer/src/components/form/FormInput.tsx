@@ -1,7 +1,7 @@
 // components/FormInput.tsx
 
 import { Label, TextInput } from 'flowbite-react'
-import { JSX } from 'react'
+import { ComponentProps, JSX } from 'react'
 import { useController } from 'react-hook-form'
 
 type TextInputType = ComponentProps<typeof TextInput>['type']

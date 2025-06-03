@@ -10,10 +10,12 @@ import ClassController from '@renderer/controller/ClassController'
 import FormCheckBox from '../form/FromCheckBox'
 import { Loader2 } from 'lucide-react'
 import { Student_Schema } from '@renderer/types/schema/student'
+import { z } from 'zod'
 
 interface Props {
+  // @ts-ignore schema can ve any thing
   onSubmit: (data: any) => void
-  defaultValues?: z.infer<typeof Student_Schema> | {}
+  defaultValues?: z.infer<typeof Student_Schema> | Record<string, never>
   isPending?: boolean
 }
 
@@ -24,6 +26,7 @@ const StudentForm = ({
   isPending = false
 }: Props): JSX.Element => {
   const { control, handleSubmit } = useForm<z.infer<typeof Student_Schema>>({
+    //@ts-ignore ites working well
     resolver: zodResolver(Student_Schema),
     defaultValues
   })
