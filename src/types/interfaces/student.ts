@@ -16,7 +16,7 @@ export interface Student_Record {
   father_name: string
   mobile: string
   admission_date: string // ISO date string
-  transfer_date?: string | 'active' // either an ISO date string or the literal "active"
+  transfer_date?: string | null // either an ISO date string or the literal "active"
   address: string
   class_name: string
 }

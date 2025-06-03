@@ -5,10 +5,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import ClassController from '@renderer/controller/ClassController'
+import { queryKey } from '@renderer/types/constant/queryKey'
 
 const ClassRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
-    queryKey: ['class-record'],
+    queryKey: queryKey.class,
     queryFn: ClassController.list,
     refetchOnWindowFocus: true
   })

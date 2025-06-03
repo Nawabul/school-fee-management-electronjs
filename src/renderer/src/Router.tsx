@@ -5,6 +5,7 @@ import { StudentInsert, StudentRecord } from './pages/student'
 import ClassInsert from './pages/class/ClassInsert'
 import ClassRecord from './pages/class/ClassRecord'
 import ClassUpdate from './pages/class/ClassUpdate'
+import StudentUpdate from './pages/student/StudentUpdate'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -21,12 +22,16 @@ const Router = (): React.ReactElement => (
             path: 'student/',
             children: [
               {
-                path: 'record',
+                path: '',
                 element: <StudentRecord />
               },
               {
                 path: 'insert',
                 element: <StudentInsert />
+              },
+              {
+                path: 'update/:id',
+                element: <StudentUpdate />
               }
             ]
           },

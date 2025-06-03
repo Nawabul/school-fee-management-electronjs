@@ -12,7 +12,7 @@ export const students = sqliteTable('students', {
   admission_date: text('admission_date').notNull(), // store ISO date string
   transfer_date: text('transfer_date'),
   address: text('address').notNull(),
-  initial_balance: integer('initila_balance').notNull().default(0),
+  initial_balance: integer('initial_balance').notNull().default(0),
   current_balance: integer('current_balance').notNull().default(0),
   class_id: integer('class_id')
     .notNull()

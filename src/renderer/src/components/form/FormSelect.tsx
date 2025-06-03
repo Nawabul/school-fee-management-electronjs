@@ -1,40 +1,43 @@
 // components/FormInput.tsx
 
-import { ErrorMessage } from '@hookform/error-message'
 import { Label, Select } from 'flowbite-react'
 import { JSX } from 'react'
-import { FieldErrors } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
-interface ClassOption {
+type Option = {
   id: number
   name: string
 }
 
 interface Props {
   name: string
-  errors: FieldErrors
-  classOptions: ClassOption[]
+  label: string
+  placeholder: string
+  control: any
+  options: Option[]
 }
 
-const FormSelect = ({ name, errors, classOptions, ...props }: Props): JSX.Element => {
+const FormSelect = ({ name, label, placeholder, control, options = [] }: Props): JSX.Element => {
+  const {
+    field,
+    fieldState: { error }
+  } = useController({
+    name,
+    control
+  })
+
   return (
     <div className="space-y-2">
-      <Label htmlFor="class">Class</Label>
-      <Select id="class" {...props}>
-        <option value="">Select Class</option>
-        {classOptions.map((cls) => (
+      <Label htmlFor="class">{label}</Label>
+      <Select id={name} {...field}>
+        <option value="">{placeholder}</option>
+        {options.map((cls) => (
           <option key={cls.id} value={cls.id}>
             {cls.name}
           </option>
         ))}
       </Select>
-      <ErrorMessage
-        errors={errors}
-        name={name}
-        render={({ message }) => (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-500">{message}</p>
-        )}
-      />
+      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{error?.message}</p>}
     </div>
   )
 }

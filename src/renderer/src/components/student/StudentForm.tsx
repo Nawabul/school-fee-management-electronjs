@@ -1,28 +1,36 @@
-import React from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Button } from 'flowbite-react'
 import FormSelect from '../form/FormSelect'
 import FormInput from '../form/FormInput'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { StudentFormData, studentFormSchema } from '@utils/schema/studentSchema'
+import { JSX } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { queryKey } from '@renderer/types/constant/queryKey'
+import ClassController from '@renderer/controller/ClassController'
+import FormCheckBox from '../form/FromCheckBox'
+import { Loader2 } from 'lucide-react'
+import { Student_Schema } from '@renderer/types/schema/student'
 
-interface ClassOption {
-  id: number
-  name: string
+interface Props {
+  onSubmit: (data: any) => void
+  defaultValues?: z.infer<typeof Student_Schema> | {}
+  isPending?: boolean
 }
 
-interface StudentFormProps {
-  classOptions: ClassOption[]
-  onSubmit: SubmitHandler<StudentFormData>
-}
+const StudentForm = ({
+  onSubmit,
 
-const StudentForm: React.FC<StudentFormProps> = ({ classOptions, onSubmit }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<StudentFormData>({
-    resolver: zodResolver(studentFormSchema)
+  defaultValues = {},
+  isPending = false
+}: Props): JSX.Element => {
+  const { control, handleSubmit } = useForm<z.infer<typeof Student_Schema>>({
+    resolver: zodResolver(Student_Schema),
+    defaultValues
+  })
+
+  const { data: classList = [] } = useQuery({
+    queryKey: queryKey.class,
+    queryFn: ClassController.list
   })
 
   return (
@@ -32,66 +40,86 @@ const StudentForm: React.FC<StudentFormProps> = ({ classOptions, onSubmit }) => 
     >
       {/* Class */}
       <FormSelect
-        classOptions={classOptions}
-        errors={errors}
-        {...register('class', { required: true })}
+        name="class_id"
+        control={control}
+        label="Class"
+        options={classList}
+        placeholder="Select Class"
       />
 
       {/* Registration Number */}
       <FormInput
-        errors={errors}
-        label="Registration Number"
-        placeholder="e.g. REG1001"
-        {...register('reg_number', { required: true })}
+        name="reg_number"
+        label="Reg. Number"
+        placeholder="Registration Number"
+        type="text"
+        control={control}
       />
-
       {/* Student Name */}
       <FormInput
-        errors={errors}
+        name="student_name"
         label="Student Name"
-        placeholder="e.g. Nawab"
-        {...register('student_name', { required: true })}
+        placeholder=""
+        type="text"
+        control={control}
       />
 
-      {/* Father Name */}
+      {/* father Name */}
       <FormInput
-        errors={errors}
+        name="father_name"
         label="Father Name"
-        placeholder="e.g. Abc"
-        {...register('father_name', { required: true })}
+        placeholder=""
+        type="text"
+        control={control}
       />
 
-      {/* Mobile */}
+      {/* mobile  */}
       <FormInput
-        errors={errors}
-        label="Mobile Number"
+        name="mobile"
+        label="Mobile No."
         placeholder="e.g. 9876543210"
-        {...register('mobile', { required: true })}
+        type="text"
+        control={control}
       />
+
+      {/* is whatsapp */}
+      <FormCheckBox name="is_whatsapp" label="Have Whatsapp" control={control} />
 
       {/* Admission Date */}
       <FormInput
-        errors={errors}
+        name="admission_date"
         label="Admission Date"
-        placeholder="e.g. 03/01/2023"
+        placeholder="e.g. 01/01/2025"
         type="date"
-        {...register('admission_date', { required: true })}
+        control={control}
+      />
+      {/* Address */}
+      <FormInput
+        name="address"
+        label="Address"
+        placeholder="e.g. Near Red For New Dehli India"
+        type="text"
+        control={control}
       />
 
-      {/* Initial Amount */}
+      {/* opening balance */}
       <FormInput
-        errors={errors}
-        label="Initial Amount"
+        name="initial_balance"
+        label="Opening Balance"
+        placeholder="e.g. 0 | 200 | -500"
         type="number"
-        placeholder="0"
-        {...register('initial_amount', { required: true })}
+        control={control}
       />
 
       {/* Submit */}
       <div className="md:col-span-2 mt-auto ml-auto">
-        <Button type="submit" size="md" className="w-60">
-          Submit
-        </Button>
+        {isPending ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <Button type="submit" size="md" className="w-60">
+            Submit
+          </Button>
+        )}
       </div>
     </form>
   )

@@ -25,9 +25,11 @@ import MultiSelectDropdown from './MultiSelect'
 interface props {
   data: student[]
   columns: ColumnDef<student>[]
+  id: number
+  isLoading?: boolean
 }
 
-export function TableComponent({ data, columns }: props): JSX.Element {
+export function TableComponent({ data, columns, id, isLoading = false }: props): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
@@ -44,7 +46,7 @@ export function TableComponent({ data, columns }: props): JSX.Element {
     onGlobalFilterChange: setGlobleFilter
   })
 
-  const statusColumn = table.getColumn('termission_date')
+  const statusColumn = table.getColumn('transfer_date')
 
   const classOptions = Array.from(new Set(data.map((row) => row.class)))
 
@@ -119,13 +121,18 @@ export function TableComponent({ data, columns }: props): JSX.Element {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    )
-                  })}
+                  {isLoading && id > 0 ? (
+                    <span>Loading</span>
+                  ) : (
+                    row.getVisibleCells().map((cell) => {
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      )
+                    })
+                  )}
+
                   <TableCell>
                     <EditButton />
                   </TableCell>

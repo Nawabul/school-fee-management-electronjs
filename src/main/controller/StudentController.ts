@@ -9,9 +9,10 @@ class StudentController {
   ): Promise<successResponse<number> | errorResponse> {
     try {
       const result: number = await StudentService.create(data)
-
+      console.log('student insert result', result)
       return apiSuccess(result, 'Student created successfully')
     } catch (error: unknown) {
+      console.log('student insert error ', error )
       if (error instanceof Error) {
         return apiError('Error while creating student: ' + error.message)
       }
@@ -69,7 +70,7 @@ class StudentController {
   async list(): Promise<successResponse<Student_Record[]> | errorResponse> {
     try {
       const result = await StudentService.list()
-
+      console.log('student list ', result)
       return apiSuccess(result, 'Student Fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

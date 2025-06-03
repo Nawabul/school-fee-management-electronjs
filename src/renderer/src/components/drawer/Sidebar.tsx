@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { HiChartPie, HiInbox, HiOutlineMinusSm, HiOutlinePlusSm } from 'react-icons/hi'
 import { MdManageAccounts } from 'react-icons/md'
 import { Link } from 'react-router-dom'
+import { User } from 'lucide-react'
 
 const Sidebar = (): React.JSX.Element => {
   const [height, setHeight] = useState(window.innerHeight - 15)
@@ -34,6 +35,9 @@ const Sidebar = (): React.JSX.Element => {
           </SidebarItem>
           <SidebarItem as={Link} to="class" icon={HiChartPie}>
             Class
+          </SidebarItem>
+          <SidebarItem as={Link} to="student" icon={User}>
+            Student
           </SidebarItem>
           <SidebarCollapse
             icon={MdManageAccounts}

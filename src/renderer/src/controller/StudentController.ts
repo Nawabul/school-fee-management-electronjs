@@ -4,6 +4,7 @@ import { Student_Record, Student_Get } from '@renderer/types/ts/student'
 class StudentController {
   async create(data): Promise<number> {
     const result = await window.student.create(data)
+    console.log(result)
     if (result.status) {
       return (result as successResponse<number>).data
     }
@@ -24,7 +25,8 @@ class StudentController {
     throw result.message
   }
   async list(): Promise<Student_Record[]> {
-    const result = await window.class.list()
+    const result = await window.student.list()
+    console.log(result)
     if (result.status) {
       return (result as successResponse<Student_Record[]>).data
     }

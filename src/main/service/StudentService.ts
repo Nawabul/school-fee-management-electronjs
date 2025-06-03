@@ -117,12 +117,9 @@ class StudentService {
           address: students.address,
           admission_date: students.admission_date,
           // CASE WHEN transfer_date IS NULL THEN 'active' ELSE transfer_date END
-          transfer_date: sql<string>`CASE
-      WHEN ${students.transfer_date} IS NULL
-      THEN 'active'
-      ELSE ${students.transfer_date}
-    END`.as('transfer_date'),
-          class_name: classes.name
+          transfer_date: students.transfer_date,
+          class_name: classes.name,
+          current_balance: students.current_balance
         })
         .from(students)
         .innerJoin(classes, eq(students.class_id, classes.id))
