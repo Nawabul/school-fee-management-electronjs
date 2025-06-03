@@ -7,4 +7,5 @@ export default async function routes(mainWindow: BrowserWindow): Promise<void> {
   ipcMain.handle('class:list', ClassController.list)
   ipcMain.handle('class:fetch', ClassController.fetch)
   ipcMain.handle('class:update', ClassController.update)
+  ipcMain.handle('class:delete', ClassController.delete)
 }

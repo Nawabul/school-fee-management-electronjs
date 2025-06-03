@@ -9,10 +9,17 @@ class ClassController {
     }
     throw result.message
   }
-  async update(id: number, data): Promise<number> {
+  async update(id: number, data): Promise<boolean> {
     const result = await window.class.update(id, data)
     if (result.status) {
-      return (result as successResponse<number>).data
+      return (result as successResponse<boolean>).data
+    }
+    throw result.message
+  }
+  async delete(id: number | number[]): Promise<boolean> {
+    const result = await window.class.delete(id)
+    if (result.status) {
+      return (result as successResponse<boolean>).data
     }
     throw result.message
   }

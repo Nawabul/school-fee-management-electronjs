@@ -7,7 +7,7 @@ import {
   TableRow,
   TextInput
 } from 'flowbite-react'
-import React, { JSX } from 'react'
+import React, { JSX, useState } from 'react'
 import {
   ColumnDef,
   flexRender,
@@ -19,6 +19,8 @@ import {
 import { Class_Record } from '@renderer/types/ts/class'
 import { Link } from 'react-router-dom'
 import { Pen, Trash2 } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import ClassController from '@renderer/controller/ClassController'
 
 interface props {
   data: Class_Record[]
@@ -39,6 +41,26 @@ export function ClassTableComponent({ data, columns }: props): JSX.Element {
     },
     onGlobalFilterChange: setGlobleFilter
   })
+
+  const [id, setId] = useState<number>(0)
+
+  const classDelete = useMutation({
+    mutationFn: (id: number) => ClassController.delete(id),
+    onSuccess: () => {
+      setId(0)
+      // Optionally, you can refetch the class list after deletion
+      // queryClient.invalidateQueries(['class-record'])
+    },
+    onError: () => {
+      setId(0)
+      // Handle error, e.g., show a notification
+    }
+  })
+
+  const handleDelete = (id: number): void => {
+    setId(id)
+    classDelete.mutate(id)
+  }
 
   return (
     <>

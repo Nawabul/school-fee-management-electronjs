@@ -18,8 +18,10 @@ if (process.contextIsolated) {
       update: async (
         id: number,
         data: Omit<Class, 'id'>
-      ): Promise<successResponse<number> | errorResponse> =>
+      ): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('class:update', id, data),
+      delete: async (id: number | number[]): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('class:delete', id),
       list: async (): Promise<successResponse<Class[]> | errorResponse> =>
         ipcRenderer.invoke('class:list'),
       fetch: async (id: number): Promise<successResponse<Class> | errorResponse> =>

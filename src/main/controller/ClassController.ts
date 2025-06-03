@@ -36,6 +36,20 @@ class ClassController {
       return apiError('Error while creating class')
     }
   }
+  async delete(_: any, id: number | number[]): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      const result: boolean = await ClassService.delete(id)
+      if (!result) {
+        return apiError('Class not found or no changes made')
+      }
+      return apiSuccess(result, 'Class deleted successfully')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiError('Error while deleting class: ' + error.message)
+      }
+      return apiError('Error while deleting class')
+    }
+  }
   //@ts-ignore event name not used
   async list(): Promise<successResponse<ClassTS[]> | errorResponse> {
     try {

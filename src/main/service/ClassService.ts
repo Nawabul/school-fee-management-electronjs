@@ -43,6 +43,24 @@ class ClassService {
       }
     }
   }
+  async delete(id: number | number[]): Promise<boolean> {
+    try {
+      const result = this.db
+        .delete(classes)
+        .where(inArray(classes.id, Array.isArray(id) ? id : [id]))
+        .run()
+
+      // .run() returns info about rows affected, not the updated row itself
+      return result.changes > 0
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error('Error while deleting class: ' + error.message)
+      } else {
+        console.error('Unknown error while deleting class:', error)
+        throw new Error('Unknown error while deleting class')
+      }
+    }
+  }
   async list(id: number | number[] | null = null): Promise<Class[]> {
     try {
       const result = this.db

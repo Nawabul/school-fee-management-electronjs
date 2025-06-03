@@ -1,17 +1,42 @@
 import { classColumns } from '@renderer/components/class/columns'
-import { ClassTableComponent } from '@renderer/components/class/ClassTableComponent'
-import { JSX } from 'react'
-import { Link } from 'react-router-dom'
+import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
+import { JSX, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import ClassController from '@renderer/controller/ClassController'
 
 const ClassRecord = (): JSX.Element => {
-  const { data = [] } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ['class-record'],
     queryFn: ClassController.list,
     refetchOnWindowFocus: true
   })
+  const [id, setId] = useState<number>(0)
+  const navigate = useNavigate()
+
+  const classDelete = useMutation({
+    mutationFn: ClassController.delete,
+    onSuccess: () => {
+      refetch()
+      setId(0)
+    },
+    onError: () => {
+      setId(0)
+    }
+  })
+
+  const handleDelete = (id: number): void => {
+    classDelete.mutate(id)
+    setId(id)
+  }
+
+  const item: Record<string, (id: number) => void> = {
+    update: (id: number): void => {
+      navigate(`/class/update/${id}`)
+    },
+    delete: handleDelete
+  }
 
   return (
     <>
@@ -30,7 +55,12 @@ const ClassRecord = (): JSX.Element => {
         </div>
       </div>
       <div className="md:p-5 ">
-        <ClassTableComponent columns={classColumns} data={data || []} />
+        <SimpleTableComponent
+          columns={classColumns(item)}
+          data={data || []}
+          isLoading={classDelete.isPending}
+          id={id}
+        />
       </div>
     </>
   )
