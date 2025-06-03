@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import ClassController from '../controller/ClassController'
+import StudentController from '../controller/StudentController'
 
 export default async function routes(mainWindow: BrowserWindow): Promise<void> {
   // class
@@ -8,4 +9,11 @@ export default async function routes(mainWindow: BrowserWindow): Promise<void> {
   ipcMain.handle('class:fetch', ClassController.fetch)
   ipcMain.handle('class:update', ClassController.update)
   ipcMain.handle('class:delete', ClassController.delete)
+
+  // student
+  ipcMain.handle('student:create', StudentController.create)
+  ipcMain.handle('student:list', StudentController.list)
+  ipcMain.handle('student:fetch', StudentController.fetch)
+  ipcMain.handle('student:update', StudentController.update)
+  ipcMain.handle('student:delete', StudentController.delete)
 }
