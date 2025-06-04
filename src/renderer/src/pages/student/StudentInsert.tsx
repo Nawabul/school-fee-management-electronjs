@@ -20,7 +20,7 @@ const StudentInsert = (): React.JSX.Element => {
     }
   })
 
-  const handleFormSubmit = (data: any): void => {
+  const handleFormSubmit = (data): void => {
     studentMutation.mutate(data)
   }
 
@@ -33,12 +33,12 @@ const StudentInsert = (): React.JSX.Element => {
         </div>
         <div>
           <Link to={'/student'}>
-          <Button>View All Student</Button>
+            <Button>View All Student</Button>
           </Link>
         </div>
       </div>
       <div className="md:p-5">
-        <StudentForm onSubmit={handleFormSubmit} isPending={studentMutation.isPending}/>
+        <StudentForm onSubmit={handleFormSubmit} isPending={studentMutation.isPending} />
       </div>
     </div>
   )

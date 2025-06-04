@@ -36,7 +36,10 @@ const StudentRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/student/update/${id}`)
     },
-    delete: handleDelete
+    delete: handleDelete,
+    payment: (id: number): void => {
+      navigate(`/payment/${id}`)
+    }
   }
 
   return (
