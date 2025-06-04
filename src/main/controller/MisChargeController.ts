@@ -61,9 +61,12 @@ class MisChargeController {
   }
 
   //@ts-ignore event not used
-  async list(): Promise<successResponse<Mis_Charge_Record[]> | errorResponse> {
+  async list(
+    _event: IpcMainInvokeEvent,
+    studentId: number
+  ): Promise<successResponse<Mis_Charge_Record[]> | errorResponse> {
     try {
-      const result = await MisChargeService.list()
+      const result = await MisChargeService.list(studentId)
       return apiSuccess(result, 'MIS Charges fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

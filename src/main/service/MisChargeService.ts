@@ -113,7 +113,7 @@ class MisChargeService {
   /**
    * Get all MIS charges.
    */
-  async list(): Promise<Mis_Charge_Record[]> {
+  async list(studentId: number): Promise<Mis_Charge_Record[]> {
     try {
       return (
         this.db
@@ -125,6 +125,7 @@ class MisChargeService {
             item_name: mis_items.name
           })
           .from(mis_charges)
+          .where(eq(mis_charges.student_id, studentId))
           .innerJoin(mis_items, eq(mis_charges.item_id, mis_items.id))
           .all() || []
       )
