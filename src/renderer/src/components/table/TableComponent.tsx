@@ -132,9 +132,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
                     })
                   )}
 
-                  <TableCell>
-                    <EditButton />
-                  </TableCell>
+
                 </TableRow>
               ))
             ) : (
