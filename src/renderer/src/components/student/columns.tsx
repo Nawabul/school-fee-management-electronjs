@@ -4,7 +4,7 @@ import FilterClass from '../table/FilterClass'
 import { Student_Record } from '@renderer/types/ts/student'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
-import { Pen, Trash2 } from 'lucide-react'
+import { Dropdown, DropdownItem } from 'flowbite-react'
 
 export const studentColumns = (
   item: Record<string, (id: number) => void>
@@ -97,10 +97,16 @@ export const studentColumns = (
     header: 'Actions',
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="flex gap-2 ">
-        <Pen onClick={(): void => item.update(row.original.id)} />
-        <Trash2 onClick={(): void => item.delete(row.original.id)} />
-      </div>
+      <Dropdown
+        label={<span className="font-bold text-primary-500">Edit</span>}
+        inline
+        arrowIcon={false}
+      >
+        <DropdownItem>Pay Mis. Fees</DropdownItem>
+        <DropdownItem>Edit</DropdownItem>
+        <DropdownItem>Delete</DropdownItem>
+        <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
+      </Dropdown>
     )
   }
 ]
