@@ -3,7 +3,7 @@ import { Student_Get, Student_Record, Student_Write } from '../../types/interfac
 import db from '../db/db'
 import Database from 'better-sqlite3'
 
-import { eq, inArray } from 'drizzle-orm'
+import { eq, inArray, sql } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
 import { classes } from '../db/schema/class'
@@ -172,36 +172,28 @@ class StudentService {
       }
     }
   }
-
-  async incrementBalance(studentId: number, amount: number): Promise<boolean> {
-    const student = await this.get(studentId)
-
-    if (!student) return false
-
-    const newBalance = student.current_balance + amount
-
-    const update = this.db
-      .update(students)
-      .set({ current_balance: newBalance })
+  //@ts-ignore there will be any table with this name
+  incrementBalance(
+    tx: BetterSQLite3Database<Record<string, never>>,
+    studentId: number,
+    amount: number
+  ): void {
+    tx.update(students)
+      .set({ current_balance: sql`${students.current_balance} + ${amount}` })
       .where(eq(students.id, studentId))
       .run()
-
-    return update.changes > 0
   }
-  async decrementBalance(studentId: number, amount: number): Promise<boolean> {
-    const student = await this.get(studentId)
 
-    if (!student) return false
-
-    const newBalance = student.current_balance - amount
-
-    const update = this.db
-      .update(students)
-      .set({ current_balance: newBalance })
+  //@ts-ignore there will be any table with this name
+  decrementBalance(
+    tx: BetterSQLite3Database<Record<string, never>>,
+    studentId: number,
+    amount: number
+  ): void {
+    tx.update(students)
+      .set({ current_balance: sql`${students.current_balance} - ${amount}` })
       .where(eq(students.id, studentId))
       .run()
-
-    return update.changes > 0
   }
 }
 
