@@ -101,7 +101,7 @@ class PaymentService {
   /**
    * Get all payment records.
    */
-  async list(): Promise<Payment_Record[]> {
+  async list(studentId: number): Promise<Payment_Record[]> {
     try {
       const results = this.db
         .select({
@@ -111,8 +111,9 @@ class PaymentService {
           remark: payments.remark
         })
         .from(payments)
+        .where(eq(payments.student_id, studentId))
         .all()
-
+        console.log('PaymentService.list', results)
       return results || []
     } catch (error: unknown) {
       if (error instanceof Error) {

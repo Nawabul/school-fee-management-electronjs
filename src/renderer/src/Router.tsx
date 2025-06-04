@@ -6,6 +6,9 @@ import ClassInsert from './pages/class/ClassInsert'
 import ClassRecord from './pages/class/ClassRecord'
 import ClassUpdate from './pages/class/ClassUpdate'
 import StudentUpdate from './pages/student/StudentUpdate'
+import PaymentRecord from './pages/payment/PaymentRecord'
+import PaymentUpdate from './pages/payment/PaymentUpdate'
+import PaymentInsert from './pages/payment/PaymentInsert'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -32,6 +35,24 @@ const Router = (): React.ReactElement => (
               {
                 path: 'update/:id',
                 element: <StudentUpdate />
+              }
+            ]
+          },
+          // payment
+          {
+            path: 'payment',
+            children: [
+              {
+                path: ':id',
+                element: <PaymentRecord />
+              },
+              {
+                path: 'insert/:id',
+                element: <PaymentInsert />
+              },
+              {
+                path: 'update/:id',
+                element: <PaymentUpdate />
               }
             ]
           },

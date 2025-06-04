@@ -57,9 +57,12 @@ class PaymentController {
   }
 
   //@ts-ignore event not used
-  async list(): Promise<successResponse<Payment_Record[]> | errorResponse> {
+  async list(
+    _event: IpcMainInvokeEvent,
+    studentId: number
+  ): Promise<successResponse<Payment_Record[]> | errorResponse> {
     try {
-      const result = await PaymentService.list()
+      const result = await PaymentService.list(studentId)
       return apiSuccess(result, 'Payments fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
