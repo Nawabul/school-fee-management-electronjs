@@ -5,7 +5,11 @@ import { successResponse, errorResponse } from '../types/utils/apiReturn'
 import { Student_Get, Student_Record, Student_Write } from '../types/interfaces/student'
 import { Payment_Read, Payment_Record, Payment_Write } from '../types/interfaces/payment'
 import { Mis_Item_Read, Mis_Item_Record, Mis_Item_Write } from '../types/interfaces/mis_item'
-import { Mis_Charge_Read, Mis_Charge_Record, Mis_Charge_Write } from '../types/interfaces/mis_charge'
+import {
+  Mis_Charge_Read,
+  Mis_Charge_Record,
+  Mis_Charge_Write
+} from '../types/interfaces/mis_charge'
 // Custom APIs for renderer
 const api = {}
 
@@ -59,8 +63,8 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('student:payment:update', id, data),
       delete: async (id: number | number[]): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('student:payment:delete', id),
-      list: async (): Promise<successResponse<Payment_Record[]> | errorResponse> =>
-        ipcRenderer.invoke('student:payment:list'),
+      list: async (studentId: number): Promise<successResponse<Payment_Record[]> | errorResponse> =>
+        ipcRenderer.invoke('student:payment:list', studentId),
       fetch: async (id: number): Promise<successResponse<Payment_Read> | errorResponse> =>
         ipcRenderer.invoke('student:payment:fetch', id)
     })
@@ -93,8 +97,10 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('student:mis:charge:update', id, data),
       delete: async (id: number | number[]): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('student:mis:charge:delete', id),
-      list: async (): Promise<successResponse<Mis_Charge_Record[]> | errorResponse> =>
-        ipcRenderer.invoke('student:mis:charge:list'),
+      list: async (
+        studentId: number
+      ): Promise<successResponse<Mis_Charge_Record[]> | errorResponse> =>
+        ipcRenderer.invoke('student:mis:charge:list', studentId),
       fetch: async (id: number): Promise<successResponse<Mis_Charge_Read> | errorResponse> =>
         ipcRenderer.invoke('student:mis:charge:fetch', id)
     })

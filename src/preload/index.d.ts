@@ -29,7 +29,7 @@ declare global {
       create: (data: Payment_Write) => Promise<successResponse<number> | errorResponse>
       update: (id: number, data: Payment_Write) => Promise<successResponse<boolean> | errorResponse>
       delete: (id: number) => Promise<successResponse<boolean> | errorResponse>
-      list: () => Promise<successResponse<Payment_Record[]> | errorResponse>
+      list: (studentId: number) => Promise<successResponse<Payment_Record[]> | errorResponse>
       fetch: (id: number) => Promise<successResponse<Payment_Read> | errorResponse>
     }
 
@@ -46,7 +46,7 @@ declare global {
     }
 
     // mis charge
-    mis_item: {
+    mis_charge: {
       create: (data: Mis_Charge_Write) => Promise<successResponse<number> | errorResponse>
       update: (
         id: number,
