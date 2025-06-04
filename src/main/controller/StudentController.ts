@@ -70,7 +70,7 @@ class StudentController {
   async list(): Promise<successResponse<Student_Record[]> | errorResponse> {
     try {
       const result = await StudentService.list()
-      console.log('student list ', result)
+
       return apiSuccess(result, 'Student Fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
