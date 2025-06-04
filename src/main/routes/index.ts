@@ -25,6 +25,7 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:payment:list', PaymentController.list)
   ipcMain.handle('student:payment:fetch', PaymentController.fetch)
   ipcMain.handle('student:payment:update', PaymentController.update)
+  ipcMain.handle('student:payment:delete', PaymentController.delete)
 
   // mis items
 
@@ -39,4 +40,5 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:mis:charge:list', MisChargeController.list)
   ipcMain.handle('student:mis:charge:fetch', MisChargeController.fetch)
   ipcMain.handle('student:mis:charge:update', MisChargeController.update)
+  ipcMain.handle('student:mis:charge:delete', MisChargeController.delete)
 }
