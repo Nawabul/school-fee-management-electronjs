@@ -16,21 +16,19 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 
-import { Class_Record } from '@renderer/types/ts/class'
-
-interface props {
-  data: Class_Record[]
-  columns: ColumnDef<Class_Record>[]
+interface props<T> {
+  data: T[]
+  columns: ColumnDef<T>[]
   isLoading?: boolean
   id?: number
 }
 
-export function SimpleTableComponent({
+export function SimpleTableComponent<T>({
   data,
   columns,
   isLoading = false,
   id = 0
-}: props): JSX.Element {
+}: props<T>): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
 
   const table = useReactTable({
