@@ -172,6 +172,37 @@ class StudentService {
       }
     }
   }
+
+  async incrementBalance(studentId: number, amount: number): Promise<boolean> {
+    const student = await this.get(studentId)
+
+    if (!student) return false
+
+    const newBalance = student.current_balance + amount
+
+    const update = this.db
+      .update(students)
+      .set({ current_balance: newBalance })
+      .where(eq(students.id, studentId))
+      .run()
+
+    return update.changes > 0
+  }
+  async decrementBalance(studentId: number, amount: number): Promise<boolean> {
+    const student = await this.get(studentId)
+
+    if (!student) return false
+
+    const newBalance = student.current_balance - amount
+
+    const update = this.db
+      .update(students)
+      .set({ current_balance: newBalance })
+      .where(eq(students.id, studentId))
+      .run()
+
+    return update.changes > 0
+  }
 }
 
 export default new StudentService()
