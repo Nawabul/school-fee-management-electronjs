@@ -10,7 +10,8 @@ export const Payment_Schema = z.object({
     .string({
       required_error: 'Payment remark for this payment'
     })
-    .optional(),
+    .optional()
+    .nullable(),
   amount: z.coerce
     .number({
       required_error: 'Amount is required',
