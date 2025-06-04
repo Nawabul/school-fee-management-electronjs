@@ -2,7 +2,7 @@ import { Sidebar as Side, SidebarItem, SidebarItemGroup, SidebarItems } from 'fl
 import { useEffect, useState } from 'react'
 import { HiChartPie } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
-import { User } from 'lucide-react'
+import { BanknoteArrowDown, Presentation, User } from 'lucide-react'
 
 const Sidebar = (): React.JSX.Element => {
   const [height, setHeight] = useState(window.innerHeight - 15)
@@ -25,13 +25,17 @@ const Sidebar = (): React.JSX.Element => {
           <SidebarItem as={Link} href="#" icon={HiChartPie}>
             Dashboard
           </SidebarItem>
-          {/* @ts-ignore */}
-          <SidebarItem as={Link} to="class" icon={HiChartPie}>
+          {/* @ts-ignore it applicable */}
+          <SidebarItem as={Link} to="/class" icon={Presentation}>
             Class
           </SidebarItem>
-          {/* @ts-ignore */}
-          <SidebarItem as={Link} to="student" icon={User}>
+          {/* @ts-ignore it applicable */}
+          <SidebarItem as={Link} to="/student" icon={User}>
             Student
+          </SidebarItem>
+          {/* @ts-ignore it applicable */}
+          <SidebarItem as={Link} to="/mis_item" icon={BanknoteArrowDown}>
+            Miscellaneous Item
           </SidebarItem>
         </SidebarItemGroup>
       </SidebarItems>
