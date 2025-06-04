@@ -9,6 +9,9 @@ import StudentUpdate from './pages/student/StudentUpdate'
 import PaymentRecord from './pages/payment/PaymentRecord'
 import PaymentUpdate from './pages/payment/PaymentUpdate'
 import PaymentInsert from './pages/payment/PaymentInsert'
+import MisItemRecord from './pages/mis_item/MisItemRecord'
+import MisItemInsert from './pages/mis_item/MisItemInsert'
+import MisItemUpdate from './pages/mis_item/MisItemUpdate'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -71,6 +74,24 @@ const Router = (): React.ReactElement => (
               {
                 path: 'update/:id',
                 element: <ClassUpdate />
+              }
+            ]
+          },
+          // mis items
+          {
+            path: 'mis_item',
+            children: [
+              {
+                path: '',
+                element: <MisItemRecord />
+              },
+              {
+                path: 'insert',
+                element: <MisItemInsert />
+              },
+              {
+                path: 'update/:id',
+                element: <MisItemUpdate />
               }
             ]
           }

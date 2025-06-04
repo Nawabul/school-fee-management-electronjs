@@ -5,8 +5,6 @@ import { Outlet } from 'react-router-dom'
 const Authlayer = (): React.ReactElement => {
   const [height, setHeight] = useState(window.innerHeight)
 
-
-
   useEffect(() => {
     const handleResize = (): void => setHeight(window.innerHeight)
     window.addEventListener('resize', handleResize)
