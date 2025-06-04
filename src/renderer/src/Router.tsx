@@ -12,6 +12,9 @@ import PaymentInsert from './pages/payment/PaymentInsert'
 import MisItemRecord from './pages/mis_item/MisItemRecord'
 import MisItemInsert from './pages/mis_item/MisItemInsert'
 import MisItemUpdate from './pages/mis_item/MisItemUpdate'
+import MisChargeRecord from './pages/mis_charge/MisChargeRecord'
+import MisChargeInsert from './pages/mis_charge/MisChargeInsert'
+import MisChargeUpdate from './pages/mis_charge/MisChargeUpdate'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -56,6 +59,24 @@ const Router = (): React.ReactElement => (
               {
                 path: 'update/:id',
                 element: <PaymentUpdate />
+              }
+            ]
+          },
+          // mis charge
+          {
+            path: 'mis_charge',
+            children: [
+              {
+                path: ':id',
+                element: <MisChargeRecord />
+              },
+              {
+                path: 'insert/:id',
+                element: <MisChargeInsert />
+              },
+              {
+                path: 'update/:id',
+                element: <MisChargeUpdate />
               }
             ]
           },

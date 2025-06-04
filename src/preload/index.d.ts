@@ -53,7 +53,7 @@ declare global {
         data: Mis_Charge_Write
       ) => Promise<successResponse<boolean> | errorResponse>
       delete: (id: number) => Promise<successResponse<boolean> | errorResponse>
-      list: () => Promise<successResponse<Mis_Charge_Record[]> | errorResponse>
+      list: (studentId: number) => Promise<successResponse<Mis_Charge_Record[]> | errorResponse>
       fetch: (id: number) => Promise<successResponse<Mis_Charge_Read> | errorResponse>
     }
   }

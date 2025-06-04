@@ -2,8 +2,12 @@ import { successResponse } from '../../../types/utils/apiReturn'
 import { Mis_Charge_Record, Mis_Charge_Read } from '../../../types/interfaces/mis_charge'
 
 class MisChargeController {
-  async create(data): Promise<number> {
-    const result = await window.mis_charge.create(data)
+  async create(studentId: number, data): Promise<number> {
+    const body = {
+      student_id: studentId,
+      ...data
+    }
+    const result = await window.mis_charge.create(body)
     if (result.status) {
       return (result as successResponse<number>).data
     }
@@ -18,13 +22,14 @@ class MisChargeController {
   }
   async delete(id: number): Promise<boolean> {
     const result = await window.mis_charge.delete(id)
+    console.log(result)
     if (result.status) {
       return (result as successResponse<boolean>).data
     }
     throw result.message
   }
-  async list(): Promise<Mis_Charge_Record[]> {
-    const result = await window.mis_charge.list()
+  async list(studentId: number): Promise<Mis_Charge_Record[]> {
+    const result = await window.mis_charge.list(studentId)
     if (result.status) {
       return (result as successResponse<Mis_Charge_Record[]>).data
     }

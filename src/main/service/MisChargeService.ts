@@ -63,7 +63,7 @@ class MisChargeService {
         const amountDiff = newData.amount - old.amount
 
         if (amountDiff !== 0) {
-          StudentService.incrementBalance(tx, old.student_id, amountDiff)
+          StudentService.decrementBalance(tx, old.student_id, amountDiff)
         }
 
         return result.changes > 0

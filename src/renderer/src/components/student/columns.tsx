@@ -106,6 +106,7 @@ export const studentColumns = (
         <DropdownItem>Edit</DropdownItem>
         <DropdownItem>Delete</DropdownItem>
         <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
+        <DropdownItem onClick={() => item.mis_charge(row.original.id)}>Mis. Charges</DropdownItem>
       </Dropdown>
     )
   }
