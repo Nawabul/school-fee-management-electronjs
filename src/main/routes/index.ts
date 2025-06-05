@@ -5,6 +5,7 @@ import PaymentController from '../controller/PaymentController'
 import MIsItemController from '../controller/MIsItemController'
 import MisChargeController from '../controller/MisChargeController'
 import MonthlyFeeController from '../controller/MonthlyFeeController'
+import VersionController from '../controller/VersionController'
 
 export default async function routes(): Promise<void> {
   // class
@@ -45,4 +46,8 @@ export default async function routes(): Promise<void> {
 
   // monthly fee
   ipcMain.handle('student:monthly:fee:list', MonthlyFeeController.list)
+
+  // init sertup
+  // database
+  ipcMain.handle('init:database', VersionController.dbHandler)
 }

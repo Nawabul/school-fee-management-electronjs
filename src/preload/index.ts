@@ -113,6 +113,12 @@ if (process.contextIsolated) {
       ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> =>
         ipcRenderer.invoke('student:monthly:fee:list', studentId)
     })
+
+    // init
+    contextBridge.exposeInMainWorld('init', {
+      database: async (): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('init:database')
+    })
   } catch (error) {
     console.error(error)
   }

@@ -8,28 +8,28 @@ class PaymentController {
       ...data
     }
     const result = await window.payment.create(body)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<number>).data
     }
     throw result.message
   }
   async update(id: number, data): Promise<boolean> {
     const result = await window.payment.update(id, data)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<boolean>).data
     }
     throw result.message
   }
   async delete(id: number): Promise<boolean> {
     const result = await window.payment.delete(id)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<boolean>).data
     }
     throw result.message
   }
   async list(studentId: number): Promise<Payment_Record[]> {
     const result = await window.payment.list(studentId)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<Payment_Record[]>).data
     }
     throw result.message
@@ -37,7 +37,7 @@ class PaymentController {
   async fetch(id: number): Promise<Payment_Read> {
     const result = await window.payment.fetch(id)
 
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<Payment_Read>).data
     }
     throw result.message

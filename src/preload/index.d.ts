@@ -62,5 +62,9 @@ declare global {
     monthly_fee: {
       list: (studentId: number) => Promise<successResponse<Monthly_Fee_Record[]> | errorResponse>
     }
+
+    init: {
+      database: () => Promise<successResponse<boolean> | errorResponse>
+    }
   }
 }

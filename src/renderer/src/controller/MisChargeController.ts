@@ -8,14 +8,14 @@ class MisChargeController {
       ...data
     }
     const result = await window.mis_charge.create(body)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<number>).data
     }
     throw result.message
   }
   async update(id: number, data): Promise<boolean> {
     const result = await window.mis_charge.update(id, data)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<boolean>).data
     }
     throw result.message
@@ -23,14 +23,14 @@ class MisChargeController {
   async delete(id: number): Promise<boolean> {
     const result = await window.mis_charge.delete(id)
 
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<boolean>).data
     }
     throw result.message
   }
   async list(studentId: number): Promise<Mis_Charge_Record[]> {
     const result = await window.mis_charge.list(studentId)
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<Mis_Charge_Record[]>).data
     }
     throw result.message
@@ -38,7 +38,7 @@ class MisChargeController {
   async fetch(id: number): Promise<Mis_Charge_Read> {
     const result = await window.mis_charge.fetch(id)
 
-    if (result.status) {
+    if (result.success) {
       return (result as successResponse<Mis_Charge_Read>).data
     }
     throw result.message
