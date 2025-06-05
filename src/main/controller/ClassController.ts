@@ -57,7 +57,7 @@ class ClassController {
   async list(): Promise<successResponse<ClassTS[]> | errorResponse> {
     try {
       const result = await ClassService.list()
-      console.log('class list', result)
+
       return apiSuccess(result, 'Class Fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -73,7 +73,7 @@ class ClassController {
   ): Promise<successResponse<ClassTS> | errorResponse> {
     try {
       const result = await ClassService.list(id)
-      console.log('class fetch', result)
+
       if (result.length === 0) {
         return apiError('Class not found')
       }

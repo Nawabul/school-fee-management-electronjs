@@ -2,7 +2,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { students } from './student'
 import { classes } from './class'
 
-export const payments = sqliteTable('payments', {
+export const monthly_fee = sqliteTable('monthly_fee', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   date: text('date').notNull(), // store ISO date string
   amount: integer('amount').notNull().default(0),

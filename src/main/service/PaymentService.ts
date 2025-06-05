@@ -98,6 +98,7 @@ class PaymentService {
     }
   }
 
+
   /**
    * Get all payment records.
    */
@@ -113,7 +114,7 @@ class PaymentService {
         .from(payments)
         .where(eq(payments.student_id, studentId))
         .all()
-        console.log('PaymentService.list', results)
+
       return results || []
     } catch (error: unknown) {
       if (error instanceof Error) {

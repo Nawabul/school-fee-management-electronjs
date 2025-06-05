@@ -20,7 +20,7 @@ const ClassInsert = (): React.JSX.Element => {
   })
 
   const handleFormSubmit = (data: any): void => {
-    console.log('Form Data Submitted:', data)
+
     // Post to backend or handle in state
     classMutation.mutate(data)
   }

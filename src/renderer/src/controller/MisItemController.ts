@@ -4,7 +4,7 @@ import { Mis_Item_Record, Mis_Item_Read } from '../../../types/interfaces/mis_it
 class MisItemController {
   async create(data): Promise<number> {
     const result = await window.mis_item.create(data)
-    console.log(result)
+
     if (result.status) {
       return (result as successResponse<number>).data
     }

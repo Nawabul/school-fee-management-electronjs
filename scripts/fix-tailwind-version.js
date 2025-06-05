@@ -10,7 +10,7 @@ try {
   const content = `export default { version: "${version}" };`;
 
   fs.writeFileSync(filePath, content);
-  console.log("✅ Patched tailwindcss/lib/version.js");
+
 } catch (err) {
-  console.error("❌ Failed to patch tailwindcss version.js:", err);
+
 }

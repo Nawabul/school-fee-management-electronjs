@@ -15,6 +15,7 @@ import MisItemUpdate from './pages/mis_item/MisItemUpdate'
 import MisChargeRecord from './pages/mis_charge/MisChargeRecord'
 import MisChargeInsert from './pages/mis_charge/MisChargeInsert'
 import MisChargeUpdate from './pages/mis_charge/MisChargeUpdate'
+import MonthlyFeeRecord from './pages/monthly_fee/MonthlyFeeRecord'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -77,6 +78,16 @@ const Router = (): React.ReactElement => (
               {
                 path: 'update/:id',
                 element: <MisChargeUpdate />
+              }
+            ]
+          },
+          // montly fee
+          {
+            path: 'monthly_fee',
+            children: [
+              {
+                path: ':id',
+                element: <MonthlyFeeRecord />
               }
             ]
           },

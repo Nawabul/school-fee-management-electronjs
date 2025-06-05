@@ -18,7 +18,6 @@ import {
   getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import EditButton from './EditButton'
 import MultiSelectDropdown from './MultiSelect'
 import { Student_Record } from '@renderer/types/ts/student'
 interface props {
@@ -51,7 +50,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
 
   return (
     <>
-      <div className="flex ml-auto gap-3 pb-2 justify-between">
+      <div className="flex ml-auto gap-3 pb-2 justify-between h-full">
         <div className="flex gap-3">
           <TextInput
             placeholder="Filter here..."
@@ -100,7 +99,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           />
         </div>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto min-h-full">
         <Table hoverable>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (

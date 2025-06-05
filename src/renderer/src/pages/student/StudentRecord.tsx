@@ -42,7 +42,11 @@ const StudentRecord = (): JSX.Element => {
     },
     mis_charge: (id: number): void => {
       navigate(`/mis_charge/${id}`)
-    }
+    },
+    monthly_fee: (id: number): void => {
+      navigate(`/monthly_fee/${id}`)
+    },
+
   }
 
   return (
@@ -61,7 +65,7 @@ const StudentRecord = (): JSX.Element => {
           </Link>
         </div>
       </div>
-      <div className="md:p-5 ">
+      <div className="md:p-5 min-h-full ">
         <TableComponent
           columns={studentColumns(item)}
           data={data}

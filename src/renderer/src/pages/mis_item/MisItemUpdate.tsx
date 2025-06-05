@@ -12,8 +12,8 @@ const MisItemUpdate = (): React.JSX.Element => {
   const navigate = useNavigate()
   const classMutation = useMutation({
     mutationFn: (data) => MisItemController.update(Number(id), data),
-    onSuccess: (data) => {
-      console.log('Class created successfully:', data)
+    onSuccess: () => {
+
       // Optionally reset form or show success message
       navigate('/mis_item')
     },
@@ -22,9 +22,9 @@ const MisItemUpdate = (): React.JSX.Element => {
       // Optionally show error message
     }
   })
-  console.log('Class ID:', id)
+
   const handleFormSubmit = (data): void => {
-    console.log('Form Data Submitted:', data)
+
     // Post to backend or handle in state
     classMutation.mutate(data)
   }

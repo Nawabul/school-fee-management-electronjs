@@ -78,7 +78,7 @@ export function SimpleTableComponent<T>({
                   ) : (
                     row.getVisibleCells().map((cell) => {
                       // Render each cell in the row
-                      console.log('Cell Data:', cell.getContext().row.original)
+
                       return (
                         <TableCell key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}

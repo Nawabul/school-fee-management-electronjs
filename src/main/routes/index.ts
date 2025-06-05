@@ -4,6 +4,7 @@ import StudentController from '../controller/StudentController'
 import PaymentController from '../controller/PaymentController'
 import MIsItemController from '../controller/MIsItemController'
 import MisChargeController from '../controller/MisChargeController'
+import MonthlyFeeController from '../controller/MonthlyFeeController'
 
 export default async function routes(): Promise<void> {
   // class
@@ -41,4 +42,7 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:mis:charge:fetch', MisChargeController.fetch)
   ipcMain.handle('student:mis:charge:update', MisChargeController.update)
   ipcMain.handle('student:mis:charge:delete', MisChargeController.delete)
+
+  // monthly fee
+  ipcMain.handle('student:monthly:fee:list', MonthlyFeeController.list)
 }

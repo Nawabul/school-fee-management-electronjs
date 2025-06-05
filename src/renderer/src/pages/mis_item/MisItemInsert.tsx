@@ -20,8 +20,7 @@ const MisItemInsert = (): React.JSX.Element => {
   })
 
   const handleFormSubmit = (data): void => {
-    console.log('Form Data Submitted:', data)
-    // Post to backend or handle in state
+// Post to backend or handle in state
     classMutation.mutate(data)
   }
 

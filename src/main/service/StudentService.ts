@@ -2,11 +2,15 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-
-import { eq, inArray, sql } from 'drizzle-orm'
+import { format, set, subYears } from 'date-fns'
+import { eq, sql } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
 import { classes } from '../db/schema/class'
+import { payments } from '../db/schema/payment'
+import { mis_charges } from '../db/schema/mis_charge'
+import { monthly_fee } from '../db/schema/monthly_fee'
+import { DB_DATE_FORMAT } from '../utils/constant/date'
 
 type StudentUpdateInput = Partial<Student_Write> & {
   current_balance?: number
@@ -20,8 +24,23 @@ class StudentService {
   constructor() {
     this.db = db
   }
-  async create(data: Student_Write): Promise<number> {
+  async create(
+    tx: BetterSQLite3Database<Record<string, never>> | null = null,
+    data: Student_Write
+  ): Promise<{ id: number; last_date: string }> {
     try {
+      const dbInstance = tx || this.db
+      const today = new Date()
+      const month = today.getMonth() + 1 // getMonth() returns 0-11, so we add 1
+      let sub = 0
+      if (month < 4) {
+        sub = 1
+      }
+      const march30 = set(new Date(), { month: 3, date: 1 })
+      const lastDate = subYears(new Date(march30), sub)
+      const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
+
+
       const now = new Date().toISOString()
       type InsertRow = InferInsertModel<typeof students>
       const row: InsertRow = {
@@ -30,22 +49,26 @@ class StudentService {
         father_name: data.father_name,
         mobile: data.mobile,
         is_whatsapp: data.is_whatsapp ? 1 : 0,
-        admission_date: data.admission_date,
+        admission_date: format(new Date(data.admission_date), DB_DATE_FORMAT),
         address: data.address,
         class_id: data.class_id,
         initial_balance: data.initial_balance ?? 0,
         current_balance: data.initial_balance ?? 0,
-        last_fee_date: new Date(data.admission_date).toISOString(),
+        last_fee_date: fee_date,
         last_notification_date: now
       }
 
-      const result = this.db.insert(students).values(row).returning({ id: students.id }).get()
+      const result = dbInstance
+        .insert(students)
+        .values(row)
+        .returning({ id: students.id, last_date: students.last_fee_date })
+        .get()
 
       if (!result?.id) {
         throw new Error('Failed to create student, no ID returned')
       }
 
-      return result.id
+      return result
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error('Error while creating student: ' + error.message)
@@ -54,7 +77,11 @@ class StudentService {
       }
     }
   }
-  async update(id: number, data: StudentUpdateInput): Promise<boolean> {
+  async update(
+    tx: BetterSQLite3Database<Record<string, never>> | null = null,
+    id: number,
+    data: StudentUpdateInput
+  ): Promise<boolean> {
     try {
       const existing = await this.get(id)
 
@@ -75,8 +102,8 @@ class StudentService {
 
       // Remove undefined properties from dbData (optional but cleaner)
       Object.keys(dbData).forEach((key) => dbData[key] === undefined && delete dbData[key])
-
-      const result = this.db.update(students).set(dbData).where(eq(students.id, id)).run()
+      const dbInstance = tx || this.db
+      const result = dbInstance.update(students).set(dbData).where(eq(students.id, id)).run()
 
       return result.changes > 0
     } catch (error: unknown) {
@@ -88,13 +115,29 @@ class StudentService {
     }
   }
 
-  async delete(id: number | number[]): Promise<boolean> {
+  async delete(studentId: number): Promise<boolean> {
     try {
-      const ids = Array.isArray(id) ? id : [id]
+      // check if student exists
+      const existing = await this.get(studentId)
+      if (!existing) {
+        throw new Error('Student not found')
+      }
+      let deleted = false
+      this.db.transaction(async (tx) => {
+        // delete all payment for this student
+        tx.delete(payments).where(eq(payments.student_id, studentId)).run()
 
-      const result = this.db.delete(students).where(inArray(students.id, ids)).run()
+        // all mis. charges for this student
+        tx.delete(mis_charges).where(eq(mis_charges.student_id, studentId)).run()
 
-      return result.changes > 0
+        // delete all months for this student
+        tx.delete(monthly_fee).where(eq(monthly_fee.student_id, studentId)).run()
+        // delete student
+        tx.delete(students).where(eq(students.id, studentId)).run()
+        deleted = true
+      })
+
+      return deleted
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error('Error while deleting student(s): ' + error.message)

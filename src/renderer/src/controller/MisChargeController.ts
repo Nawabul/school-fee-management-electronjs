@@ -22,7 +22,7 @@ class MisChargeController {
   }
   async delete(id: number): Promise<boolean> {
     const result = await window.mis_charge.delete(id)
-    console.log(result)
+
     if (result.status) {
       return (result as successResponse<boolean>).data
     }

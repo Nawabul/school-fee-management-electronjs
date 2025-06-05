@@ -10,6 +10,7 @@ import {
   Mis_Charge_Record,
   Mis_Charge_Write
 } from '../types/interfaces/mis_charge'
+import { Monthly_Fee_Record } from '../types/interfaces/monthly_fee'
 // Custom APIs for renderer
 const api = {}
 
@@ -103,6 +104,14 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('student:mis:charge:list', studentId),
       fetch: async (id: number): Promise<successResponse<Mis_Charge_Read> | errorResponse> =>
         ipcRenderer.invoke('student:mis:charge:fetch', id)
+    })
+
+    // monthly fee
+    contextBridge.exposeInMainWorld('monthly_fee', {
+      list: async (
+        studentId: number
+      ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> =>
+        ipcRenderer.invoke('student:monthly:fee:list', studentId)
     })
   } catch (error) {
     console.error(error)

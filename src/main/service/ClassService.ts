@@ -71,7 +71,7 @@ class ClassService {
         })
         .from(classes)
       if (id) {
-        console.log('Fetching classes with IDs:', id)
+
         return result.where(inArray(classes.id, Array.isArray(id) ? id : [id])) || []
       }
       return result.all() || []

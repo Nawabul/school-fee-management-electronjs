@@ -2,17 +2,35 @@ import { Student_Get, Student_Record, Student_Write } from '../../types/interfac
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
+import MonthlyFeeController from './MonthlyFeeController'
 class StudentController {
   async create(
     _event: IpcMainInvokeEvent,
     data: Student_Write
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      const result: number = await StudentService.create(data)
-      console.log('student insert result', result)
-      return apiSuccess(result, 'Student created successfully')
+      let id: number = 0
+
+      const result = await StudentService.create(null, data)
+
+      id = result.id
+      const last_date = result.last_date
+
+      const req = {
+        student_id: id,
+        class_id: data.class_id,
+        from: last_date,
+        to: new Date().toISOString()
+      }
+      // add fee
+      const fee = await MonthlyFeeController.create(req, null)
+      //@ts-ignore data variable
+      if (!fee.success || !fee?.data) {
+        throw new Error('Error while creating monthly fee')
+      }
+
+      return apiSuccess(id, 'Student created successfully')
     } catch (error: unknown) {
-      console.log('student insert error ', error )
       if (error instanceof Error) {
         return apiError('Error while creating student: ' + error.message)
       }
@@ -31,7 +49,7 @@ class StudentController {
         return apiError('Student not found')
       }
 
-      const result: boolean = await StudentService.update(id, data)
+      const result: boolean = await StudentService.update(null, id, data)
       if (!result) {
         return apiError('Student not found or no changes made')
       }
@@ -61,7 +79,7 @@ class StudentController {
       return apiSuccess(result, 'Student deleted successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return apiError('Error while deleting student: ' + error.message)
+        return apiError('Error while deleting student: ', error.message)
       }
       return apiError('Error while deleting student')
     }
