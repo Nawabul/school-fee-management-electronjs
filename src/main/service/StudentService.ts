@@ -149,18 +149,20 @@ class StudentService {
         throw new Error('Student not found')
       }
       let deleted = false
-      this.db.transaction(async (tx) => {
-        // delete all payment for this student
-        tx.delete(payments).where(eq(payments.student_id, studentId)).run()
+      this.db.transaction((tx) => {
+        ;(async () => {
+          // delete all payment for this student
+          tx.delete(payments).where(eq(payments.student_id, studentId)).run()
 
-        // all mis. charges for this student
-        tx.delete(mis_charges).where(eq(mis_charges.student_id, studentId)).run()
+          // all mis. charges for this student
+          tx.delete(mis_charges).where(eq(mis_charges.student_id, studentId)).run()
 
-        // delete all months for this student
-        tx.delete(monthly_fee).where(eq(monthly_fee.student_id, studentId)).run()
-        // delete student
-        tx.delete(students).where(eq(students.id, studentId)).run()
-        deleted = true
+          // delete all months for this student
+          tx.delete(monthly_fee).where(eq(monthly_fee.student_id, studentId)).run()
+          // delete student
+          tx.delete(students).where(eq(students.id, studentId)).run()
+          deleted = true
+        })()
       })
 
       return deleted
@@ -192,6 +194,7 @@ class StudentService {
         })
         .from(students)
         .innerJoin(classes, eq(students.class_id, classes.id))
+        .orderBy(classes.name, students.student_name, students.father_name)
 
       return query.all() || []
     } catch (error: unknown) {
