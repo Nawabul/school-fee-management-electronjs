@@ -79,7 +79,7 @@ class StudentController {
       return apiSuccess(result, 'Student deleted successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return apiError('Error while deleting student: ', error.message)
+        return apiError('Error while deleting student: ', error)
       }
       return apiError('Error while deleting student')
     }
