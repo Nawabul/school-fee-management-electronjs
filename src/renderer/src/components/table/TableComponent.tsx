@@ -99,7 +99,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           />
         </div>
       </div>
-      <div className="overflow-x-auto min-h-full">
+      <div className="overflow-x-auto min-h-dvh">
         <Table hoverable>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
@@ -111,11 +111,10 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
                       : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHeadCell>
                 ))}
-                <TableHeadCell></TableHeadCell>
               </TableRow>
             ))}
           </TableHead>
-          <TableBody className="divide-y">
+          <TableBody className="divide-y w-[100vw]">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
@@ -130,8 +129,6 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
                       )
                     })
                   )}
-
-
                 </TableRow>
               ))
             ) : (

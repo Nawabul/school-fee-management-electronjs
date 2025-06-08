@@ -18,15 +18,22 @@ const Authlayer = (): React.ReactElement => {
 
   // setip
   useEffect(function init() {
-    // databse handler
-    InitController.database().then((db) => {
-      console.log(db)
+    ;(async () => {
+      // databse handler
+      const db = await InitController.database()
       if (!db) {
-        setCompleted({ status: false, message: 'Database is not connected' })
-      } else {
-        setCompleted({ status: true, message: 'Completed' })
+        setCompleted({ status: false, message: 'Database connection failed' })
       }
-    })
+
+      // monthly fee
+      const monthlyFee = await InitController.monthly_fee()
+      if (!monthlyFee) {
+        setCompleted({ status: false, message: 'Monthly fee Calculation failed' })
+      }
+
+      // success
+      setCompleted({ status: true, message: 'Initialization completed' })
+    })()
   }, [])
 
   return (

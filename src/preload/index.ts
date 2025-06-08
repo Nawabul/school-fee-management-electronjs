@@ -117,7 +117,9 @@ if (process.contextIsolated) {
     // init
     contextBridge.exposeInMainWorld('init', {
       database: async (): Promise<successResponse<boolean> | errorResponse> =>
-        ipcRenderer.invoke('init:database')
+        ipcRenderer.invoke('init:database'),
+      monthly_fee: async (): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('init:student:monthly:fee')
     })
   } catch (error) {
     console.error(error)

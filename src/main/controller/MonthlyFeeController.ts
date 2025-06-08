@@ -52,6 +52,7 @@ class MonthlyFeeController {
         date: string
       }
       const row: row[] = []
+
       for (let i = 0; i < MonthCount; i++) {
         row[i] = {
           student_id: data.student_id,
@@ -62,15 +63,14 @@ class MonthlyFeeController {
       }
 
       const total = fee * MonthCount
-      console.log('monthd', row)
       if (row.length < 1) {
-        return apiError('No Need to add')
+        return apiSuccess(false, 'No Need to add')
       }
       let done = false
       if (tx) {
         // insert monthly fees
         // @ts-ignore client is missing but passing tx refrenece
-        const feeResponse = this.monthlyFeeService.create(tx, row)
+        const feeResponse = MonthlyFeeService.create(tx, row)
         if (!feeResponse) {
           throw new Error('Failed to create monthly fee')
         }
@@ -85,13 +85,18 @@ class MonthlyFeeController {
         db.transaction((tx: BetterSQLite3Database<Record<string, never>>) => {
           // insert monthly fees
           // @ts-ignore pasing db ref
-          const feeResponse = this.monthlyFeeService.create(tx, row)
+          const feeResponse = MonthlyFeeService.create(tx, row)
           if (!feeResponse) {
             throw new Error('Failed to create monthly fee')
           }
           console.log('month tx done')
           // decrement student balance
           this.studentService.decrementBalance(tx, data.student_id, total)
+
+          const lastFee = this.studentService.last_fee_date_update(data.student_id, data.to)
+          if (!lastFee) {
+            throw new Error('Last fee update error in monthly fee handler')
+          }
 
           done = true
         })
@@ -133,16 +138,15 @@ class MonthlyFeeController {
     let MonthCount = differenceInMonths(to, from)
     console.log(MonthCount)
     MonthCount = Number(MonthCount)
-    if (MonthCount <= 0) {
+    if (MonthCount < 0) {
       return 0
     }
 
-    if (MonthCount == 1) {
-      const days = Number(differenceInDays(to, from))
-      if (days < 28) {
-        return 0
-      } else {
-        MonthCount = 1
+    if (MonthCount == 0) {
+      const fromMonth = new Date(from)
+      const toMonth = new Date(to)
+      if (fromMonth.getMonth() < toMonth.getMonth()) {
+        return 1
       }
     }
 

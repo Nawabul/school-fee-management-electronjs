@@ -65,6 +65,7 @@ declare global {
 
     init: {
       database: () => Promise<successResponse<boolean> | errorResponse>
+      monthly_fee: () => Promise<successResponse<boolean> | errorResponse>
     }
   }
 }

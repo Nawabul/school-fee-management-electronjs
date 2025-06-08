@@ -16,6 +16,12 @@ type StudentUpdateInput = Partial<Student_Write> & {
   current_balance?: number
 }
 
+type ListLastFeeMonthAgo = {
+  student_id: number
+  last_fee_date: string
+  class_id: number
+}
+
 class StudentService {
   db: BetterSQLite3Database<Record<string, never>> & {
     $client: Database.Database
@@ -39,7 +45,6 @@ class StudentService {
       const march30 = set(new Date(), { month: 3, date: 1 })
       const lastDate = subYears(new Date(march30), sub)
       const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
-
 
       const now = new Date().toISOString()
       type InsertRow = InferInsertModel<typeof students>
@@ -115,6 +120,27 @@ class StudentService {
     }
   }
 
+  async last_fee_date_update(
+    studentId: number,
+    date: string,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<boolean> {
+    try {
+      const dbInstance = tx || this.db
+      const result = await dbInstance
+        .update(students)
+        .set({ last_fee_date: date })
+        .where(eq(students.id, studentId))
+        .run()
+      return result.changes > 0
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating last fee date: ' + error.message)
+      }
+      throw new Error('Error while updating last fee date: ')
+    }
+  }
+
   async delete(studentId: number): Promise<boolean> {
     try {
       // check if student exists
@@ -177,6 +203,33 @@ class StudentService {
     }
   }
 
+  // student list those monthly fee calculated more than 28 days
+  async list_last_fee_month_ago(): Promise<ListLastFeeMonthAgo[]> {
+    try {
+      const compareDate = format(new Date(), DB_DATE_FORMAT) // e.g., '2025-06-05'
+
+      const list = await this.db
+        .select({
+          student_id: students.id,
+          class_id: students.class_id,
+          last_fee_date: students.last_fee_date
+        })
+        .from(students)
+        .where(
+          sql`
+      ${students.transfer_date} IS NULL AND
+      strftime('%Y-%m', ${students.last_fee_date}) < strftime('%Y-%m', ${compareDate})
+    `
+        )
+
+      return list || []
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while fetching student last fee month ago: ' + error.message)
+      }
+      throw new Error('Error while fetching student last fee month ago: ')
+    }
+  }
   async get(id: number): Promise<Student_Get | null> {
     try {
       const query = this.db

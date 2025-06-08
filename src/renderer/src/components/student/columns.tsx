@@ -97,12 +97,7 @@ export const studentColumns = (
     header: 'Actions',
     enableHiding: false,
     cell: ({ row }) => (
-      <Dropdown
-        label={<span className="font-bold text-primary-500 z-20">Edit</span>}
-        inline
-        arrowIcon={false}
-      >
-        <DropdownItem>Pay Mis. Fees</DropdownItem>
+      <Dropdown label="Edit" arrowIcon={false} placement="bottom">
         <DropdownItem>Edit</DropdownItem>
         <DropdownItem>Delete</DropdownItem>
         <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
