@@ -19,6 +19,7 @@ class StudentController {
   }
   async delete(id: number): Promise<boolean> {
     const result = await window.student.delete(id)
+    console.log(result)
     if (result.success) {
       return (result as successResponse<boolean>).data
     }
