@@ -70,6 +70,7 @@ class ClassService {
           amount: classes.amount
         })
         .from(classes)
+        .orderBy(classes.name)
       if (id) {
 
         return result.where(inArray(classes.id, Array.isArray(id) ? id : [id])) || []

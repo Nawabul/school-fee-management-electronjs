@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { mis_charges } from '../db/schema/mis_charge'
 import {
   Mis_Charge_Write,
@@ -127,6 +127,7 @@ class MisChargeService {
           .from(mis_charges)
           .where(eq(mis_charges.student_id, studentId))
           .innerJoin(mis_items, eq(mis_charges.item_id, mis_items.id))
+          .orderBy(desc(mis_charges.date))
           .all() || []
       )
     } catch (error: unknown) {
