@@ -98,8 +98,8 @@ export const studentColumns = (
     enableHiding: false,
     cell: ({ row }) => (
       <Dropdown label="Edit" arrowIcon={false} placement="bottom">
-        <DropdownItem>Edit</DropdownItem>
-        <DropdownItem>Delete</DropdownItem>
+        <DropdownItem onClick={() => item.update(row.original.id)}>Edit</DropdownItem>
+        <DropdownItem onClick={() => item.delete(row.original.id)}>Delete</DropdownItem>
         <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
         <DropdownItem onClick={() => item.mis_charge(row.original.id)}>Mis. Charges</DropdownItem>
         <DropdownItem onClick={() => item.monthly_fee(row.original.id)}>Monthly Fee</DropdownItem>
