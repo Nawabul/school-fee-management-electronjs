@@ -10,8 +10,8 @@ const MisItemInsert = (): React.JSX.Element => {
   const classMutation = useMutation({
     mutationFn: MisItemController.create,
     onSuccess: (data) => {
-      console.log(data)
-      // navigate('/mis_item')
+
+      navigate('/mis_item')
       // Optionally reset form or show success message
     },
     onError: (error) => {
