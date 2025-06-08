@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { Payment_Read, Payment_Record, Payment_Write } from '../../types/interfaces/payment'
 import { payments } from '../db/schema/payment'
 import StudentService from './StudentService'
@@ -113,6 +113,7 @@ class PaymentService {
         })
         .from(payments)
         .where(eq(payments.student_id, studentId))
+        .orderBy(desc(payments.date))
         .all()
 
       return results || []

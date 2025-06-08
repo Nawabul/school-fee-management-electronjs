@@ -67,6 +67,7 @@ class MisItemService {
           amount: mis_items.amount
         })
         .from(mis_items)
+        .orderBy(mis_items.name)
 
       return query.all() || []
     } catch (error: unknown) {

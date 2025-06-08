@@ -2,7 +2,7 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import Database from 'better-sqlite3'
 import db from '../db/db'
 import { monthly_fee } from '../db/schema/monthly_fee'
-import { and, eq, gte, inArray, lte } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, lte } from 'drizzle-orm'
 import { Monthly_Fee_Record, Monthly_Fee_Write } from '../../types/interfaces/monthly_fee'
 import { students } from '../db/schema/student'
 import { classes } from '../db/schema/class'
@@ -66,7 +66,7 @@ class MonthlyFeeService {
         .innerJoin(classes, eq(monthly_fee.class_id, classes.id))
         .innerJoin(students, eq(monthly_fee.student_id, students.id))
         .where(eq(monthly_fee.student_id, studentId))
-        .orderBy(monthly_fee.date)
+        .orderBy(desc(monthly_fee.date))
         .all()
 
       return result
