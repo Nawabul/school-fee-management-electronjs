@@ -10,7 +10,7 @@ class InitController {
     try {
       // fetch list of students
       const students = await StudentService.list_last_fee_month_ago()
-      console.log('students', students)
+
       const today = format(new Date(), DB_DATE_FORMAT)
       // loop through students
       for (const student of students) {
@@ -21,9 +21,8 @@ class InitController {
           from: student.last_fee_date,
           to: today
         }
-        console.log('check 1')
+
         await MonthlyFeeController.create(input)
-        console.log('check 2')
       }
 
       return apiSuccess(true, 'Monthly records generated of all students')

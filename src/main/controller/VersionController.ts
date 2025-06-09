@@ -1,5 +1,4 @@
 import { apiError, apiSuccess, errorResponse, successResponse } from '../../types/utils/apiReturn'
-import { versions } from '../db/schema/version'
 
 import VersionService from '../service/VersionService'
 import { app } from 'electron'
@@ -21,7 +20,7 @@ class VersionController {
       }
 
       const dbVersion = await VersionService.lastDBVersion()
-      console.log('db', dbVersion)
+
       if (dbVersion == null) {
         // execute db schams
         const tableSetup = await VersionService.executeSchemasForLatest()
