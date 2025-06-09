@@ -69,8 +69,7 @@ class MonthlyFeeController {
           throw new Error('Failed to create monthly fee')
         }
 
-        console.log('month tx done')
-        console.log('month tx done')
+
         // decrement student balance
         this.studentService.decrementBalance(tx, data.student_id, total)
 
@@ -83,7 +82,7 @@ class MonthlyFeeController {
           if (!feeResponse) {
             throw new Error('Failed to create monthly fee')
           }
-          console.log('month tx done')
+
           // decrement student balance
           this.studentService.decrementBalance(tx, data.student_id, total)
 
@@ -111,9 +110,9 @@ class MonthlyFeeController {
     student_id: number
   ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> {
     try {
-      console.log('check 1')
+
       const result = await MonthlyFeeService.list(student_id)
-      console.log('check 2')
+
 
       return apiSuccess(result, 'Student Monthly Fee list')
     } catch (error) {
@@ -130,7 +129,7 @@ class MonthlyFeeController {
     const to = new Date(end)
 
     let MonthCount = differenceInMonths(to, from)
-    console.log(MonthCount)
+
     MonthCount = Number(MonthCount)
     if (MonthCount < 0) {
       return 0

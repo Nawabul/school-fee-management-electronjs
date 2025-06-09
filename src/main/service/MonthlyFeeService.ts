@@ -27,7 +27,7 @@ class MonthlyFeeService {
       return result.changes > 0
     } catch (error) {
       if (error instanceof Error) {
-        console.log(error.message)
+
         throw new Error('Error while listing monthly fees: ' + error.message)
       } else {
         throw new Error('Unknown error while listing monthly fees')

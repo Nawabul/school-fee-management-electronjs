@@ -31,10 +31,8 @@ class VersionService {
 
   async executeSchemasForLatest(): Promise<boolean> {
     const migrate = rowDb.transaction(() => {
-      let i = 0
       for (const stmt of currentSchemaStatements) {
         rowDb.prepare(stmt).run()
-        console.log('schmea : ', i++, ' query ', stmt)
       }
     })
 
