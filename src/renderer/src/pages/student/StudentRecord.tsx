@@ -6,6 +6,7 @@ import { CgUserList } from 'react-icons/cg'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import StudentController from '@renderer/controller/StudentController'
+import { Student_Record } from '@renderer/types/ts/student'
 
 const StudentRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
@@ -32,7 +33,7 @@ const StudentRecord = (): JSX.Element => {
     setId(id)
   }
 
-  const item: Record<string, (id: number) => void> = {
+  const item: Record<string, (id: number, data?: Student_Record) => void> = {
     update: (id: number): void => {
       navigate(`/student/update/${id}`)
     },
@@ -40,13 +41,12 @@ const StudentRecord = (): JSX.Element => {
     payment: (id: number): void => {
       navigate(`/payment/${id}`)
     },
-    mis_charge: (id: number): void => {
-      navigate(`/mis_charge/${id}`)
+    mis_charge: (id: number, data?: Student_Record): void => {
+      navigate(`/mis_charge/${id}`, { state: data })
     },
-    monthly_fee: (id: number): void => {
-      navigate(`/monthly_fee/${id}`)
-    },
-
+    monthly_fee: (id: number, data?: Student_Record): void => {
+      navigate(`/monthly_fee/${id}`, { state: data })
+    }
   }
 
   return (

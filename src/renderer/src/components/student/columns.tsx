@@ -7,7 +7,7 @@ import { date_format } from '@renderer/types/constant/date'
 import { Dropdown, DropdownItem } from 'flowbite-react'
 
 export const studentColumns = (
-  item: Record<string, (id: number) => void>
+  item: Record<string, (id: number, data?: Student_Record) => void>
 ): ColumnDef<Student_Record>[] => [
   {
     accessorKey: 'id',
@@ -101,8 +101,10 @@ export const studentColumns = (
         <DropdownItem>Edit</DropdownItem>
         <DropdownItem>Delete</DropdownItem>
         <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
-        <DropdownItem onClick={() => item.mis_charge(row.original.id)}>Mis. Charges</DropdownItem>
-        <DropdownItem onClick={() => item.monthly_fee(row.original.id)}>Monthly Fee</DropdownItem>
+        <DropdownItem onClick={() => item.mis_charge(row.original.id, row.original)}>
+          Mis. Charges
+        </DropdownItem>
+        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>Monthly Fee</DropdownItem>
       </Dropdown>
     )
   }
