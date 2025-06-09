@@ -36,7 +36,7 @@ const PaymentInsert = (): React.JSX.Element => {
           <h1 className="text-2xl font-bold">Student Insert</h1>
         </div>
         <div>
-          <Link to={`payment/${studentId}`}>
+          <Link to={`/payment/${studentId}`}>
             <Button>View All Payment</Button>
           </Link>
         </div>
