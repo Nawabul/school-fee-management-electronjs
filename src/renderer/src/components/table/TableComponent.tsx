@@ -10,7 +10,6 @@ import {
   TextInput
 } from 'flowbite-react'
 import React, { JSX } from 'react'
-import student from '@utils/student'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,15 +18,16 @@ import {
   getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import EditButton from './EditButton'
 import MultiSelectDropdown from './MultiSelect'
-
+import { Student_Record } from '@renderer/types/ts/student'
 interface props {
-  data: student[]
-  columns: ColumnDef<student>[]
+  data: Student_Record[]
+  columns: ColumnDef<Student_Record>[]
+  id: number
+  isLoading?: boolean
 }
 
-export function TableComponent({ data, columns }: props): JSX.Element {
+export function TableComponent({ data, columns, id, isLoading = false }: props): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
@@ -44,13 +44,13 @@ export function TableComponent({ data, columns }: props): JSX.Element {
     onGlobalFilterChange: setGlobleFilter
   })
 
-  const statusColumn = table.getColumn('termission_date')
+  const statusColumn = table.getColumn('transfer_date')
 
-  const classOptions = Array.from(new Set(data.map((row) => row.class)))
+  const classOptions = Array.from(new Set(data.map((row) => row.class_name)))
 
   return (
     <>
-      <div className="flex ml-auto gap-3 pb-2 justify-between">
+      <div className="flex ml-auto gap-3 pb-2 justify-between h-full">
         <div className="flex gap-3">
           <TextInput
             placeholder="Filter here..."
@@ -62,7 +62,7 @@ export function TableComponent({ data, columns }: props): JSX.Element {
               const value = e.target.value
               statusColumn?.setFilterValue(value === 'both' ? undefined : value)
             }}
-            //@ts-ignore
+            //@ts-ignore its working well
             value={statusColumn?.getFilterValue() ?? 'both'}
           >
             <option value="both">All</option>
@@ -71,7 +71,7 @@ export function TableComponent({ data, columns }: props): JSX.Element {
           </Select>
           {table.getHeaderGroups().map((headerGroup) =>
             headerGroup.headers.map((header) => {
-              //@ts-ignore
+              //@ts-ignore we are using meta to pass filter component
               const filterComponent = header.column.columnDef.meta?.filterComponent
               return (
                 <React.Fragment key={header.id}>
@@ -99,7 +99,7 @@ export function TableComponent({ data, columns }: props): JSX.Element {
           />
         </div>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto min-h-dvh">
         <Table hoverable>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
@@ -111,24 +111,24 @@ export function TableComponent({ data, columns }: props): JSX.Element {
                       : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHeadCell>
                 ))}
-                <TableHeadCell></TableHeadCell>
               </TableRow>
             ))}
           </TableHead>
-          <TableBody className="divide-y">
+          <TableBody className="divide-y w-[100vw]">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    )
-                  })}
-                  <TableCell>
-                    <EditButton />
-                  </TableCell>
+                  {isLoading && id > 0 ? (
+                    <span>Loading</span>
+                  ) : (
+                    row.getVisibleCells().map((cell) => {
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      )
+                    })
+                  )}
                 </TableRow>
               ))
             ) : (

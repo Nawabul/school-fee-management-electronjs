@@ -1,4 +1,5 @@
 export interface Class {
-  name:string,
-  amount:number,
+  id: number
+  name: string
+  amount: number
 }

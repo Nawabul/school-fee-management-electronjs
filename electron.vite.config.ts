@@ -13,15 +13,16 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
-    resolve:{
-      alias:{
-        '@types': resolve('src/types'),
+    resolve: {
+      alias: {
+        '@types': resolve('src/types')
       }
     }
   },
   renderer: {
     resolve: {
       alias: {
+        '@types': path.resolve(__dirname, 'types'),
         '@renderer': resolve('src/renderer/src'),
         'tailwindcss/version.js': path.resolve(
           __dirname,

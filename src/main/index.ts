@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import routes from './routes'
 
 function createWindow(): void {
   // Create the browser window.
@@ -9,6 +10,7 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
+    title: 'School Fee Management',
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
@@ -16,6 +18,9 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  // routes
+  routes()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

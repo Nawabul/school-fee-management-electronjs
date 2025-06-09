@@ -1,22 +1,29 @@
 import { ColumnDef } from '@tanstack/react-table'
 import AmountFilter from '../table/AmountFilter'
 import FilterClass from '../table/FilterClass'
+import { Student_Record } from '@renderer/types/ts/student'
+import { format } from 'date-fns'
+import { date_format } from '@renderer/types/constant/date'
+import { Dropdown, DropdownItem } from 'flowbite-react'
 
-export const studentColumns: ColumnDef<any>[] = [
+export const studentColumns = (
+  item: Record<string, (id: number) => void>
+): ColumnDef<Student_Record>[] => [
   {
     accessorKey: 'id',
     header: 'ID',
-    enableHiding: false
+    enableHiding: false,
+    cell: ({ row }) => Number(row.id) + 1
   },
   {
     accessorKey: 'reg_number',
     header: 'Reg. Number',
-    enableHiding: true
+    enableHiding: false
   },
   {
     accessorKey: 'student_name',
-    header: 'Student Name',
-    enableHiding: true
+    header: 'Name',
+    enableHiding: false
   },
   {
     accessorKey: 'father_name',
@@ -29,9 +36,9 @@ export const studentColumns: ColumnDef<any>[] = [
     enableHiding: true
   },
   {
-    accessorKey: 'class',
+    accessorKey: 'class_name',
     header: 'Class',
-    enableHiding: true,
+    enableHiding: false,
     filterFn: (row, columnId, filterValue) => {
       if (!filterValue || filterValue.length === 0) return true // no filter applied
       return filterValue.includes(row.getValue(columnId))
@@ -43,27 +50,26 @@ export const studentColumns: ColumnDef<any>[] = [
   {
     accessorKey: 'admission_date',
     header: 'Admission Date',
-    enableHiding: true
+    enableHiding: true,
+    cell: ({ row }) => format(new Date(row.original.admission_date), date_format)
   },
   {
-    accessorKey: 'termission_date',
-    header: 'Termission Date',
+    accessorKey: 'transfer_date',
+    header: 'Transfered',
     filterFn: (row, columnId, filterValue) => {
       const date = row.getValue(columnId)
       if (filterValue === 'active') return !date
       if (filterValue === 'inactive') return !!date
       return true // 'both' or undefined
     },
-    cell: ({ getValue }) => getValue<string | null>() || 'Active',
+    cell: ({ row }) =>
+      row.original.transfer_date != null
+        ? format(new Date(row.original.transfer_date), date_format)
+        : 'Active',
     enableHiding: true
   },
   {
-    accessorKey: 'initial_amount',
-    header: 'Initial Amount',
-    enableHiding: true
-  },
-  {
-    accessorKey: 'current_amount',
+    accessorKey: 'current_balance',
     header: 'Current Balance',
     filterFn: (row, columnId, filterValue) => {
       const rowValue = Number(row.getValue(columnId))
@@ -82,9 +88,22 @@ export const studentColumns: ColumnDef<any>[] = [
           return true
       }
     },
-    enableHiding: true,
+    enableHiding: false,
     meta: {
       filterComponent: AmountFilter
     }
+  },
+  {
+    header: 'Actions',
+    enableHiding: false,
+    cell: ({ row }) => (
+      <Dropdown label="Edit" arrowIcon={false} placement="bottom">
+        <DropdownItem>Edit</DropdownItem>
+        <DropdownItem>Delete</DropdownItem>
+        <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
+        <DropdownItem onClick={() => item.mis_charge(row.original.id)}>Mis. Charges</DropdownItem>
+        <DropdownItem onClick={() => item.monthly_fee(row.original.id)}>Monthly Fee</DropdownItem>
+      </Dropdown>
+    )
   }
 ]

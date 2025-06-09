@@ -1,17 +1,27 @@
-import StudentForm, { StudentFormData } from '@renderer/components/student/StudentForm'
+import StudentForm from '@renderer/components/student/StudentForm'
+import { useMutation } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
-
-const classOptions = [
-  { id: 1, name: 'Class 1' },
-  { id: 2, name: 'Class 2' },
-  { id: 3, name: 'Class 3' }
-]
+import StudentController from '@renderer/controller/StudentController'
+import { Link, useNavigate } from 'react-router-dom'
 
 const StudentInsert = (): React.JSX.Element => {
-  const handleFormSubmit = (data: StudentFormData): void => {
-    console.log('Form Data Submitted:', data)
-    // Post to backend or handle in state
+  const navigate = useNavigate()
+  const studentMutation = useMutation({
+    mutationKey: ['student', 'insert'],
+    mutationFn: StudentController.create,
+    onSuccess: () => {
+      navigate('/student')
+      // Optionally reset form or show success message
+    },
+    onError: (error) => {
+      console.error('Error creating class:', error)
+      // Optionally show error message
+    }
+  })
+
+  const handleFormSubmit = (data): void => {
+    studentMutation.mutate(data)
   }
 
   return (
@@ -22,11 +32,13 @@ const StudentInsert = (): React.JSX.Element => {
           <h1 className="text-2xl font-bold">Student Insert</h1>
         </div>
         <div>
-          <Button>View All Student</Button>
+          <Link to={'/student'}>
+            <Button>View All Student</Button>
+          </Link>
         </div>
       </div>
       <div className="md:p-5">
-        <StudentForm classOptions={classOptions} onSubmit={handleFormSubmit} />
+        <StudentForm onSubmit={handleFormSubmit} isPending={studentMutation.isPending} />
       </div>
     </div>
   )

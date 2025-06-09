@@ -1,30 +1,32 @@
 // components/FormInput.tsx
 
-import { ErrorMessage } from '@hookform/error-message'
 import { Label, TextInput } from 'flowbite-react'
-import { JSX } from 'react'
-import { FieldErrors } from 'react-hook-form'
+import { ComponentProps, JSX } from 'react'
+import { useController } from 'react-hook-form'
+
+type TextInputType = ComponentProps<typeof TextInput>['type']
 
 interface Props {
   name: string
   label: string
   placeholder: string
-  errors: FieldErrors
-  type?: string
+  type?: TextInputType
+  control: any
 }
 
-const FormInput = ({ type = 'text', label, name, errors, ...props }: Props): JSX.Element => {
+const FormInput = ({ type = 'text', label, name, control, ...props }: Props): JSX.Element => {
+  const {
+    field,
+    fieldState: { error }
+  } = useController({
+    name,
+    control
+  })
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <TextInput type={type} id={name} {...props} placeholder={props.placeholder} />
-      <ErrorMessage
-        errors={errors}
-        name={name}
-        render={({ message }) => (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-500">{message}</p>
-        )}
-      />
+      <TextInput type={type} id={name} {...field} {...props} placeholder={props.placeholder} />
+      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{error?.message}</p>}
     </div>
   )
 }
