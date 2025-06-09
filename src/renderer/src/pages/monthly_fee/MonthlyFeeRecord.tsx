@@ -1,7 +1,7 @@
 import { monthly_fee_columns } from '@renderer/components/monthly_fee/columns'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
 import { JSX } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
 import { useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
@@ -16,8 +16,6 @@ const MonthlyFeeRecord = (): JSX.Element => {
     refetchOnWindowFocus: true
   })
 
-  const studentDetail = useLocation().state
-
   return (
     <>
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
@@ -28,7 +26,7 @@ const MonthlyFeeRecord = (): JSX.Element => {
         <div></div>
       </div>
       {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader studentDetail={studentDetail} />
+      <StudentDetailHeader />
       {/* END HEADER CARD */}
       <div className="md:p-5 ">
         <SimpleTableComponent<Monthly_Fee_Record>

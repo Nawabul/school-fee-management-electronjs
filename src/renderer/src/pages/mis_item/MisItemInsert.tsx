@@ -11,7 +11,7 @@ const MisItemInsert = (): React.JSX.Element => {
     mutationFn: MisItemController.create,
     onSuccess: (data) => {
       console.log(data)
-      // navigate('/mis_item')
+      navigate('/mis_item')
       // Optionally reset form or show success message
     },
     onError: (error) => {
@@ -21,7 +21,7 @@ const MisItemInsert = (): React.JSX.Element => {
   })
 
   const handleFormSubmit = (data): void => {
-// Post to backend or handle in state
+    // Post to backend or handle in state
     classMutation.mutate(data)
   }
 

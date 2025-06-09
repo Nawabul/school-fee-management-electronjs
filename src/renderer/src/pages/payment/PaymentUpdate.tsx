@@ -1,4 +1,5 @@
 import PaymentForm from '@renderer/components/payment/PaymentForm'
+import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import PaymentController from '@renderer/controller/PaymentController'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
@@ -54,6 +55,9 @@ const PaymentUpdate = (): React.JSX.Element => {
           <Button onClick={() => navigate(-1)}>View All Student</Button>
         </div>
       </div>
+            {/* START STUDENT DETAIL HEADER CARD */}
+      <StudentDetailHeader />
+      {/* END HEADER CARD */}
       <div className="md:p-5">
         {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
         {isError && <p className="text-red-500">Error: {error.message}</p>}

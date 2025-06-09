@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import PaymentController from '@renderer/controller/PaymentController'
 import { Payment_Record } from '@renderer/types/ts/payments'
+import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 
 const PaymentRecord = (): JSX.Element => {
   const studentId = useParams().id
@@ -58,6 +59,9 @@ const PaymentRecord = (): JSX.Element => {
           </Link>
         </div>
       </div>
+      {/* START STUDENT DETAIL HEADER CARD */}
+      <StudentDetailHeader />
+      {/* END HEADER CARD */}
       <div className="md:p-5 ">
         <SimpleTableComponent<Payment_Record>
           columns={paymentColumns(item)}

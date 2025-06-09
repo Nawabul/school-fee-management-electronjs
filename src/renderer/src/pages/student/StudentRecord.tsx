@@ -7,6 +7,7 @@ import { queryKey } from '@renderer/types/constant/queryKey'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import StudentController from '@renderer/controller/StudentController'
 import { Student_Record } from '@renderer/types/ts/student'
+import useStudentDetails from '@renderer/hooks/useStudentDetails'
 
 const StudentRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
@@ -16,7 +17,7 @@ const StudentRecord = (): JSX.Element => {
   })
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
-
+  const { setStudentDetails } = useStudentDetails()
   const studentDelete = useMutation({
     mutationFn: StudentController.delete,
     onSuccess: () => {
@@ -33,19 +34,23 @@ const StudentRecord = (): JSX.Element => {
     setId(id)
   }
 
-  const item: Record<string, (id: number, data?: Student_Record) => void> = {
+  const item: Record<string, (id: number, data: Student_Record) => void> = {
     update: (id: number): void => {
       navigate(`/student/update/${id}`)
     },
     delete: handleDelete,
-    payment: (id: number): void => {
+    payment: (id: number, data: Student_Record): void => {
+      setStudentDetails(data)
       navigate(`/payment/${id}`)
     },
-    mis_charge: (id: number, data?: Student_Record): void => {
-      navigate(`/mis_charge/${id}`, { state: data })
+    mis_charge: (id: number, data: Student_Record): void => {
+      console.log(data)
+      setStudentDetails(data)
+      navigate(`/mis_charge/${id}`)
     },
-    monthly_fee: (id: number, data?: Student_Record): void => {
-      navigate(`/monthly_fee/${id}`, { state: data })
+    monthly_fee: (id: number, data: Student_Record): void => {
+      setStudentDetails(data)
+      navigate(`/monthly_fee/${id}`)
     }
   }
 

@@ -4,6 +4,7 @@ import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import PaymentController from '@renderer/controller/PaymentController'
 import PaymentForm from '@renderer/components/payment/PaymentForm'
+import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 
 const PaymentInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -40,6 +41,9 @@ const PaymentInsert = (): React.JSX.Element => {
           </Link>
         </div>
       </div>
+            {/* START STUDENT DETAIL HEADER CARD */}
+      <StudentDetailHeader />
+      {/* END HEADER CARD */}
       <div className="md:p-5">
         <PaymentForm onSubmit={handleFormSubmit} isPending={paymentMutation.isPending} />
       </div>

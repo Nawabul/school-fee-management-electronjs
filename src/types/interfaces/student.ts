@@ -19,6 +19,7 @@ export interface Student_Record {
   transfer_date?: string | null // either an ISO date string or the literal "active"
   address: string
   class_name: string
+  current_balance: number
 }
 
 export interface Student_Get {

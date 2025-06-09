@@ -1,5 +1,6 @@
 import Sidebar from '@renderer/components/drawer/Sidebar'
 import InitController from '@renderer/controller/InitController'
+import { StudentDetailsProvider } from '@renderer/hooks/useStudentDetails'
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
@@ -37,17 +38,19 @@ const Authlayer = (): React.ReactElement => {
   }, [])
 
   return (
-    <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
-      <div className="flex dark:text-white pt-1">
-        <Sidebar />
-        <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
-          <div className="dark:bg-gray-800 rounded-xl">
-            {!completed.status && <span> {completed.message} </span>}
-            {completed.status && <Outlet />}
+    <StudentDetailsProvider>
+      <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
+        <div className="flex dark:text-white pt-1">
+          <Sidebar />
+          <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
+            <div className="dark:bg-gray-800 rounded-xl">
+              {!completed.status && <span> {completed.message} </span>}
+              {completed.status && <Outlet />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </StudentDetailsProvider>
   )
 }
 

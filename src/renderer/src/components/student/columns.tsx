@@ -7,7 +7,7 @@ import { date_format } from '@renderer/types/constant/date'
 import { Dropdown, DropdownItem } from 'flowbite-react'
 
 export const studentColumns = (
-  item: Record<string, (id: number, data?: Student_Record) => void>
+  item: Record<string, (id: number, data: Student_Record) => void>
 ): ColumnDef<Student_Record>[] => [
   {
     accessorKey: 'id',
@@ -88,6 +88,11 @@ export const studentColumns = (
           return true
       }
     },
+    cell: ({ row }) => (
+      <span className={`${row.original.current_balance < 0 ? 'text-red-700' : 'text-green-700'}`}>
+        {row.original.current_balance}
+      </span>
+    ),
     enableHiding: false,
     meta: {
       filterComponent: AmountFilter
@@ -98,13 +103,19 @@ export const studentColumns = (
     enableHiding: false,
     cell: ({ row }) => (
       <Dropdown label="Edit" arrowIcon={false} placement="bottom">
-        <DropdownItem>Edit</DropdownItem>
-        <DropdownItem>Delete</DropdownItem>
-        <DropdownItem onClick={() => item.payment(row.original.id)}>Payment</DropdownItem>
+        <DropdownItem onClick={() => item.update(row.original.id, row.original)}>Edit</DropdownItem>
+        <DropdownItem onClick={() => item.delete(row.original.id, row.original)}>
+          Delete
+        </DropdownItem>
+        <DropdownItem onClick={() => item.payment(row.original.id, row.original)}>
+          Payment
+        </DropdownItem>
         <DropdownItem onClick={() => item.mis_charge(row.original.id, row.original)}>
           Mis. Charges
         </DropdownItem>
-        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>Monthly Fee</DropdownItem>
+        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>
+          Monthly Fee
+        </DropdownItem>
       </Dropdown>
     )
   }

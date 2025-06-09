@@ -1,7 +1,9 @@
-import { BookOpen, Hash, Phone, MapPin, IndianRupee } from 'lucide-react'
+import { BookOpen, Hash, Phone, MapPin } from 'lucide-react'
 import { JSX } from 'react'
-
-const StudentDetailHeader = ({ studentDetail }: any): JSX.Element => {
+import useStudentDetails from '@renderer/hooks/useStudentDetails'
+const StudentDetailHeader = (): JSX.Element => {
+  const { studentDetails: studentDetail } = useStudentDetails()
+console.log(studentDetail)
   if (!studentDetail) {
     return <div>Loading student details...</div>
   }
@@ -43,17 +45,6 @@ const StudentDetailHeader = ({ studentDetail }: any): JSX.Element => {
         </div>
 
         {/* Right Side: Actions and Balance */}
-        <div className="flex w-full flex-row-reverse items-center justify-between sm:w-auto sm:flex-col sm:items-end sm:justify-start">
-          <div className="mt-2 text-right">
-            <span className="text-sm text-gray-400">Current Balance</span>
-            <p
-              className={`flex items-center justify-end text-2xl font-bold ${studentDetail.current_balance < 0 ? 'text-red-400' : 'text-green-400'}`}
-            >
-              <IndianRupee size={20} />
-              {studentDetail.current_balance?.toLocaleString('en-IN')}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   )

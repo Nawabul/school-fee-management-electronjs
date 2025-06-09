@@ -1,19 +1,17 @@
 // Imports...
 import { JSX, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
 import { misChargeColumns } from '@renderer/components/mis_charge/columns'
 import MisChargeController from '@renderer/controller/MisChargeController'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { Mis_Charge_Record } from '@renderer/types/ts/mis_charge'
-
 import { CgUserList } from 'react-icons/cg'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 
 const MisChargeRecord = (): JSX.Element => {
   const studentId = useParams().id
-  const studentDetail = useLocation().state
   const navigate = useNavigate()
 
   const { data = [], refetch } = useQuery({
@@ -47,10 +45,7 @@ const MisChargeRecord = (): JSX.Element => {
     delete: handleDelete
   }
 
-  // Agar student details na ho to loading state ya khali div dikhayein
-  if (!studentDetail) {
-    return <div>Loading student details...</div>
-  }
+
 
   return (
     <>
@@ -63,13 +58,14 @@ const MisChargeRecord = (): JSX.Element => {
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             to={`/mis_charge/insert/${studentId}`}
+
           >
             Add Mis. Charge
           </Link>
         </div>
       </div>
       {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader studentDetail={studentDetail} />
+      <StudentDetailHeader />
       {/* END HEADER CARD */}
 
       <div className="rounded-xl bg-gray-800 p-1 md:p-5">
