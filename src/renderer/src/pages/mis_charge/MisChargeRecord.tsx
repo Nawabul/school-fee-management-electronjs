@@ -1,23 +1,28 @@
-import { misChargeColumns } from '@renderer/components/mis_charge/columns'
-import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
+// Imports...
 import { JSX, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CgUserList } from 'react-icons/cg'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
+import { misChargeColumns } from '@renderer/components/mis_charge/columns'
+import MisChargeController from '@renderer/controller/MisChargeController'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { Mis_Charge_Record } from '@renderer/types/ts/mis_charge'
-import MisChargeController from '@renderer/controller/MisChargeController'
+
+import { CgUserList } from 'react-icons/cg'
+import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 
 const MisChargeRecord = (): JSX.Element => {
   const studentId = useParams().id
+  const studentDetail = useLocation().state
+  const navigate = useNavigate()
 
   const { data = [], refetch } = useQuery({
-    queryKey: queryKey.mis_charge,
+    queryKey: [queryKey.mis_charge, studentId],
     queryFn: () => MisChargeController.list(Number(studentId)),
     refetchOnWindowFocus: true
   })
+
   const [id, setId] = useState<number>(0)
-  const navigate = useNavigate()
 
   const misChargeMutation = useMutation({
     mutationFn: MisChargeController.delete,
@@ -42,6 +47,11 @@ const MisChargeRecord = (): JSX.Element => {
     delete: handleDelete
   }
 
+  // Agar student details na ho to loading state ya khali div dikhayein
+  if (!studentDetail) {
+    return <div>Loading student details...</div>
+  }
+
   return (
     <>
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
@@ -58,7 +68,11 @@ const MisChargeRecord = (): JSX.Element => {
           </Link>
         </div>
       </div>
-      <div className="md:p-5 ">
+      {/* START STUDENT DETAIL HEADER CARD */}
+      <StudentDetailHeader studentDetail={studentDetail} />
+      {/* END HEADER CARD */}
+
+      <div className="rounded-xl bg-gray-800 p-1 md:p-5">
         <SimpleTableComponent<Mis_Charge_Record>
           columns={misChargeColumns(item)}
           data={data || []}
