@@ -21,6 +21,10 @@
     "build:linux": "electron-vite build && electron-builder --linux",
     "scriptinstall": "node scripts/fix-tailwind-version.js"
   },
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/Nawabul/school-fee-management-electronjs.git"
+  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
