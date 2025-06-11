@@ -16,6 +16,7 @@ import MisChargeRecord from './pages/mis_charge/MisChargeRecord'
 import MisChargeInsert from './pages/mis_charge/MisChargeInsert'
 import MisChargeUpdate from './pages/mis_charge/MisChargeUpdate'
 import MonthlyFeeRecord from './pages/monthly_fee/MonthlyFeeRecord'
+import StudentTransfer from './pages/student/StudentTransfer'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -42,6 +43,10 @@ const Router = (): React.ReactElement => (
               {
                 path: 'update/:id',
                 element: <StudentUpdate />
+              },
+              {
+                path: 'transfer/:id',
+                element: <StudentTransfer />
               }
             ]
           },

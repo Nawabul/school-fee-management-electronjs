@@ -22,6 +22,8 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:fetch', StudentController.fetch)
   ipcMain.handle('student:update', StudentController.update)
   ipcMain.handle('student:delete', StudentController.delete)
+  ipcMain.handle('student:transfer', StudentController.transfer)
+  ipcMain.handle('student:continue', StudentController.continueStudy)
 
   // paymets
   ipcMain.handle('student:payment:create', PaymentController.create)

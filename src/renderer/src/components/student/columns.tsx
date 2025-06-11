@@ -104,6 +104,16 @@ export const studentColumns = (
     cell: ({ row }) => (
       <Dropdown label="Edit" arrowIcon={false} placement="bottom">
         <DropdownItem onClick={() => item.update(row.original.id, row.original)}>Edit</DropdownItem>
+        {row.original.transfer_date == null ? (
+          <DropdownItem onClick={() => item.transfer(row.original.id, row.original)}>
+            Transfer
+          </DropdownItem>
+        ) : (
+          <DropdownItem onClick={() => item.continue(row.original.id, row.original)}>
+            Continue
+          </DropdownItem>
+        )}
+
         <DropdownItem onClick={() => item.delete(row.original.id, row.original)}>
           Delete
         </DropdownItem>

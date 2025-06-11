@@ -120,6 +120,68 @@ class StudentService {
     }
   }
 
+  // transfer
+  async transfer(
+    studentId: number,
+    date: string,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<boolean> {
+    try {
+      const dbInstance = tx || this.db
+      const result = await dbInstance
+        .update(students)
+        .set({ transfer_date: date })
+        .where(eq(students.id, studentId))
+        .run()
+      return result.changes > 0
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating transfer: ' + error.message)
+      }
+      throw new Error('Error while updating transfer: ')
+    }
+  }
+  // continue study
+  async continueStudy(
+    studentId: number,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<boolean> {
+    try {
+      const dbInstance = tx || this.db
+      const result = await dbInstance
+        .update(students)
+        .set({ transfer_date: null })
+        .where(eq(students.id, studentId))
+        .run()
+      return result.changes > 0
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating transfer: ' + error.message)
+      }
+      throw new Error('Error while updating transfer: ')
+    }
+  }
+  // not transfer
+  async not_transfer(
+    studentId: number,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<boolean> {
+    try {
+      const dbInstance = tx || this.db
+      const result = await dbInstance
+        .update(students)
+        .set({ transfer_date: null })
+        .where(eq(students.id, studentId))
+        .run()
+      return result.changes > 0
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating transfer: ' + error.message)
+      }
+      throw new Error('Error while updating transfer: ')
+    }
+  }
+
   async last_fee_date_update(
     studentId: number,
     date: string,

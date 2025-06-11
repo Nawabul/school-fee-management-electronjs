@@ -45,8 +45,15 @@ if (process.contextIsolated) {
         data: Student_Write
       ): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('student:update', id, data),
+      transfer: async (
+        id: number,
+        data: { date: string }
+      ): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('student:transfer', id, data),
       delete: async (id: number | number[]): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('student:delete', id),
+      continue: async (id: number | number[]): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('student:continue', id),
       list: async (): Promise<successResponse<Student_Record[]> | errorResponse> =>
         ipcRenderer.invoke('student:list'),
       fetch: async (id: number): Promise<successResponse<Student_Get> | errorResponse> =>

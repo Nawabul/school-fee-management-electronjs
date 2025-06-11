@@ -21,7 +21,12 @@ declare global {
     student: {
       create: (data: Student_Write) => Promise<successResponse<number> | errorResponse>
       update: (id: number, data: Student_Write) => Promise<successResponse<boolean> | errorResponse>
+      transfer: (
+        id: number,
+        data: { date: string }
+      ) => Promise<successResponse<boolean> | errorResponse>
       delete: (id: number) => Promise<successResponse<boolean> | errorResponse>
+      continue: (id: number) => Promise<successResponse<boolean> | errorResponse>
       list: () => Promise<successResponse<Student_Record[]> | errorResponse>
       fetch: (id: number) => Promise<successResponse<Student_Get> | errorResponse>
     }

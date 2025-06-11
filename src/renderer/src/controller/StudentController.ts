@@ -17,6 +17,22 @@ class StudentController {
     }
     throw result.message
   }
+  async transfer(id: number, data): Promise<boolean> {
+    const result = await window.student.transfer(id, data)
+    if (result.success) {
+      return (result as successResponse<boolean>).data
+    }
+    throw result.message
+  }
+  async continue(id: number): Promise<boolean> {
+    console.log(id)
+    const result = await window.student.continue(id)
+    console.log(result)
+    if (result.success) {
+      return (result as successResponse<boolean>).data
+    }
+    throw result.message
+  }
   async delete(id: number): Promise<boolean> {
     const result = await window.student.delete(id)
 

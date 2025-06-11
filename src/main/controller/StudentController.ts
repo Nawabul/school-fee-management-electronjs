@@ -61,6 +61,49 @@ class StudentController {
       return apiError('Error while creating student')
     }
   }
+  async transfer(
+    _event: IpcMainInvokeEvent,
+    id: number,
+    data: { date: string }
+  ): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      // Validate that the student exists before updating
+      const student = await StudentService.get(id)
+      if (!student) {
+        return apiError('Student not found')
+      }
+
+      const result: boolean = await StudentService.transfer(id, data.date)
+
+      return apiSuccess(result, 'Student transfer successfully')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiError('Error while creating student: ' + error.message)
+      }
+      return apiError('Error while creating student')
+    }
+  }
+  async continueStudy(
+    _event: IpcMainInvokeEvent,
+    id: number,
+  ): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      // Validate that the student exists before updating
+      const student = await StudentService.get(id)
+      if (!student) {
+        return apiError('Student not found')
+      }
+
+      const result: boolean = await StudentService.continueStudy(id)
+
+      return apiSuccess(result, 'Student transfer successfully')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiError('Error while creating student: ' + error.message)
+      }
+      return apiError('Error while creating student')
+    }
+  }
   async delete(
     _event: IpcMainInvokeEvent,
     id: number

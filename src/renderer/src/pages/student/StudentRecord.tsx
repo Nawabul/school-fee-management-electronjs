@@ -28,9 +28,24 @@ const StudentRecord = (): JSX.Element => {
       setId(0)
     }
   })
+  const studyContinue = useMutation({
+    mutationFn: StudentController.continue,
+    onSuccess: () => {
+      refetch()
+      setId(0)
+    },
+    onError: () => {
+      setId(0)
+    }
+  })
 
   const handleDelete = (id: number): void => {
     studentDelete.mutate(id)
+    setId(id)
+  }
+  const handleContinue = (id: number): void => {
+    console.log(id)
+    studyContinue.mutate(id)
     setId(id)
   }
 
@@ -38,6 +53,12 @@ const StudentRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/student/update/${id}`)
     },
+    transfer: (id: number, data: Student_Record): void => {
+      setStudentDetails(data)
+      navigate(`/student/transfer/${id}`)
+    },
+
+    continue: handleContinue,
     delete: handleDelete,
     payment: (id: number, data: Student_Record): void => {
       setStudentDetails(data)
