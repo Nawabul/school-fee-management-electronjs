@@ -11,11 +11,13 @@ function createWindow(): void {
     height: 670,
     show: false,
     title: 'School Fee Management',
+
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      devTools: false
     }
   })
 
