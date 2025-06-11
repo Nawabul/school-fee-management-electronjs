@@ -5,13 +5,19 @@ export const Student_Schema = z.object({
     .string({
       required_error: 'Registration number is required'
     })
-    .min(1, 'Registration number cannot be empty'),
+    .min(1, 'Registration number cannot be empty')
+    .regex(/^[a-zA-Z0-9/]+$/, {
+      message: 'Only alphabets, numbers, and slashes are allowed'
+    }),
 
   student_name: z
     .string({
       required_error: 'Student name is required'
     })
-    .min(1, 'Student name cannot be empty'),
+    .min(1, 'Student name cannot be empty')
+    .regex(/^[a-zA-Z]+$/, {
+      message: 'Only alphabets are allowed'
+    }),
 
   father_name: z
     .string({
@@ -23,7 +29,10 @@ export const Student_Schema = z.object({
     .string({
       required_error: 'Mobile number is required'
     })
-    .min(1, 'Mobile number cannot be empty'),
+    .min(1, 'Mobile number cannot be empty')
+    .regex(/^\d{10}$/, {
+      message: 'Must be exactly 10 digits'
+    }),
 
   is_whatsapp: z
     .preprocess(
