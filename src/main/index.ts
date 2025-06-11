@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import routes from './routes'
+import { checkAndApplyUpdates } from './utils/handler/autoUpdate'
 
 function createWindow(): void {
   // Create the browser window.
@@ -40,6 +41,10 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  setTimeout((): void => {
+    checkAndApplyUpdates()
+  }, 3000)
 }
 
 // This method will be called when Electron has finished
