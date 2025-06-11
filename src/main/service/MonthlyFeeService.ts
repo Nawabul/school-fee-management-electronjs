@@ -21,20 +21,21 @@ class MonthlyFeeService {
       const dbInstance = tx || this.db
       const result = await dbInstance.insert(monthly_fee).values(data)
       if (!result.changes) {
-
         throw new Error('Failed to create monthly fees, no rows affected')
       }
       return result.changes > 0
     } catch (error) {
       if (error instanceof Error) {
-
         throw new Error('Error while listing monthly fees: ' + error.message)
       } else {
         throw new Error('Unknown error while listing monthly fees')
       }
     }
   }
-  async delete(tx: typeof this.db | null = null, id: number | number[]): Promise<number> {
+  async delete(
+    tx: BetterSQLite3Database<Record<string, never>> | null = null,
+    id: number | number[]
+  ): Promise<number> {
     try {
       const dbInstance = tx || this.db
       const result = dbInstance

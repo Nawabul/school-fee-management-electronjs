@@ -15,6 +15,7 @@ type MonthlyFeeAddInput = {
   from: string
   to: string
 }
+type DeleteMonthlyFeeRequest = Omit<MonthlyFeeAddInput, 'class_id'>
 class MonthlyFeeController {
   private classService: typeof ClassService
   private studentService: typeof StudentService
@@ -69,7 +70,6 @@ class MonthlyFeeController {
           throw new Error('Failed to create monthly fee')
         }
 
-
         // decrement student balance
         this.studentService.decrementBalance(tx, data.student_id, total)
 
@@ -105,14 +105,49 @@ class MonthlyFeeController {
     }
   }
 
+  // delete records
+  async delete(
+    data: DeleteMonthlyFeeRequest,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      const list = await MonthlyFeeService.listByDateRange(data.student_id, data.from, data.to)
+      const ids: number[] = []
+      let total = 0
+      for (const row of list) {
+        total += row.amount || 0
+        if (row.id) {
+          ids.push(row.id)
+        }
+      }
+
+      if (tx) {
+        // delete the records
+        MonthlyFeeService.delete(tx, ids)
+
+        StudentService.incrementBalance(tx, data.student_id, total)
+      } else {
+        StudentService.db.transaction((tx: BetterSQLite3Database<Record<string, never>>) => {
+          MonthlyFeeService.delete(tx, ids)
+          StudentService.incrementBalance(tx, data.student_id, total)
+        })
+      }
+      return apiSuccess(true, 'Monthly record delete of given range')
+    } catch (error) {
+      if (error instanceof Error) {
+        return apiError(error.message)
+      } else {
+        return apiError('An error occurred while deleting monthly fees')
+      }
+    }
+  }
+
   async list(
     _event: IpcMainInvokeEvent,
     student_id: number
   ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> {
     try {
-
       const result = await MonthlyFeeService.list(student_id)
-
 
       return apiSuccess(result, 'Student Monthly Fee list')
     } catch (error) {
