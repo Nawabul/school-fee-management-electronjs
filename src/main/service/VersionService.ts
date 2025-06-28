@@ -29,9 +29,9 @@ class VersionService {
     return version.value
   }
 
-  async executeSchemasForLatest(): Promise<boolean> {
+  async executeSchemasForLatest(statements: string[]): Promise<boolean> {
     const migrate = rowDb.transaction(() => {
-      for (const stmt of currentSchemaStatements) {
+      for (const stmt of statements) {
         rowDb.prepare(stmt).run()
       }
     })
