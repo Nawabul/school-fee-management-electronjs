@@ -1,9 +1,9 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { Class } from '../../types/interfaces/class'
-import db from '../db/db'
+import db from '@main/db/db'
 import Database from 'better-sqlite3'
-import { classes } from '../db/schema/class'
+import { classes } from '@main/db/schema/class'
 import { eq, inArray } from 'drizzle-orm'
+import { Class } from '@type/interfaces/class'
 
 class ClassService {
   db: BetterSQLite3Database<Record<string, never>> & {
@@ -67,7 +67,8 @@ class ClassService {
         .select({
           id: classes.id,
           name: classes.name,
-          amount: classes.amount
+          amount: classes.amount,
+          admission_charge: classes.admission_charge
         })
         .from(classes)
         .orderBy(classes.name)
