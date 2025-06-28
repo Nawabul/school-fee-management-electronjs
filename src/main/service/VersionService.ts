@@ -4,7 +4,7 @@ import db, { rowDb } from '../db/db'
 import { versions } from '../db/schema/version'
 import { eq } from 'drizzle-orm'
 import { DB_VERSION_NAME } from '../utils/constant/config'
-import { currentSchemaStatements } from '../utils/constant/dbSchema'
+
 
 class VersionService {
   db: BetterSQLite3Database<Record<string, never>> & {
