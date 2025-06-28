@@ -2,7 +2,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { students } from './student'
 import { classes } from './class'
 
-export const mis_charges = sqliteTable('mis_charges', {
+export const admission = sqliteTable('mis_charges', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   student_id: integer('student_id')
     .notNull()
