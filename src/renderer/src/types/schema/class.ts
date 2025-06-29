@@ -11,5 +11,11 @@ export const Class_Schema = z.object({
       required_error: 'Amount is required',
       invalid_type_error: 'Amount must be a valid number'
     })
+    .min(0, 'Amount must be a positive number'),
+  admission_charge: z.coerce
+    .number({
+      required_error: 'Amount is required',
+      invalid_type_error: 'Amount must be a valid number'
+    })
     .min(0, 'Amount must be a positive number')
 })

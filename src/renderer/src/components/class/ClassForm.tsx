@@ -32,6 +32,14 @@ const ClassForm = ({
 
       {/* Class Fee */}
       <FormInput name="amount" label="Fee" placeholder="e.g. 300" type="number" control={control} />
+      {/* Class Admissin fee */}
+      <FormInput
+        name="admission_charge"
+        label="Admission Charge"
+        placeholder="e.g. 1250"
+        type="number"
+        control={control}
+      />
 
       {/* Submit */}
       <div className="md:col-span-2 mt-auto ml-auto">

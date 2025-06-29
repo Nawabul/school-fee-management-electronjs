@@ -4,9 +4,14 @@ import { dialog } from 'electron'
 // set autoDownload to false
 autoUpdater.autoDownload = false
 
+let isChecked = false
 // main exported function
 export const checkAndApplyUpdates = (): void => {
-  // check and notify updates
+  if (isChecked) {
+    return undefined
+  }
+
+    // check and notify updates
   autoUpdater.checkForUpdatesAndNotify().catch((err) => {
     dialog.showErrorBox('There was an error', err + ' occurred while trying to look for updates')
   })
@@ -56,4 +61,5 @@ export const checkAndApplyUpdates = (): void => {
         }
       })
   })
+  isChecked = true
 }

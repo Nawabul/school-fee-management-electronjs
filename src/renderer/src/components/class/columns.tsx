@@ -22,6 +22,11 @@ export const classColumns = (
     enableHiding: false
   },
   {
+    accessorKey: 'admission_charge',
+    header: 'Admission Charge',
+    enableHiding: false
+  },
+  {
     accessorKey: 'Action',
     header: 'Action',
     enableHiding: false,

@@ -3,7 +3,7 @@ import db from '@main/db/db'
 import Database from 'better-sqlite3'
 import { admission } from '@main/db/schema/admission'
 import { desc, eq, inArray } from 'drizzle-orm'
-import {  Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { classes } from '@main/db/schema/class'
 
 class AdmissionService {
@@ -13,9 +13,12 @@ class AdmissionService {
   constructor() {
     this.db = db
   }
-  async create(data: Admission_Write): Promise<number> {
+  async create(
+    data: Admission_Write,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): Promise<number> {
     try {
-      const result = this.db.insert(admission).values(data).returning({ id: admission.id }).get()
+      const result = tx.insert(admission).values(data).returning({ id: admission.id }).get()
       if (!result || !result.id) {
         throw new Error('Failed to create admission, no ID returned')
       }
@@ -62,7 +65,7 @@ class AdmissionService {
       }
     }
   }
-  async list(): Promise<Admission_Record[]> {
+  async list(studentId: number): Promise<Admission_Record[]> {
     try {
       const result = this.db
         .select({
@@ -73,6 +76,7 @@ class AdmissionService {
           class: classes.name
         })
         .from(admission)
+        .where(eq(admission.student_id, studentId))
         .orderBy(desc(admission.id))
         .innerJoin(classes, eq(admission.class_id, classes.id))
       return result.all() || []

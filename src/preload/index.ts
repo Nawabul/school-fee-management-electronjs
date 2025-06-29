@@ -126,7 +126,8 @@ if (process.contextIsolated) {
       database: async (): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('init:database'),
       monthly_fee: async (): Promise<successResponse<boolean> | errorResponse> =>
-        ipcRenderer.invoke('init:student:monthly:fee')
+        ipcRenderer.invoke('init:student:monthly:fee'),
+      app_update: async (): Promise<void> => ipcRenderer.invoke('init:app:update')
     })
   } catch (error) {
     console.error(error)

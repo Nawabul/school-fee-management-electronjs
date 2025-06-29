@@ -11,6 +11,7 @@ import { payments } from '../db/schema/payment'
 import { mis_charges } from '../db/schema/mis_charge'
 import { monthly_fee } from '../db/schema/monthly_fee'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
+import { admission } from '@main/db/schema/admission'
 
 type StudentUpdateInput = Partial<Student_Write> & {
   current_balance?: number
@@ -202,6 +203,26 @@ class StudentService {
       throw new Error('Error while updating last fee date: ')
     }
   }
+  async class_update(
+    studentId: number,
+    classId: number,
+    tx: BetterSQLite3Database<Record<string, never>> | null = null
+  ): Promise<boolean> {
+    try {
+      const dbInstance = tx || this.db
+      const result = await dbInstance
+        .update(students)
+        .set({ class_id: classId })
+        .where(eq(students.id, studentId))
+        .run()
+      return result.changes > 0
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error('Error while updating class: ' + error.message)
+      }
+      throw new Error('Error while updating student class ')
+    }
+  }
 
   async delete(studentId: number): Promise<boolean> {
     try {
@@ -221,9 +242,12 @@ class StudentService {
 
           // delete all months for this student
           tx.delete(monthly_fee).where(eq(monthly_fee.student_id, studentId)).run()
+          // delete all admission for this student
+          tx.delete(admission).where(eq(admission.student_id, studentId)).run()
           // delete student
           tx.delete(students).where(eq(students.id, studentId)).run()
           deleted = true
+
         })()
       })
 

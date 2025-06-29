@@ -7,6 +7,7 @@ import MisChargeController from '../controller/MisChargeController'
 import MonthlyFeeController from '../controller/MonthlyFeeController'
 import VersionController from '../controller/VersionController'
 import InitController from '../controller/InitController'
+import AddmissionController from '@main/controller/AddmissionController'
 
 export default async function routes(): Promise<void> {
   // class
@@ -50,9 +51,15 @@ export default async function routes(): Promise<void> {
   // monthly fee
   ipcMain.handle('student:monthly:fee:list', MonthlyFeeController.list)
 
+  // admission
+  ipcMain.handle('student:admission:create', AddmissionController.create)
+  ipcMain.handle('student:admission:list', AddmissionController.list)
+
   // init sertup
   // database
   ipcMain.handle('init:database', VersionController.dbHandler)
   // monthly fee
   ipcMain.handle('init:student:monthly:fee', InitController.generate)
+  // app update
+  ipcMain.handle('init:app:update', InitController.checkForUpdates)
 }
