@@ -4,7 +4,8 @@ export const currentSchemaStatements: string[] = [
   `CREATE TABLE IF NOT EXISTS classes (
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
     name text NOT NULL,
-    amount integer DEFAULT 0 NOT NULL
+    amount integer DEFAULT 0 NOT NULL,
+    admission_charge integer DEFAULT 0 NOT NULL
   );`,
 
   `CREATE UNIQUE INDEX IF NOT EXISTS classes_name_unique ON classes (name);`,
@@ -178,7 +179,10 @@ const versionSchemaStatements: Record<string, string[]> = {
         FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
         FOREIGN KEY (class_id) REFERENCES classes(id) ON UPDATE NO ACTION ON DELETE RESTRICT
       );`,
-    `CREATE UNIQUE INDEX IF NOT EXISTS admission_student_class_unique ON admission (student_id, class_id);`
+    `CREATE UNIQUE INDEX IF NOT EXISTS admission_student_class_unique ON admission (student_id, class_id);`,
+
+    // add admission charge in class table
+    `ALTER TABLE classes ADD COLUMN admission_charge integer DEFAULT 0 NOT NULL;`,
   ]
 }
 
