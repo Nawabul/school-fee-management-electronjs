@@ -3,6 +3,7 @@ import { apiError, apiSuccess, errorResponse, successResponse } from '../../type
 import MonthlyFeeController from './MonthlyFeeController'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import StudentService from '../service/StudentService'
+import { checkAndApplyUpdates } from '@main/utils/handler/autoUpdate'
 
 class InitController {
   // generate student monthly records of students
@@ -32,6 +33,11 @@ class InitController {
       }
       return apiError('Unable to generate monthly fee records')
     }
+  }
+
+  async checkForUpdates(): Promise<void> {
+    // Check for updates
+    checkAndApplyUpdates()
   }
 }
 

@@ -7,7 +7,6 @@ import { app } from 'electron'
 class VersionController {
   async dbHandler(): Promise<successResponse<boolean> | errorResponse> {
     try {
-
       const current_version = app.getVersion()
 
       const table = await VersionService.tableExists('versions')
