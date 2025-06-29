@@ -14,7 +14,7 @@ import { Mis_Charge_Schema } from '@renderer/types/schema/mis_charge'
 interface Props {
   // @ts-ignore schema can ve any thing
   onSubmit: (data: z.infer<typeof Mis_Charge_Schema>) => void
-  defaultValues?: z.infer<typeof Mis_Charge_Schema> | Record<string, never>
+  defaultValues?: z.infer<typeof Mis_Charge_Schema> | Record<string, string | number | boolean>
   isPending?: boolean
 }
 

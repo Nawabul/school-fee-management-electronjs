@@ -4,19 +4,23 @@ import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
 import MonthlyFeeController from './MonthlyFeeController'
 import AdmissionService from '@main/service/AdmissionService'
-import ClassService from '@main/service/ClassService'
 import { Admission_Write } from '@type/interfaces/admission'
 import { format } from 'date-fns'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
+
+interface studentCreate extends Student_Write {
+  admission_charge: number
+}
 class StudentController {
   async create(
     _event: IpcMainInvokeEvent,
-    data: Student_Write
+    data: studentCreate
   ): Promise<successResponse<number> | errorResponse> {
     try {
       let id: number = 0
+      const { admission_charge, ...body } = data
 
-      const result = await StudentService.create(null, data)
+      const result = await StudentService.create(null, body)
 
       id = result.id
       const last_date = result.last_date
@@ -34,17 +38,11 @@ class StudentController {
         throw new Error('Error while creating monthly fee')
       }
 
-      // fetch class
-      const fetchClass = await ClassService.list(data.class_id)
-
-      if (!fetchClass) {
-        throw new Error('Class not found')
-      }
       // structure data for admission
       const admissionData: Admission_Write = {
         student_id: id,
         class_id: data.class_id,
-        amount: fetchClass[0].admission_charge,
+        amount: admission_charge,
         date: format(new Date(), DB_DATE_FORMAT)
       }
 
@@ -55,7 +53,7 @@ class StudentController {
       }
 
       // decrement student amount
-      StudentService.decrementBalance(StudentService.db, id, fetchClass[0].admission_charge)
+      StudentService.decrementBalance(StudentService.db, id, admission_charge)
       return apiSuccess(id, 'Student created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

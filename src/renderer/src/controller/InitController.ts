@@ -15,6 +15,13 @@ class InitController {
     }
     return true
   }
+
+  // check updte
+  async app_update(): Promise<boolean> {
+    await window.init.app_update()
+
+    return true
+  }
 }
 
 export default new InitController()

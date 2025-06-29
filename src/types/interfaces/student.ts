@@ -7,7 +7,6 @@ export interface Student_Write {
   admission_date: string // ISO date string
   address: string
   class_id: number
-  initial_balance: number
 }
 export interface Student_Record {
   id: number

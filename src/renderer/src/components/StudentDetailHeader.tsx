@@ -3,7 +3,7 @@ import { JSX } from 'react'
 import useStudentDetails from '@renderer/hooks/useStudentDetails'
 const StudentDetailHeader = (): JSX.Element => {
   const { studentDetails: studentDetail } = useStudentDetails()
-console.log(studentDetail)
+
   if (!studentDetail) {
     return <div>Loading student details...</div>
   }

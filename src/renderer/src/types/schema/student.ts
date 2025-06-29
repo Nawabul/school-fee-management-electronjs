@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const Student_Schema = z.object({
+export const StudentSchema = {
   reg_number: z
     .string({
       required_error: 'Registration number is required'
@@ -53,8 +53,11 @@ export const Student_Schema = z.object({
     .string({
       required_error: 'Admission date is required'
     })
-    .min(1, 'Admission date cannot be empty'),
+    .min(1, 'Admission date cannot be empty')
+}
 
+export const StudentCreateSchema = z.object({
+  ...StudentSchema,
   class_id: z.coerce
     .number({
       required_error: 'Class is required',
@@ -62,11 +65,13 @@ export const Student_Schema = z.object({
     })
     .min(1, 'Class must be at Selected'),
 
-  initial_balance: z.coerce
+  admission_charge: z.coerce
     .number({
-      required_error: 'Opening balance is required',
-      invalid_type_error: 'Opening balance must be a number'
+      required_error: 'Admission Charge is required',
+      invalid_type_error: 'Admission Charge must be a number'
     })
     .optional()
     .default(0)
 })
+
+export const StudentUpdateSchema = z.object(StudentSchema)

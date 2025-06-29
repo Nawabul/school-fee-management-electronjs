@@ -11,6 +11,7 @@ import {
   Mis_Charge_Write
 } from '../types/interfaces/mis_charge'
 import { Monthly_Fee_Record } from '../types/interfaces/monthly_fee'
+import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 // Custom APIs for renderer
 const api = {}
 
@@ -119,6 +120,15 @@ if (process.contextIsolated) {
         studentId: number
       ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> =>
         ipcRenderer.invoke('student:monthly:fee:list', studentId)
+    })
+    // admission
+    contextBridge.exposeInMainWorld('admission', {
+      list: async (
+        studentId: number
+      ): Promise<successResponse<Admission_Record[]> | errorResponse> =>
+        ipcRenderer.invoke('student:admission:list', studentId),
+      create: async (data: Admission_Write): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('student:admission:create', data)
     })
 
     // init

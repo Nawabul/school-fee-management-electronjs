@@ -58,8 +58,8 @@ class StudentService {
         admission_date: format(new Date(data.admission_date), DB_DATE_FORMAT),
         address: data.address,
         class_id: data.class_id,
-        initial_balance: data.initial_balance ?? 0,
-        current_balance: data.initial_balance ?? 0,
+        initial_balance: 0,
+        current_balance: 0,
         last_fee_date: fee_date,
         last_notification_date: now
       }
@@ -95,10 +95,10 @@ class StudentService {
         throw new Error('Student not found')
       }
 
-      if (data.initial_balance !== undefined) {
-        const diff = data.initial_balance - existing.initial_balance
-        data.current_balance = existing.current_balance + diff
-      }
+      // if (data.initial_balance !== undefined) {
+      //   const diff = data.initial_balance - existing.initial_balance
+      //   data.current_balance = existing.current_balance + diff
+      // }
 
       // Prepare the object to update in DB, converting boolean to 1/0
       const dbData = {
@@ -247,7 +247,6 @@ class StudentService {
           // delete student
           tx.delete(students).where(eq(students.id, studentId)).run()
           deleted = true
-
         })()
       })
 

@@ -6,11 +6,12 @@ import { JSX } from 'react'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 import { Payment_Schema } from '@renderer/types/schema/payment'
+import { todayISODate } from '@renderer/types/constant/date'
 
 interface Props {
   // @ts-ignore schema can ve any thing
   onSubmit: (data: z.infer<typeof Payment_Schema>) => void
-  defaultValues?: z.infer<typeof Payment_Schema> | Record<string, never>
+  defaultValues?: z.infer<typeof Payment_Schema> | Record<string, string | number | boolean>
   isPending?: boolean
 }
 
@@ -25,6 +26,8 @@ const PaymentForm = ({
     resolver: zodResolver(Payment_Schema),
     defaultValues
   })
+
+  console.log('today iso date', todayISODate)
 
   return (
     <form

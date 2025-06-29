@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import MisChargeController from '@renderer/controller/MisChargeController'
 import MisChargeForm from '@renderer/components/mis_charge/MisChargeForm'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
+import { todayISODate } from '@renderer/types/constant/date'
 
 const MisChargeInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -45,7 +46,11 @@ const MisChargeInsert = (): React.JSX.Element => {
       <StudentDetailHeader />
       {/* END HEADER CARD */}
       <div className="md:p-5">
-        <MisChargeForm onSubmit={handleFormSubmit} isPending={misChargeMutation.isPending} />
+        <MisChargeForm onSubmit={handleFormSubmit} isPending={misChargeMutation.isPending}
+          defaultValues={{
+            date: todayISODate
+          }}
+        />
       </div>
     </div>
   )

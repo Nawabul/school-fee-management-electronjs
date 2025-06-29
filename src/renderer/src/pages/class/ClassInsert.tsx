@@ -41,7 +41,7 @@ const ClassInsert = (): React.JSX.Element => {
         <ClassForm
           onSubmit={handleFormSubmit}
           isPending={classMutation.isPending}
-          defaultValues={{ name: '', amount: 0 }}
+          defaultValues={{ name: '', amount: 0, admission_charge: 0  }}
         />
       </div>
     </div>

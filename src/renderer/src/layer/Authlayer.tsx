@@ -34,6 +34,16 @@ const Authlayer = (): React.ReactElement => {
 
       // success
       setCompleted({ status: true, message: 'Initialization completed' })
+
+      // check for app update
+      if (navigator.onLine) {
+        InitController.app_update()
+      } else {
+        window.addEventListener('online', () => {
+
+          InitController.app_update()
+        })
+      }
     })()
   }, [])
 

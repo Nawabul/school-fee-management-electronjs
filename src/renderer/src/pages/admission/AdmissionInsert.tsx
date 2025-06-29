@@ -2,31 +2,32 @@ import { useMutation } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import PaymentController from '@renderer/controller/PaymentController'
-import PaymentForm from '@renderer/components/payment/PaymentForm'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
+import AdmissionForm from '@renderer/components/admission/AdmissionFrom'
+import AdmissionController from '@renderer/controller/AdmissionController'
+import { Admission_Write } from '@type/interfaces/admission'
 import { todayISODate } from '@renderer/types/constant/date'
 
-const PaymentInsert = (): React.JSX.Element => {
+const AdmissionInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
 
   const studentId = useParams<{ id: string }>().id
 
-  const paymentMutation = useMutation({
-    mutationKey: ['payment', 'insert'],
-    mutationFn: (data) => PaymentController.create(Number(studentId), data),
+  const admissionMutation = useMutation({
+    mutationKey: ['admission', 'insert'],
+    mutationFn: (data: Admission_Write) => AdmissionController.create(Number(studentId), data),
     onSuccess: () => {
       navigate(-1)
       // Optionally reset form or show success message
     },
     onError: (error) => {
-      console.error('Error creating class:', error)
+      console.error('Error creating admission:', error)
       // Optionally show error message
     }
   })
 
   const handleFormSubmit = (data): void => {
-    paymentMutation.mutate(data)
+    admissionMutation.mutate(data)
   }
 
   return (
@@ -34,11 +35,11 @@ const PaymentInsert = (): React.JSX.Element => {
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
         <div className="flex gap-2 items-center">
           <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Collect Payment</h1>
+          <h1 className="text-2xl font-bold">Admission Insert</h1>
         </div>
         <div>
-          <Link to={`/payment/${studentId}`}>
-            <Button>View All Payment</Button>
+          <Link to={`/admission/${studentId}`}>
+            <Button>View All Admissions</Button>
           </Link>
         </div>
       </div>
@@ -46,9 +47,9 @@ const PaymentInsert = (): React.JSX.Element => {
       <StudentDetailHeader />
       {/* END HEADER CARD */}
       <div className="md:p-5">
-        <PaymentForm
+        <AdmissionForm
           onSubmit={handleFormSubmit}
-          isPending={paymentMutation.isPending}
+          isPending={admissionMutation.isPending}
           defaultValues={{
             date: todayISODate
           }}
@@ -58,4 +59,4 @@ const PaymentInsert = (): React.JSX.Element => {
   )
 }
 
-export default PaymentInsert
+export default AdmissionInsert

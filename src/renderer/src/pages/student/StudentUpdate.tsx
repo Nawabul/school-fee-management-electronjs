@@ -22,7 +22,7 @@ const StudentUpdate = (): React.JSX.Element => {
     }
   })
 
-  const handleFormSubmit = (data: any): void => {
+  const handleFormSubmit = (data): void => {
     // Post to backend or handle in state
     studentMutation.mutate(data)
   }
@@ -65,6 +65,7 @@ const StudentUpdate = (): React.JSX.Element => {
             onSubmit={handleFormSubmit}
             isPending={studentMutation.isPending}
             defaultValues={data}
+            isUpdate={true}
           />
         )}
       </div>

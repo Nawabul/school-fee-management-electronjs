@@ -29,7 +29,7 @@ const MisItemInsert = (): React.JSX.Element => {
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
         <div className="flex gap-2 items-center">
           <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Add Class</h1>
+          <h1 className="text-2xl font-bold">Add Mis. Item</h1>
         </div>
         <div>
           <Link to={'/mis_item'}>

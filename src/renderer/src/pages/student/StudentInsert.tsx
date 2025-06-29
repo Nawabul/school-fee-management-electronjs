@@ -4,6 +4,7 @@ import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import StudentController from '@renderer/controller/StudentController'
 import { Link, useNavigate } from 'react-router-dom'
+import { todayISODate } from '@renderer/types/constant/date'
 
 const StudentInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -38,7 +39,13 @@ const StudentInsert = (): React.JSX.Element => {
         </div>
       </div>
       <div className="md:p-5">
-        <StudentForm onSubmit={handleFormSubmit} isPending={studentMutation.isPending} />
+        <StudentForm
+          onSubmit={handleFormSubmit}
+          isPending={studentMutation.isPending}
+          defaultValues={{
+            admission_date: todayISODate
+          }}
+        />
       </div>
     </div>
   )

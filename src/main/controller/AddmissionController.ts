@@ -11,29 +11,21 @@ class AddmissionController {
     data: Admission_Write
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      let id: number = 0
+      console.log('Creating admission with data:', data)
+      let id = 0
       db.transaction((tx) => {
         ;(async () => {
           const admissionId = await AdmissionService.create(data, tx)
-          if (!admissionId) {
-            throw new Error('Failed to create admission, no ID returned')
-          }
+          if (!admissionId) throw new Error('Failed to create admission')
 
-          // update student classs
-          const updateClass = await StudentService.class_update(data.student_id, data.class_id, tx)
+          const updated = await StudentService.class_update(data.student_id, data.class_id, tx)
+          if (!updated) throw new Error('Failed to update student class')
 
-          if (!updateClass) {
-            throw new Error('Failed to update student class')
-          }
-          // decrement student balance
-          StudentService.decrementBalance(tx, data.student_id, data.amount)
+          await StudentService.decrementBalance(tx, data.student_id, data.amount)
           id = admissionId
         })()
+        return id
       })
-
-      if (id === 0) {
-        return apiError('Failed to create admission, no ID returned')
-      }
 
       return apiSuccess(id, 'Admission created successfully')
     } catch (error: unknown) {
@@ -50,6 +42,7 @@ class AddmissionController {
   ): Promise<successResponse<Admission_Record[]> | errorResponse> {
     try {
       const result = await AdmissionService.list(studentId)
+
       return apiSuccess(result, 'Student Admission fetched successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

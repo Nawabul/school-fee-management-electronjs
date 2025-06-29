@@ -53,6 +53,10 @@ const StudentRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/student/update/${id}`)
     },
+    admission: (id: number, data: Student_Record): void => {
+      setStudentDetails(data)
+      navigate(`/admission/${id}`)
+    },
     transfer: (id: number, data: Student_Record): void => {
       setStudentDetails(data)
       navigate(`/student/transfer/${id}`)

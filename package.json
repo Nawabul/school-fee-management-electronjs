@@ -3,7 +3,9 @@
   "version": "1.0.1",
   "description": "Application for managing school fees",
   "main": "./out/main/index.js",
-  "author": "Nawabul",
+  "author": {
+    "name": "Nawabul"
+  },
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",

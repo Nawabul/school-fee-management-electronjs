@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react'
 import flowbiteReact from 'flowbite-react/plugin/vite'
 //@ts-ignore
 import tailwindcss from '@tailwindcss/vite'
-import { alias } from 'drizzle-orm/gel-core'
 // import path from 'path'
 
 export default defineConfig({
@@ -22,14 +21,14 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
-        '@types': resolve('src/types')
+        '@type': resolve('src/types')
       }
     }
   },
   renderer: {
     resolve: {
       alias: {
-        '@types': path.resolve(__dirname, 'src/types'),
+        '@type': path.resolve(__dirname, 'src/types'),
         '@renderer': resolve('src/renderer/src'),
         'tailwindcss/version.js': path.resolve(
           __dirname,
