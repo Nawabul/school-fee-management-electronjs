@@ -17,7 +17,7 @@ export const admissionColumns = (): ColumnDef<Admission_Record>[] => [
   },
   {
     accessorKey: 'date',
-    header: 'Name',
+    header: 'Date',
     enableHiding: false,
     cell: ({ row }) => format(new Date(row.original.date), date_format)
   },

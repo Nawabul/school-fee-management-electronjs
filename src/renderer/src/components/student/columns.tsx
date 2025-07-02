@@ -103,8 +103,19 @@ export const studentColumns = (
     enableHiding: false,
     cell: ({ row }) => (
       <Dropdown label="Edit" arrowIcon={false} placement="bottom">
-        <DropdownItem onClick={() => item.update(row.original.id, row.original)}>Edit</DropdownItem>
-        <DropdownItem onClick={() => item.admission(row.original.id, row.original)}>Admission</DropdownItem>
+        <DropdownItem onClick={() => item.payment(row.original.id, row.original)}>
+          Payment
+        </DropdownItem>
+        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>
+          Monthly Fee
+        </DropdownItem>
+
+        <DropdownItem onClick={() => item.mis_charge(row.original.id, row.original)}>
+          Mis. Charges
+        </DropdownItem>
+        <DropdownItem onClick={() => item.admission(row.original.id, row.original)}>
+          Promote Class
+        </DropdownItem>
         {row.original.transfer_date == null ? (
           <DropdownItem onClick={() => item.transfer(row.original.id, row.original)}>
             Not Active
@@ -115,18 +126,12 @@ export const studentColumns = (
           </DropdownItem>
         )}
 
+        <DropdownItem onClick={() => item.update(row.original.id, row.original)}>Edit</DropdownItem>
         <DropdownItem onClick={() => item.delete(row.original.id, row.original)}>
           Delete
         </DropdownItem>
-        <DropdownItem onClick={() => item.payment(row.original.id, row.original)}>
-          Payment
-        </DropdownItem>
-        <DropdownItem onClick={() => item.mis_charge(row.original.id, row.original)}>
-          Mis. Charges
-        </DropdownItem>
-        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>
-          Monthly Fee
-        </DropdownItem>
+
+
       </Dropdown>
     )
   }

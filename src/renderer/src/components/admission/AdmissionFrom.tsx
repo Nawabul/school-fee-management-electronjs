@@ -38,7 +38,7 @@ const AdmissionForm = ({
       if (name == 'class_id' && value.class_id) {
         const item = classList.find((item) => item.id == value.class_id)
         if (item) {
-          setValue('amount', item.amount)
+          setValue('amount', item.admission_charge)
         }
       }
     })
