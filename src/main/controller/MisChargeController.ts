@@ -6,6 +6,9 @@ import {
 } from '../../types/interfaces/mis_charge'
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import MisChargeService from '../service/MisChargeService'
+import { Transaction } from '@type/interfaces/db'
+import PaymentService from '@main/service/PaymentService'
+import StudentService from '@main/service/StudentService'
 
 class MisChargeController {
   async create(
@@ -13,7 +16,19 @@ class MisChargeController {
     data: Mis_Charge_Write
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      const result = await MisChargeService.create(data)
+      const result = MisChargeService.db.transaction((tx: Transaction) => {
+        const needPaid = data.amount
+        // adjust payment
+        const havePaid = PaymentService.adjustUsed(needPaid, 'mis_charge', tx)
+
+        const input = {
+          ...data,
+          paid: havePaid
+        }
+        // adjust Student amount
+        StudentService.decrementBalance(tx, data.student_id, needPaid - havePaid)
+        return MisChargeService.create(input, tx)
+      })
       return apiSuccess(result, 'MIS Charge created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -29,7 +44,32 @@ class MisChargeController {
     data: Mis_Charge_Write
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await MisChargeService.update(id, data)
+      // fetch mis charge
+      const misCharge = MisChargeService.get(id)
+      if (!misCharge) {
+        return apiError('MIS. Charge not found')
+      }
+
+      const result = MisChargeService.db.transaction((tx: Transaction) => {
+        const amountChange = data.amount - misCharge.amount
+        const input = {
+          ...data,
+          paid: misCharge.paid
+        }
+        const needPaid = data.amount - misCharge.paid
+        if (needPaid != 0) {
+          // adjust payment
+          const havePaid = PaymentService.adjustUsed(needPaid, 'mis_charge', tx)
+
+          input.paid = misCharge.paid + havePaid
+          const downAmount = amountChange - havePaid
+          // adjust Student amount
+          StudentService.decrementBalance(tx, misCharge.student_id, downAmount)
+        }
+
+        // update mis charges
+        return MisChargeService.update(id, input, tx)
+      })
       if (!result) {
         return apiError('MIS Charge not found or no changes made')
       }
@@ -47,7 +87,23 @@ class MisChargeController {
     id: number
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await MisChargeService.delete(id)
+      // fetch mis charge
+      const misCharge = MisChargeService.get(id)
+      if (!misCharge) {
+        return apiError('MIS. Charge not found')
+      }
+
+      const result = MisChargeService.db.transaction((tx: Transaction) => {
+        const paid = misCharge.paid
+
+        if (paid != 0) {
+          // adjust payment
+          PaymentService.adjustUsed(-paid, 'mis_charge', tx)
+        }
+        // up amount from student
+        StudentService.incrementBalance(tx, misCharge.student_id, misCharge.amount - paid)
+        return MisChargeService.delete(id, tx)
+      })
       if (!result) {
         return apiError('MIS Charge not found or could not be deleted')
       }

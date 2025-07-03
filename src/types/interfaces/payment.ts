@@ -27,3 +27,14 @@ export interface Payment_Read {
   date: string
   remark?: string | null
 }
+
+export interface Payment_Used_Unused {
+  id: number
+  amount: number
+  used: number
+  admission: number
+  monthly: number
+  mis_charge: number
+}
+
+export type Payment_Type = 'admission' | 'monthly' | 'mis_charge'

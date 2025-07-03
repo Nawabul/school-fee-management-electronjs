@@ -6,6 +6,10 @@ export interface Mis_Charge_Write {
   remark?: string
 }
 
+export interface Mis_Charege_Insert_Update extends Mis_Charge_Write {
+  paid: number
+}
+
 export interface Mis_Charge_Record {
   id: number
   item_name: string
@@ -16,6 +20,8 @@ export interface Mis_Charge_Record {
 
 export interface Mis_Charge_Read {
   amount: number
+  student_id: number
+  paid: number
   item_id: number
   date: string
   remark?: string | null
