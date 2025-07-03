@@ -20,3 +20,9 @@ export interface Mis_Charge_Read {
   date: string
   remark?: string | null
 }
+
+export interface Mis_Charge_Read_Paid_Unpaid {
+  id: number
+  amount: number
+  paid: number
+}

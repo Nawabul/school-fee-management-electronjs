@@ -1,16 +1,17 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, lt, sql } from 'drizzle-orm'
 import { mis_charges } from '../db/schema/mis_charge'
 import {
   Mis_Charge_Write,
   Mis_Charge_Record,
-  Mis_Charge_Read
+  Mis_Charge_Read,
+  Mis_Charge_Read_Paid_Unpaid
 } from '../../types/interfaces/mis_charge'
 import StudentService from './StudentService'
 import { mis_items } from '../db/schema/mis_item'
-
+type Transaction = BetterSQLite3Database<Record<string, never>>
 class MisChargeService {
   db: BetterSQLite3Database<Record<string, never>> & {
     $client: Database.Database
@@ -163,6 +164,95 @@ class MisChargeService {
           : 'Unknown error while fetching MIS charge'
       )
     }
+  }
+
+  unpaid_list(): Mis_Charge_Read_Paid_Unpaid[] {
+    const list = this.db
+      .select({
+        id: mis_charges.id,
+        amount: mis_charges.amount,
+        paid: mis_charges.paid
+      })
+      .from(mis_charges)
+      .where(lt(mis_charges.paid, mis_charges.amount))
+      .orderBy(desc(mis_charges.paid), desc(mis_charges.date))
+      .all()
+    return list
+  }
+
+  paid(
+    id: number,
+    amount: number,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): boolean {
+    const pay = tx
+      .update(mis_charges)
+      .set({ paid: sql`${mis_charges.paid} + ${amount}` })
+      .where(eq(mis_charges.id, id))
+      .run()
+    return pay.changes > 0
+  }
+
+  // unpaid reverse the paid amount
+
+  handlePaidUp(amount: number, tx: Transaction): number {
+    const list = this.unpaid_list()
+    let used = 0
+    let remain = amount
+
+    for (let i = 0; i < list.length && remain > 0; i++) {
+      const charge = list[i]
+      const toPay = charge.amount - charge.paid
+      if (toPay > remain) {
+        this.paid(charge.id, remain, tx)
+        used += remain
+        remain = 0
+      } else {
+        this.paid(charge.id, toPay, tx)
+        used += toPay
+        remain -= toPay
+      }
+    }
+    console.log('Hanlde used ', used, remain)
+    return used
+  }
+
+  // handle paid down
+
+  // adjust the paid amount
+
+  adjustPaid(amount: number, tx: Transaction | null): number {
+    let used = 0
+    if (amount == 0) {
+      return 0
+    }
+    if (tx == null) {
+      const paid = this.db.transaction((tx: Transaction) => {
+        if (amount < 0) {
+          // reverse the paid amount
+          return 0
+        } else {
+          // add the paid amount
+          const havePaid = this.handlePaidUp(amount, tx)
+          return havePaid
+        }
+      })
+
+      used = paid
+      return used
+    }
+
+    if (amount < 0) {
+      // reverse the paid amount
+      used = 0
+    } else {
+      // add the paid amount
+      const havePaid = this.handlePaidUp(amount, tx)
+      console.log(havePaid)
+      used = havePaid
+    }
+
+    return used
   }
 }
 

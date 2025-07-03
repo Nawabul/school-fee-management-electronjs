@@ -2,6 +2,9 @@ import { Payment_Read, Payment_Record, Payment_Write } from '../../types/interfa
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import PaymentService from '../service/PaymentService'
+import { Transaction } from '@type/interfaces/db'
+import MisChargeService from '@main/service/MisChargeService'
+import StudentService from '@main/service/StudentService'
 
 class PaymentController {
   async create(
@@ -9,7 +12,37 @@ class PaymentController {
     data: Payment_Write
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      const result = await PaymentService.create(data)
+      let remain = data.amount
+
+      const result = PaymentService.db.transaction((tx: Transaction): number => {
+        // adjust admission
+
+        // adjust monthly
+
+        // adjust mis charge
+        const misCharge = MisChargeService.adjustPaid(remain, tx)
+        remain -= misCharge
+
+        const used = {
+          admission: 0,
+          monthly: 0,
+          mis_charge: misCharge
+        }
+        const input = {
+          ...data,
+          ...used,
+          used: data.amount - remain
+        }
+
+        // create payment record
+        const paymentRecord = PaymentService.create(input, tx)
+
+        // adjust student current amount
+        StudentService.incrementBalance(tx, data.student_id, data.amount)
+        console.log(paymentRecord)
+        return paymentRecord
+      })
+      console.log(result, 'completed')
       return apiSuccess(result, 'Payment created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -2,10 +2,15 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
 import { desc, eq } from 'drizzle-orm'
-import { Payment_Read, Payment_Record, Payment_Write } from '../../types/interfaces/payment'
+import {
+  Payment_Insert,
+  Payment_Read,
+  Payment_Record,
+  Payment_Write
+} from '../../types/interfaces/payment'
 import { payments } from '../db/schema/payment'
 import StudentService from './StudentService'
-
+type Transaction = BetterSQLite3Database<Record<string, never>>
 class PaymentService {
   db: BetterSQLite3Database<Record<string, never>> & {
     $client: Database.Database
@@ -16,28 +21,12 @@ class PaymentService {
   }
 
   // PaymentService.ts
-  async create(data: Payment_Write): Promise<number> {
-    try {
-      let insertedId = 0
+  create(data: Payment_Insert, tx: Transaction = this.db): number {
+    // used payment amount
+    console.log(data)
+    const result = tx.insert(payments).values(data).returning({ id: payments.id }).get()
 
-      this.db.transaction((tx): void => {
-        const result = tx.insert(payments).values(data).returning({ id: payments.id }).get()
-
-        if (!result?.id) throw new Error('Failed to create payment.')
-
-        insertedId = result.id
-
-        // Adjust student balance
-        StudentService.incrementBalance(tx, data.student_id, data.amount)
-      })
-
-      return insertedId
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while creating payment: ' + error.message)
-      }
-      throw new Error('Unknown error while creating payment')
-    }
+    return result.id
   }
 
   async update(id: number, newData: Payment_Write): Promise<boolean> {
@@ -97,7 +86,6 @@ class PaymentService {
       throw new Error('Unknown error while deleting payment')
     }
   }
-
 
   /**
    * Get all payment records.
