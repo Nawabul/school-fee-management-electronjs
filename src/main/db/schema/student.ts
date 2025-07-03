@@ -18,6 +18,7 @@ export const students = sqliteTable('students', {
     .notNull()
     .references(() => classes.id, { onDelete: 'restrict' }),
   last_fee_date: text('last_fee_date').notNull(),
+  active_until: text('active_until'),
   last_notification_date: text('last_notification_date')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`)

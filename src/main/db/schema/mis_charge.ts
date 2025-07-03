@@ -8,6 +8,7 @@ export const mis_charges = sqliteTable('mis_charges', {
     .notNull()
     .references(() => students.id, { onDelete: 'restrict' }),
   amount: integer('amount').notNull().default(0),
+  paid: integer('paid').notNull().default(0),
   date: text('date').notNull(), // store ISO date string
   item_id: integer('item_id')
     .notNull()

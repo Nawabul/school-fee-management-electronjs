@@ -8,6 +8,7 @@ export const admission = sqliteTable('admission', {
     .notNull()
     .references(() => students.id, { onDelete: 'restrict' }),
   amount: integer('amount').notNull().default(0),
+  paid: integer('paid').notNull().default(0),
   date: text('date').notNull(), // store ISO date string
   class_id: integer('class_id')
     .notNull()

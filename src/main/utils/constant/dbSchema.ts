@@ -32,6 +32,7 @@ export const currentSchemaStatements: string[] = [
     current_balance integer DEFAULT 0 NOT NULL,
     class_id integer NOT NULL,
     last_fee_date text NOT NULL,
+    active_until text,
     last_notification_date text DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON UPDATE NO ACTION ON DELETE RESTRICT
   );`,
@@ -42,6 +43,7 @@ export const currentSchemaStatements: string[] = [
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
     date text NOT NULL,
     amount integer DEFAULT 0 NOT NULL,
+     paid integer DEFAULT 0 NOT NULL,
     student_id integer NOT NULL,
     class_id integer NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
@@ -52,6 +54,10 @@ export const currentSchemaStatements: string[] = [
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
     date text NOT NULL,
     amount integer DEFAULT 0 NOT NULL,
+    used integer DEFAULT 0 NOT NULL,
+    admission integer DEFAULT 0 NOT NULL,
+    monthly integer DEFAULT 0 NOT NULL,
+    mis_charge integer DEFAULT 0 NOT NULL,
     student_id integer NOT NULL,
     remark text,
     FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT
@@ -61,6 +67,7 @@ export const currentSchemaStatements: string[] = [
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
     student_id integer NOT NULL,
     amount integer DEFAULT 0 NOT NULL,
+   paid integer DEFAULT 0 NOT NULL,
     date text NOT NULL,
     item_id integer NOT NULL,
     remark text,
@@ -80,6 +87,7 @@ export const currentSchemaStatements: string[] = [
         student_id integer NOT NULL,
         class_id integer NOT NULL,
         amount integer DEFAULT 0 NOT NULL,
+        paid integer DEFAULT 0 NOT NULL,
         date text NOT NULL,
         remark text,
         FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
@@ -182,7 +190,20 @@ const versionSchemaStatements: Record<string, string[]> = {
     `CREATE UNIQUE INDEX IF NOT EXISTS admission_student_class_unique ON admission (student_id, class_id);`,
 
     // add admission charge in class table
-    `ALTER TABLE classes ADD COLUMN admission_charge integer DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE classes ADD COLUMN admission_charge integer DEFAULT 0 NOT NULL;`
+  ],
+  // 1.0.2 payment status of each
+  '1.0.2': [
+    `ALTER TABLE students ADD COLUMN active_until text;`,
+    `ALTER TABLE payments
+        ADD COLUMN used integer DEFAULT 0 NOT NULL,
+        ADD COLUMN admission integer DEFAULT 0 NOT NULL,
+        ADD COLUMN monthly integer DEFAULT 0 NOT NULL,
+        ADD COLUMN mis_charge integer DEFAULT 0 NOT NULL,
+        ;`,
+    `ALTER TABLE admission ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE monthly_fee ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
   ]
 }
 
