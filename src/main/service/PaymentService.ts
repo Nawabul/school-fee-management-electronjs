@@ -9,7 +9,6 @@ import {
   Payment_Write
 } from '../../types/interfaces/payment'
 import { payments } from '../db/schema/payment'
-import StudentService from './StudentService'
 type Transaction = BetterSQLite3Database<Record<string, never>>
 class PaymentService {
   db: BetterSQLite3Database<Record<string, never>> & {
@@ -23,68 +22,21 @@ class PaymentService {
   // PaymentService.ts
   create(data: Payment_Insert, tx: Transaction = this.db): number {
     // used payment amount
-    console.log(data)
     const result = tx.insert(payments).values(data).returning({ id: payments.id }).get()
 
     return result.id
   }
 
-  async update(id: number, newData: Payment_Write): Promise<boolean> {
-    try {
-      let changes = 0
-      this.db.transaction((tx) => {
-        const oldPayment = this.db
-          .select({ amount: payments.amount, student_id: payments.student_id })
-          .from(payments)
-          .where(eq(payments.id, id))
-          .get()
+  update(id: number, newData: Payment_Write, tx: Transaction = this.db): boolean {
+    const changes = tx.update(payments).set(newData).where(eq(payments.id, id)).run()
 
-        if (!oldPayment) throw new Error('Payment not found.')
-
-        tx.update(payments).set(newData).where(eq(payments.id, id)).run()
-
-        // Adjust student balance
-        const newBalance = newData.amount - oldPayment.amount
-        if (newBalance !== 0) {
-          StudentService.incrementBalance(tx, oldPayment.student_id, newBalance)
-        }
-        changes = 1
-      })
-
-      return changes > 0
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating payment: ' + error.message)
-      }
-      throw new Error('Unknown error while updating payment')
-    }
+    return changes.changes > 0
   }
 
-  async delete(id: number): Promise<boolean> {
-    try {
-      let deleted = false
-      this.db.transaction((tx) => {
-        const payment = this.db
-          .select({ amount: payments.amount, student_id: payments.student_id })
-          .from(payments)
-          .where(eq(payments.id, id))
-          .get()
+  delete(id: number, tx: Transaction = this.db): boolean {
+    const deleted = tx.delete(payments).where(eq(payments.id, id)).run()
 
-        if (!payment) throw new Error('Payment not found.')
-
-        tx.delete(payments).where(eq(payments.id, id)).run()
-        StudentService.decrementBalance(tx, payment.student_id, payment.amount)
-
-        deleted = true
-      })
-
-      return deleted
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while deleting payment: ' + error.message)
-      }
-      throw new Error('Unknown error while deleting payment')
-    }
+    return deleted.changes > 0
   }
 
   /**
@@ -117,27 +69,24 @@ class PaymentService {
   /**
    * Get a single payment record by ID.
    */
-  async get(id: number): Promise<Payment_Read | null> {
-    try {
-      const payment = this.db
-        .select({
-          id: payments.id,
-          date: payments.date,
-          amount: payments.amount,
-          remark: payments.remark
-        })
-        .from(payments)
-        .where(eq(payments.id, id))
-        .get()
+  get(id: number): Payment_Read | null {
+    const payment = this.db
+      .select({
+        id: payments.id,
+        student_id: payments.student_id,
+        date: payments.date,
+        amount: payments.amount,
+        used: payments.used,
+        admission: payments.admission,
+        monthly: payments.monthly,
+        mis_charge: payments.mis_charge,
+        remark: payments.remark
+      })
+      .from(payments)
+      .where(eq(payments.id, id))
+      .get()
 
-      return payment || null
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while fetching payment: ' + error.message)
-      } else {
-        throw new Error('Unknown error while fetching payment')
-      }
-    }
+    return payment || null
   }
 }
 

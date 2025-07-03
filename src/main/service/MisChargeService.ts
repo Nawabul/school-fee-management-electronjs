@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { desc, eq, lt, sql } from 'drizzle-orm'
+import { desc, eq, gt, lt, sql } from 'drizzle-orm'
 import { mis_charges } from '../db/schema/mis_charge'
 import {
   Mis_Charge_Write,
@@ -180,6 +180,20 @@ class MisChargeService {
     return list
   }
 
+  //paid list
+  paid_list(): Mis_Charge_Read_Paid_Unpaid[] {
+    const list = this.db
+      .select({
+        id: mis_charges.id,
+        amount: mis_charges.amount,
+        paid: mis_charges.paid
+      })
+      .from(mis_charges)
+      .where(gt(mis_charges.paid, 0))
+      .orderBy(mis_charges.paid, desc(mis_charges.date))
+      .all()
+    return list
+  }
   paid(
     id: number,
     amount: number,
@@ -194,6 +208,19 @@ class MisChargeService {
   }
 
   // unpaid reverse the paid amount
+
+  unpaid(
+    id: number,
+    amount: number,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): boolean {
+    const pay = tx
+      .update(mis_charges)
+      .set({ paid: sql`${mis_charges.paid} - ${amount}` })
+      .where(eq(mis_charges.id, id))
+      .run()
+    return pay.changes > 0
+  }
 
   handlePaidUp(amount: number, tx: Transaction): number {
     const list = this.unpaid_list()
@@ -213,12 +240,35 @@ class MisChargeService {
         remain -= toPay
       }
     }
-    console.log('Hanlde used ', used, remain)
+
     return used
   }
 
   // handle paid down
 
+  handlePaidDown(amount: number, tx: Transaction): number {
+    const list = this.paid_list()
+
+    let collect = 0
+    let remain = Math.abs(amount) // will be negative
+
+    for (let i = 0; i < list.length && remain > 0; i++) {
+      const charge = list[i]
+      const toCollect = charge.paid
+
+      if (toCollect > remain) {
+        this.unpaid(charge.id, remain, tx)
+        collect += remain
+        remain = 0
+      } else {
+        this.unpaid(charge.id, toCollect, tx)
+        collect += toCollect
+        remain -= toCollect
+      }
+    }
+
+    return collect
+  }
   // adjust the paid amount
 
   adjustPaid(amount: number, tx: Transaction | null): number {
@@ -230,7 +280,8 @@ class MisChargeService {
       const paid = this.db.transaction((tx: Transaction) => {
         if (amount < 0) {
           // reverse the paid amount
-          return 0
+          const havePaid = this.handlePaidDown(amount, tx)
+          return -havePaid
         } else {
           // add the paid amount
           const havePaid = this.handlePaidUp(amount, tx)
@@ -244,16 +295,19 @@ class MisChargeService {
 
     if (amount < 0) {
       // reverse the paid amount
-      used = 0
+      const havePaid = this.handlePaidDown(amount, tx)
+
+      used = -havePaid
+      console.log('Ajdust paid used ', used)
     } else {
       // add the paid amount
       const havePaid = this.handlePaidUp(amount, tx)
-      console.log(havePaid)
       used = havePaid
     }
 
     return used
   }
+  // adjust the unpaid amount
 }
 
 export default new MisChargeService()

@@ -362,10 +362,11 @@ class StudentService {
     studentId: number,
     amount: number
   ): void {
-    tx.update(students)
+   const result = tx.update(students)
       .set({ current_balance: sql`${students.current_balance} + ${amount}` })
       .where(eq(students.id, studentId))
       .run()
+      console.log('incre', result)
   }
 
   //@ts-ignore there will be any table with this name

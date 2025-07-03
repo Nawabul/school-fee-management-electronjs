@@ -18,7 +18,12 @@ export interface Payment_Record {
 }
 
 export interface Payment_Read {
+  student_id: number
   amount: number
+  used: number
+  admission: number
+  monthly: number
+  mis_charge: number
   date: string
   remark?: string | null
 }

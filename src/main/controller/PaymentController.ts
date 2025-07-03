@@ -39,10 +39,8 @@ class PaymentController {
 
         // adjust student current amount
         StudentService.incrementBalance(tx, data.student_id, data.amount)
-        console.log(paymentRecord)
         return paymentRecord
       })
-      console.log(result, 'completed')
       return apiSuccess(result, 'Payment created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -58,7 +56,57 @@ class PaymentController {
     data: Payment_Write
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await PaymentService.update(id, data)
+      // fetch payment record
+      const paymentRecord = PaymentService.get(id)
+      if (!paymentRecord) {
+        return apiError('Payment not found')
+      }
+      const result = PaymentService.db.transaction((tx: Transaction): boolean => {
+        const balanceDiff = data.amount - paymentRecord.amount
+        const havePaid = data.amount - paymentRecord.used
+        let usedNow = 0
+
+        let inputused = {
+          admission: paymentRecord.admission,
+          monthly: paymentRecord.monthly,
+          mis_charge: paymentRecord.mis_charge
+        }
+        let input = {
+          ...data,
+          ...inputused,
+          used: paymentRecord.used
+        }
+        let remain = havePaid
+        if (balanceDiff != 0) {
+          // adjust admission
+
+          // adjust monthly
+
+          // adjust mis charge
+          const misCharge = MisChargeService.adjustPaid(remain, tx)
+
+          remain -= misCharge
+          usedNow += misCharge
+
+          inputused = {
+            admission: 0,
+            monthly: 0,
+            mis_charge: paymentRecord.mis_charge + misCharge
+          }
+          input = {
+            ...data,
+            ...inputused,
+            used: paymentRecord.used + usedNow
+          }
+
+          // adjust student current amount
+          console.log('diff', balanceDiff)
+          StudentService.incrementBalance(tx, paymentRecord.student_id, balanceDiff)
+        }
+        // update payment
+        const paymentUpdate = PaymentService.update(id, input, tx)
+        return paymentUpdate
+      })
       if (!result) {
         return apiError('Payment not found or no changes made')
       }
@@ -76,10 +124,29 @@ class PaymentController {
     id: number
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await PaymentService.delete(id)
-      if (!result) {
-        return apiError('Payment not found or could not be deleted')
+      // fetch payment record
+      const paymentRecord = PaymentService.get(id)
+      if (!paymentRecord) {
+        return apiError('Payment not found')
       }
+      const result = PaymentService.db.transaction((tx: Transaction): boolean => {
+        const used = paymentRecord.used
+
+        if (used != 0) {
+          // adjust admission
+
+          // adjust monthly
+
+          // adjust mis charge
+          MisChargeService.adjustPaid(-paymentRecord.mis_charge, tx)
+
+          // adjust student current amount
+        }
+        // update payment
+        StudentService.decrementBalance(tx, paymentRecord.student_id, paymentRecord.amount)
+        const paymentDelete = PaymentService.delete(id, tx)
+        return paymentDelete
+      })
       return apiSuccess(result, 'Payment deleted successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
