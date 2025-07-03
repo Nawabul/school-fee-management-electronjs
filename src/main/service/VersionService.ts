@@ -32,6 +32,7 @@ class VersionService {
   async executeSchemasForLatest(statements: string[]): Promise<boolean> {
     const migrate = rowDb.transaction(() => {
       for (const stmt of statements) {
+        console.log(stmt)
         rowDb.prepare(stmt).run()
       }
     })
@@ -40,6 +41,7 @@ class VersionService {
       migrate() // run the transaction
       return true
     } catch (error) {
+
       if (error instanceof Error) {
         return false
       }

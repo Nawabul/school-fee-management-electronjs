@@ -1,5 +1,5 @@
 import { DB_VERSION_NAME } from './config'
-const app_version = '1.0.1'
+const app_version = '1.0.2'
 export const currentSchemaStatements: string[] = [
   `CREATE TABLE IF NOT EXISTS classes (
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -195,15 +195,13 @@ const versionSchemaStatements: Record<string, string[]> = {
   // 1.0.2 payment status of each
   '1.0.2': [
     `ALTER TABLE students ADD COLUMN active_until text;`,
-    `ALTER TABLE payments
-        ADD COLUMN used integer DEFAULT 0 NOT NULL,
-        ADD COLUMN admission integer DEFAULT 0 NOT NULL,
-        ADD COLUMN monthly integer DEFAULT 0 NOT NULL,
-        ADD COLUMN mis_charge integer DEFAULT 0 NOT NULL,
-        ;`,
+    `ALTER TABLE payments ADD COLUMN used INTEGER DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE payments ADD COLUMN admission INTEGER DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE payments ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE payments ADD COLUMN mis_charge INTEGER DEFAULT 0 NOT NULL;`,
     `ALTER TABLE admission ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `ALTER TABLE monthly_fee ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
-    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`
   ]
 }
 
@@ -212,15 +210,13 @@ export const getVersionSchemaStatements = (version: string): string[] => {
 
   // filter all higher versions
   const index = versionsKeys.indexOf(version)
-
   if (index === -1) {
     return []
   }
   const statements: string[] = []
-  for (let i = index; i < versionsKeys.length; i++) {
+  for (let i = index + 1; i < versionsKeys.length; i++) {
     statements.push(...versionSchemaStatements[versionsKeys[i]])
   }
-
   statements.push(`UPDATE versions SET value = '${app_version}' WHERE name = '${DB_VERSION_NAME}';`)
 
   return statements

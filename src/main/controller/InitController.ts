@@ -37,7 +37,7 @@ class InitController {
 
   async checkForUpdates(): Promise<void> {
     // Check for updates
-    checkAndApplyUpdates()
+    // checkAndApplyUpdates()
   }
 }
 
