@@ -6,6 +6,10 @@ export interface Admission_Write {
   remark?: string
 }
 
+export interface Admission_Insert_Update extends Admission_Write {
+  paid: number
+}
+
 export interface Admission_Record {
   id: number
   class: string
@@ -13,7 +17,6 @@ export interface Admission_Record {
   date: string
   remark?: string | null
 }
-
 
 export interface Admission_Read {
   amount: number

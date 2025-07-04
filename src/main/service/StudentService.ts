@@ -2,7 +2,7 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { format, set, subYears } from 'date-fns'
+import { addYears, format, set, subYears } from 'date-fns'
 import { eq, sql } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
@@ -203,25 +203,21 @@ class StudentService {
       throw new Error('Error while updating last fee date: ')
     }
   }
-  async class_update(
+  class_update(
     studentId: number,
     classId: number,
     tx: BetterSQLite3Database<Record<string, never>> | null = null
-  ): Promise<boolean> {
-    try {
-      const dbInstance = tx || this.db
-      const result = await dbInstance
-        .update(students)
-        .set({ class_id: classId })
-        .where(eq(students.id, studentId))
-        .run()
-      return result.changes > 0
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating class: ' + error.message)
-      }
-      throw new Error('Error while updating student class ')
-    }
+  ): boolean {
+    const dbInstance = tx || this.db
+    const march31 = set(new Date(), { month: 2, date: 31 })
+    const nextDate = addYears(new Date(march31), 1)
+    const active = format(new Date(nextDate), DB_DATE_FORMAT)
+    const result = dbInstance
+      .update(students)
+      .set({ class_id: classId, active_until: active })
+      .where(eq(students.id, studentId))
+      .run()
+    return result.changes > 0
   }
 
   async delete(studentId: number): Promise<boolean> {

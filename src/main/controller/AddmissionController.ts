@@ -1,7 +1,8 @@
-import db from '@main/db/db'
 import AdmissionService from '@main/service/AdmissionService'
+import PaymentService from '@main/service/PaymentService'
 import StudentService from '@main/service/StudentService'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import { Transaction } from '@type/interfaces/db'
 import { apiError, apiSuccess, errorResponse, successResponse } from '@type/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 
@@ -11,23 +12,23 @@ class AddmissionController {
     data: Admission_Write
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      console.log('Creating admission with data:', data)
-      let id = 0
-      db.transaction((tx) => {
-        ;(async () => {
-          const admissionId = await AdmissionService.create(data, tx)
-          if (!admissionId) throw new Error('Failed to create admission')
+      const result = AdmissionService.db.transaction((tx: Transaction) => {
+        const needPaid = data.amount
+        // adjust payment
+        const havePaid = PaymentService.adjustUsed(needPaid, 'admission', tx)
 
-          const updated = await StudentService.class_update(data.student_id, data.class_id, tx)
-          if (!updated) throw new Error('Failed to update student class')
+        const input = {
+          ...data,
+          paid: havePaid
+        }
+        // adjust Student amount
+        StudentService.decrementBalance(tx, data.student_id, needPaid)
 
-          await StudentService.decrementBalance(tx, data.student_id, data.amount)
-          id = admissionId
-        })()
-        return id
+        // class update
+        StudentService.class_update(data.student_id, data.class_id, tx)
+        return AdmissionService.create(input, tx)
       })
-
-      return apiSuccess(id, 'Admission created successfully')
+      return apiSuccess(result, 'Admission created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {
         return apiError('Error while creating admission: ' + error.message)

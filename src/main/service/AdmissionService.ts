@@ -3,7 +3,13 @@ import db from '@main/db/db'
 import Database from 'better-sqlite3'
 import { admission } from '@main/db/schema/admission'
 import { desc, eq, gt, inArray, lt, sql } from 'drizzle-orm'
-import { Admission_Read, Admission_Read_Paid_Unpaid, Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import {
+  Admission_Insert_Update,
+  Admission_Read,
+  Admission_Read_Paid_Unpaid,
+  Admission_Record,
+  Admission_Write
+} from '@type/interfaces/admission'
 import { classes } from '@main/db/schema/class'
 import { Transaction } from '@type/interfaces/db'
 
@@ -14,57 +20,30 @@ class AdmissionService {
   constructor() {
     this.db = db
   }
-  async create(
-    data: Admission_Write,
+  create(
+    data: Admission_Insert_Update,
     tx: BetterSQLite3Database<Record<string, never>> = this.db
-  ): Promise<number> {
-    try {
-      const result = tx.insert(admission).values(data).returning({ id: admission.id }).get()
-      if (!result || !result.id) {
-        throw new Error('Failed to create admission, no ID returned')
-      }
-      return result.id
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while creating admission: ' + error.message)
-      } else {
-        console.error('Unknown error while creating adminssion:', error)
-        throw new Error('Unknown error while creating adminssion')
-      }
+  ): number {
+    const result = tx.insert(admission).values(data).returning({ id: admission.id }).get()
+    if (!result || !result.id) {
+      throw new Error('Failed to create admission, no ID returned')
     }
+    return result.id
   }
-  async update(id: number, data: Admission_Write): Promise<boolean> {
-    try {
-      const result = this.db.update(admission).set(data).where(eq(admission.id, id)).run()
+  update(id: number, data: Admission_Insert_Update): boolean {
+    const result = this.db.update(admission).set(data).where(eq(admission.id, id)).run()
 
-      // .run() returns info about rows affected, not the updated row itself
-      return result.changes > 0
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating admission: ' + error.message)
-      } else {
-        console.error('Unknown error while updating admission:', error)
-        throw new Error('Unknown error while updating admission')
-      }
-    }
+    // .run() returns info about rows affected, not the updated row itself
+    return result.changes > 0
   }
-  async delete(id: number | number[]): Promise<boolean> {
-    try {
-      const result = this.db
-        .delete(admission)
-        .where(inArray(admission.id, Array.isArray(id) ? id : [id]))
-        .run()
+  delete(id: number | number[]): boolean {
+    const result = this.db
+      .delete(admission)
+      .where(inArray(admission.id, Array.isArray(id) ? id : [id]))
+      .run()
 
-      // .run() returns info about rows affected, not the updated row itself
-      return result.changes > 0
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while deleting admission: ' + error.message)
-      } else {
-        console.error('Unknown error while deleting admission:', error)
-        throw new Error('Unknown error while deleting admission')
-      }
-    }
+    // .run() returns info about rows affected, not the updated row itself
+    return result.changes > 0
   }
   async list(studentId: number): Promise<Admission_Record[]> {
     try {
