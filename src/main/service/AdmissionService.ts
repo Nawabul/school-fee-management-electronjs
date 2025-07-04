@@ -2,9 +2,10 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '@main/db/db'
 import Database from 'better-sqlite3'
 import { admission } from '@main/db/schema/admission'
-import { desc, eq, inArray } from 'drizzle-orm'
-import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import { desc, eq, gt, inArray, lt, sql } from 'drizzle-orm'
+import { Admission_Read, Admission_Read_Paid_Unpaid, Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { classes } from '@main/db/schema/class'
+import { Transaction } from '@type/interfaces/db'
 
 class AdmissionService {
   db: BetterSQLite3Database<Record<string, never>> & {
@@ -87,6 +88,164 @@ class AdmissionService {
         throw new Error('Error  while fetching class')
       }
     }
+  }
+  get(id: number): Admission_Read | null {
+    const charge = this.db
+      .select({
+        class_id: admission.class_id,
+        student_id: admission.student_id,
+        date: admission.date,
+        amount: admission.amount,
+        paid: admission.paid,
+        remark: admission.remark
+      })
+      .from(admission)
+      .where(eq(admission.id, id))
+      .get()
+
+    return charge || null
+  }
+
+  unpaid_list(): Admission_Read_Paid_Unpaid[] {
+    const list = this.db
+      .select({
+        id: admission.id,
+        amount: admission.amount,
+        paid: admission.paid
+      })
+      .from(admission)
+      .where(lt(admission.paid, admission.amount))
+      .orderBy(desc(admission.paid), admission.date)
+      .all()
+    return list
+  }
+
+  //paid list
+  paid_list(): Admission_Read_Paid_Unpaid[] {
+    const list = this.db
+      .select({
+        id: admission.id,
+        amount: admission.amount,
+        paid: admission.paid
+      })
+      .from(admission)
+      .where(gt(admission.paid, 0))
+      .orderBy(admission.paid, desc(admission.date))
+      .all()
+    return list
+  }
+  paid(
+    id: number,
+    amount: number,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): boolean {
+    const pay = tx
+      .update(admission)
+      .set({ paid: sql`${admission.paid} + ${amount}` })
+      .where(eq(admission.id, id))
+      .run()
+    return pay.changes > 0
+  }
+
+  // unpaid reverse the paid amount
+
+  unpaid(
+    id: number,
+    amount: number,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): boolean {
+    const pay = tx
+      .update(admission)
+      .set({ paid: sql`${admission.paid} - ${amount}` })
+      .where(eq(admission.id, id))
+      .run()
+    return pay.changes > 0
+  }
+
+  handlePaidUp(amount: number, tx: Transaction): number {
+    const list = this.unpaid_list()
+    let used = 0
+    let remain = amount
+
+    for (let i = 0; i < list.length && remain > 0; i++) {
+      const charge = list[i]
+      const toPay = charge.amount - charge.paid
+      if (toPay > remain) {
+        this.paid(charge.id, remain, tx)
+        used += remain
+        remain = 0
+      } else {
+        this.paid(charge.id, toPay, tx)
+        used += toPay
+        remain -= toPay
+      }
+    }
+
+    return used
+  }
+
+  // handle paid down
+
+  handlePaidDown(amount: number, tx: Transaction): number {
+    const list = this.paid_list()
+
+    let collect = 0
+    let remain = Math.abs(amount) // will be negative
+
+    for (let i = 0; i < list.length && remain > 0; i++) {
+      const charge = list[i]
+      const toCollect = charge.paid
+
+      if (toCollect > remain) {
+        this.unpaid(charge.id, remain, tx)
+        collect += remain
+        remain = 0
+      } else {
+        this.unpaid(charge.id, toCollect, tx)
+        collect += toCollect
+        remain -= toCollect
+      }
+    }
+
+    return collect
+  }
+  // adjust the paid amount
+
+  adjustPaid(amount: number, tx: Transaction | null): number {
+    let used = 0
+    if (amount == 0) {
+      return 0
+    }
+    if (tx == null) {
+      const paid = this.db.transaction((tx: Transaction) => {
+        if (amount < 0) {
+          // reverse the paid amount
+          const havePaid = this.handlePaidDown(amount, tx)
+          return -havePaid
+        } else {
+          // add the paid amount
+          const havePaid = this.handlePaidUp(amount, tx)
+          return havePaid
+        }
+      })
+
+      used = paid
+      return used
+    }
+
+    if (amount < 0) {
+      // reverse the paid amount
+      const havePaid = this.handlePaidDown(amount, tx)
+
+      used = -havePaid
+      console.log('Ajdust paid used ', used)
+    } else {
+      // add the paid amount
+      const havePaid = this.handlePaidUp(amount, tx)
+      used = havePaid
+    }
+
+    return used
   }
 }
 

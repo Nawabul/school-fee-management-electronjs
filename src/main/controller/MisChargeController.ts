@@ -26,7 +26,7 @@ class MisChargeController {
           paid: havePaid
         }
         // adjust Student amount
-        StudentService.decrementBalance(tx, data.student_id, needPaid - havePaid)
+        StudentService.decrementBalance(tx, data.student_id, needPaid)
         return MisChargeService.create(input, tx)
       })
       return apiSuccess(result, 'MIS Charge created successfully')
@@ -62,7 +62,7 @@ class MisChargeController {
           const havePaid = PaymentService.adjustUsed(needPaid, 'mis_charge', tx)
 
           input.paid = misCharge.paid + havePaid
-          const downAmount = amountChange - havePaid
+          const downAmount = amountChange
           // adjust Student amount
           StudentService.decrementBalance(tx, misCharge.student_id, downAmount)
         }
@@ -101,7 +101,7 @@ class MisChargeController {
           PaymentService.adjustUsed(-paid, 'mis_charge', tx)
         }
         // up amount from student
-        StudentService.incrementBalance(tx, misCharge.student_id, misCharge.amount - paid)
+        StudentService.incrementBalance(tx, misCharge.student_id, misCharge.amount)
         return MisChargeService.delete(id, tx)
       })
       if (!result) {

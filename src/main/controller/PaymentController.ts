@@ -5,6 +5,8 @@ import PaymentService from '../service/PaymentService'
 import { Transaction } from '@type/interfaces/db'
 import MisChargeService from '@main/service/MisChargeService'
 import StudentService from '@main/service/StudentService'
+import MonthlyFeeService from '@main/service/MonthlyFeeService'
+import AdmissionService from '@main/service/AdmissionService'
 
 class PaymentController {
   async create(
@@ -16,16 +18,19 @@ class PaymentController {
 
       const result = PaymentService.db.transaction((tx: Transaction): number => {
         // adjust admission
-
+        const admission = AdmissionService.adjustPaid(remain, tx)
+        remain -= admission
         // adjust monthly
+        const monthly = MonthlyFeeService.adjustPaid(remain, tx)
 
+        remain -= monthly
         // adjust mis charge
         const misCharge = MisChargeService.adjustPaid(remain, tx)
         remain -= misCharge
 
         const used = {
-          admission: 0,
-          monthly: 0,
+          admission: admission,
+          monthly: monthly,
           mis_charge: misCharge
         }
         const input = {
@@ -63,7 +68,7 @@ class PaymentController {
       }
       const result = PaymentService.db.transaction((tx: Transaction): boolean => {
         const balanceDiff = data.amount - paymentRecord.amount
-        const havePaid = data.amount - paymentRecord.used
+        const havePaid = balanceDiff
         let usedNow = 0
 
         let inputused = {
@@ -78,19 +83,60 @@ class PaymentController {
         }
         let remain = havePaid
         if (balanceDiff != 0) {
+          let misCharge = paymentRecord.mis_charge
+          let monthly = paymentRecord.monthly
+          let admission = paymentRecord.admission
+          if (balanceDiff < 0) {
+            // adjust mis charge
+            if (Math.abs(remain) < paymentRecord.mis_charge) {
+              misCharge = MisChargeService.adjustPaid(remain, tx)
+            } else {
+              misCharge = MisChargeService.adjustPaid(-paymentRecord.mis_charge, tx)
+            }
+
+            remain -= misCharge
+            usedNow += misCharge
+
+            // adjust monthly
+            if (Math.abs(remain) < paymentRecord.monthly) {
+              monthly = MonthlyFeeService.adjustPaid(remain, tx)
+            } else {
+              monthly = MonthlyFeeService.adjustPaid(-paymentRecord.monthly, tx)
+            }
+
+            remain -= monthly
+            usedNow += monthly
+            // adjust admission
+
+            // adjust monthly
+            if (Math.abs(remain) < paymentRecord.admission) {
+              admission = AdmissionService.adjustPaid(remain, tx)
+            } else {
+              admission = AdmissionService.adjustPaid(-paymentRecord.admission, tx)
+            }
+
+            remain -= admission
+            usedNow += admission
+          } else {
+            admission = AdmissionService.adjustPaid(remain, tx)
+            remain -= admission
+            usedNow += admission
+            monthly = MonthlyFeeService.adjustPaid(remain, tx)
+            remain -= monthly
+            usedNow += monthly
+            misCharge = MisChargeService.adjustPaid(remain, tx)
+            remain -= misCharge
+            usedNow += misCharge
+          }
           // adjust admission
 
           // adjust monthly
 
           // adjust mis charge
-          const misCharge = MisChargeService.adjustPaid(remain, tx)
-
-          remain -= misCharge
-          usedNow += misCharge
 
           inputused = {
-            admission: 0,
-            monthly: 0,
+            admission: paymentRecord.admission + admission,
+            monthly: paymentRecord.monthly + monthly,
             mis_charge: paymentRecord.mis_charge + misCharge
           }
           input = {
@@ -134,9 +180,9 @@ class PaymentController {
 
         if (used != 0) {
           // adjust admission
-
+          AdmissionService.adjustPaid(-paymentRecord.admission, tx)
           // adjust monthly
-
+          MonthlyFeeService.adjustPaid(-paymentRecord.monthly, tx)
           // adjust mis charge
           MisChargeService.adjustPaid(-paymentRecord.mis_charge, tx)
 
