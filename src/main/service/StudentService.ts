@@ -31,57 +31,48 @@ class StudentService {
   constructor() {
     this.db = db
   }
-  async create(
-    tx: BetterSQLite3Database<Record<string, never>> | null = null,
-    data: Student_Write
-  ): Promise<{ id: number; last_date: string }> {
-    try {
-      const dbInstance = tx || this.db
-      const today = new Date()
-      const month = today.getMonth() + 1 // getMonth() returns 0-11, so we add 1
-      let sub = 0
-      if (month < 4) {
-        sub = 1
-      }
-      const march30 = set(new Date(), { month: 3, date: 1 })
-      const lastDate = subYears(new Date(march30), sub)
-      const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
-
-      const now = new Date().toISOString()
-      type InsertRow = InferInsertModel<typeof students>
-      const row: InsertRow = {
-        reg_number: data.reg_number,
-        student_name: data.student_name,
-        father_name: data.father_name,
-        mobile: data.mobile,
-        is_whatsapp: data.is_whatsapp ? 1 : 0,
-        admission_date: format(new Date(data.admission_date), DB_DATE_FORMAT),
-        address: data.address,
-        class_id: data.class_id,
-        initial_balance: 0,
-        current_balance: 0,
-        last_fee_date: fee_date,
-        last_notification_date: now
-      }
-
-      const result = dbInstance
-        .insert(students)
-        .values(row)
-        .returning({ id: students.id, last_date: students.last_fee_date })
-        .get()
-
-      if (!result?.id) {
-        throw new Error('Failed to create student, no ID returned')
-      }
-
-      return result
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while creating student: ' + error.message)
-      } else {
-        throw new Error('Unknown error while creating student')
-      }
+  create(
+    data: Student_Write,
+    tx: BetterSQLite3Database<Record<string, never>> = this.db
+  ): { id: number; last_date: string } {
+    const today = new Date()
+    const month = today.getMonth() + 1 // getMonth() returns 0-11, so we add 1
+    let sub = 0
+    if (month < 4) {
+      sub = 1
     }
+    const march30 = set(new Date(), { month: 3, date: 1 })
+    const lastDate = subYears(new Date(march30), sub)
+    const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
+
+    const now = new Date().toISOString()
+    type InsertRow = InferInsertModel<typeof students>
+    const row: InsertRow = {
+      reg_number: data.reg_number,
+      student_name: data.student_name,
+      father_name: data.father_name,
+      mobile: data.mobile,
+      is_whatsapp: data.is_whatsapp ? 1 : 0,
+      admission_date: format(new Date(data.admission_date), DB_DATE_FORMAT),
+      address: data.address,
+      class_id: data.class_id,
+      initial_balance: 0,
+      current_balance: 0,
+      last_fee_date: fee_date,
+      last_notification_date: now
+    }
+
+    const result = tx
+      .insert(students)
+      .values(row)
+      .returning({ id: students.id, last_date: students.last_fee_date })
+      .get()
+
+    if (!result?.id) {
+      throw new Error('Failed to create student, no ID returned')
+    }
+
+    return result
   }
   async update(
     tx: BetterSQLite3Database<Record<string, never>> | null = null,
@@ -302,6 +293,8 @@ class StudentService {
         .where(
           sql`
       ${students.transfer_date} IS NULL AND
+      (${students.active_until} IS NULL OR
+      ${students.active_until} < ${compareDate}) AND
       strftime('%Y-%m', ${students.last_fee_date}) < strftime('%Y-%m', ${compareDate})
     `
         )

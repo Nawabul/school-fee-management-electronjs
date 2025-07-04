@@ -3,11 +3,12 @@ import ClassService from '../service/ClassService'
 import MonthlyFeeService from '../service/MonthlyFeeService'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import StudentService from '../service/StudentService'
-import db from '../db/db'
 import { apiError, apiSuccess, errorResponse, successResponse } from '../../types/utils/apiReturn'
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { Monthly_Fee_Record } from '../../types/interfaces/monthly_fee'
 import { IpcMainInvokeEvent } from 'electron'
+import PaymentService from '@main/service/PaymentService'
+import { Transaction } from '@type/interfaces/db'
 
 type MonthlyFeeAddInput = {
   student_id: number
@@ -18,84 +19,68 @@ type MonthlyFeeAddInput = {
 type DeleteMonthlyFeeRequest = Omit<MonthlyFeeAddInput, 'class_id'>
 class MonthlyFeeController {
   private classService: typeof ClassService
-  private studentService: typeof StudentService
 
-  constructor(classService: typeof ClassService, studentService: typeof StudentService) {
+  constructor(classService: typeof ClassService) {
     this.classService = classService
-    this.studentService = studentService
   }
 
   async create(
     data: MonthlyFeeAddInput,
+    amountToPaid: number = -1,
     tx: BetterSQLite3Database<Record<string, never>> | null = null
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
+      console.log('Test 1')
       const MonthCount = this.countMonth(data.from, data.to)
-      if (MonthCount < 1) {
+      const count = MonthCount.count
+      const end = MonthCount.end
+      if (count < 1) {
         return apiSuccess(true, 'No need ')
       }
+      console.log('Test 2')
       // fetch class details
-      const classDetails = await this.classService.list(data.class_id)
-      if (!classDetails || classDetails.length === 0) {
+      const classDetails = this.classService.get(data.class_id)
+      if (!classDetails) {
         return apiError('Class Not found')
       }
-      const fee = classDetails[0].amount
-      type row = {
-        student_id: number
-        class_id: number
-        amount: number
-        date: string
-      }
-      const row: row[] = []
+      console.log('Test 3')
+      const fee = classDetails.amount
+      // fetch amount for paid
+      let amount = amountToPaid
+      if (amount < 0) {
+        const paymentRecord = PaymentService.unsed_list()
+        const paidAmount = paymentRecord.reduce((acc, payment) => {
+          return acc + (payment.amount - payment.used)
+        }, 0)
 
-      for (let i = 0; i < MonthCount; i++) {
-        row[i] = {
-          student_id: data.student_id,
-          class_id: data.class_id,
-          amount: fee,
-          date: format(addMonths(data.from, i), DB_DATE_FORMAT)
-        }
+        amount = paidAmount
       }
 
-      const total = fee * MonthCount
-      if (row.length < 1) {
-        return apiSuccess(false, 'No Need to add')
+      console.log('Test 4')
+      const input = {
+        student_id: data.student_id,
+        class_id: data.class_id,
+        from: data.from,
+        count: count,
+        fee: fee,
+        haveAmount: amount
       }
-      let done = false
-      if (tx) {
-        // insert monthly fees
-        // @ts-ignore client is missing but passing tx refrenece
-        const feeResponse = MonthlyFeeService.create(tx, row)
-        if (!feeResponse) {
-          throw new Error('Failed to create monthly fee')
-        }
-
-        // decrement student balance
-        this.studentService.decrementBalance(tx, data.student_id, total)
-
-        done = true
-      } else {
-        db.transaction((tx: BetterSQLite3Database<Record<string, never>>) => {
-          // insert monthly fees
-          // @ts-ignore pasing db ref
-          const feeResponse = MonthlyFeeService.create(tx, row)
-          if (!feeResponse) {
-            throw new Error('Failed to create monthly fee')
-          }
-
-          // decrement student balance
-          this.studentService.decrementBalance(tx, data.student_id, total)
-
-          const lastFee = this.studentService.last_fee_date_update(data.student_id, data.to)
-          if (!lastFee) {
-            throw new Error('Last fee update error in monthly fee handler')
-          }
-
-          done = true
+      const total = fee * count
+      console.log('total', total)
+      if (tx == null) {
+        MonthlyFeeService.db.transaction((tx: Transaction) => {
+          MonthlyFeeService.createBulkWithPayment(input, tx)
+          StudentService.decrementBalance(tx, data.student_id, total)
+          // update student last date
+          StudentService.last_fee_date_update(data.student_id, end, tx)
+          console.log('total 2', total)
         })
+      } else {
+        MonthlyFeeService.createBulkWithPayment(input, tx)
+        StudentService.decrementBalance(tx, data.student_id, total)
+        StudentService.last_fee_date_update(data.student_id, end, tx)
       }
-
-      return apiSuccess(done, 'Monthly fees created successfully')
+      return apiSuccess(true, 'Monthly fees created successfully')
     } catch (error) {
       if (error instanceof Error) {
         return apiError(error.message)
@@ -159,7 +144,7 @@ class MonthlyFeeController {
     }
   }
 
-  countMonth(start: string, end: string): number {
+  countMonth(start: string, end: string): { count: number; end: string } {
     const from = new Date(start)
     const to = new Date(end)
 
@@ -167,19 +152,27 @@ class MonthlyFeeController {
 
     MonthCount = Number(MonthCount)
     if (MonthCount < 0) {
-      return 0
-    }
-
-    if (MonthCount == 0) {
-      const fromMonth = new Date(from)
-      const toMonth = new Date(to)
-      if (fromMonth.getMonth() < toMonth.getMonth()) {
-        return 1
+      return {
+        count: 0,
+        end
       }
     }
 
-    return MonthCount
+    if (MonthCount == 0 && from.getMonth() != to.getMonth()) {
+      MonthCount = 1
+    }
+
+    // if march then
+    if (to.getMonth() == 2) {
+      MonthCount += 1
+      end = format(addMonths(to, 1), DB_DATE_FORMAT)
+    }
+
+    return {
+      count: MonthCount,
+      end
+    }
   }
 }
 
-export default new MonthlyFeeController(ClassService, StudentService)
+export default new MonthlyFeeController(ClassService)

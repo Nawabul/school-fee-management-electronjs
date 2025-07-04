@@ -4,3 +4,4 @@ export interface Class {
   amount: number,
   admission_charge: number
 }
+

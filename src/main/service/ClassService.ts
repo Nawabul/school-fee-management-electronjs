@@ -84,6 +84,21 @@ class ClassService {
       }
     }
   }
+
+  get(id: number): Class | null {
+    const charge = this.db
+      .select({
+        id: classes.id,
+        name: classes.name,
+        amount: classes.amount,
+        admission_charge: classes.admission_charge
+      })
+      .from(classes)
+      .where(eq(classes.id, id))
+      .get()
+
+    return charge || null
+  }
 }
 
 export default new ClassService()

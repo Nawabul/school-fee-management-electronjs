@@ -8,6 +8,11 @@ export interface Student_Write {
   address: string
   class_id: number
 }
+
+export interface Student_Insert extends Student_Write {
+  current_balance: number
+  last_fee_date: string
+}
 export interface Student_Record {
   id: number
   reg_number: string

@@ -4,9 +4,12 @@ import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
 import MonthlyFeeController from './MonthlyFeeController'
 import AdmissionService from '@main/service/AdmissionService'
-import { Admission_Write } from '@type/interfaces/admission'
 import { format } from 'date-fns'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
+import { Transaction } from '@type/interfaces/db'
+import PaymentService from '@main/service/PaymentService'
+import MonthlyFeeService from '@main/service/MonthlyFeeService'
+import ClassService from '@main/service/ClassService'
 
 interface studentCreate extends Student_Write {
   admission_charge: number
@@ -17,43 +20,69 @@ class StudentController {
     data: studentCreate
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      let id: number = 0
+
       const { admission_charge, ...body } = data
+      const id = StudentService.db.transaction((tx: Transaction) => {
+        const student = StudentService.create(body, tx)
+        const last_date = student.last_date
+        const studentId = student.id
+        const payment = PaymentService.unsed_list()
+        const payable = payment.reduce((acc, payment) => acc + (payment.amount - payment.used), 0)
+        let remain = payable
+        let used = 0
+        let paid = 0
+        if (admission_charge < remain) {
+          remain = remain - admission_charge
+          paid = admission_charge
+        } else if (remain > 0) {
+          paid = remain
+          remain = 0
+        } else {
+          paid = 0
+          remain = 0
+        }
+        // admissin
+        AdmissionService.create({
+          amount: admission_charge,
+          class_id: data.class_id,
+          date: data.admission_date,
+          paid,
+          student_id: studentId
+        })
+        // adjust payment
+        PaymentService.adjustUsed(paid, 'admission', tx)
+        used += admission_charge
+        const today = format(new Date(), DB_DATE_FORMAT)
+        const month = MonthlyFeeController.countMonth(last_date, today)
+        const fetchClass = ClassService.get(data.class_id)
+        if (!fetchClass) {
+          throw new Error('Class Not found')
+        }
+        const fee = fetchClass.amount
+        // monthly fee
+        const montly = MonthlyFeeService.createBulk(
+          {
+            student_id: studentId,
+            class_id: data.class_id,
+            from: last_date,
+            count: month.count,
+            fee,
+            haveAmount: remain
+          },
+          tx
+        )
+        used += month.count * fee
+        // payment
+        PaymentService.adjustUsed(montly, 'monthly', tx)
 
-      const result = await StudentService.create(null, body)
+        // update student
+        StudentService.last_fee_date_update(studentId, month.end, tx)
+        // update student amount
+        StudentService.decrementBalance(tx, studentId, used)
 
-      id = result.id
-      const last_date = result.last_date
+        return student.id
+      })
 
-      const req = {
-        student_id: id,
-        class_id: data.class_id,
-        from: last_date,
-        to: new Date().toISOString()
-      }
-      // add fee
-      const fee = await MonthlyFeeController.create(req, null)
-      //@ts-ignore data variable
-      if (!fee.success || !fee?.data) {
-        throw new Error('Error while creating monthly fee')
-      }
-
-      // structure data for admission
-      const admissionData: Admission_Write = {
-        student_id: id,
-        class_id: data.class_id,
-        amount: admission_charge,
-        date: format(new Date(), DB_DATE_FORMAT)
-      }
-
-      // create addmission record
-      const admission = await AdmissionService.create(admissionData)
-      if (!admission) {
-        throw new Error('Error while creating admission record')
-      }
-
-      // decrement student amount
-      StudentService.decrementBalance(StudentService.db, id, admission_charge)
       return apiSuccess(id, 'Student created successfully')
     } catch (error: unknown) {
       if (error instanceof Error) {

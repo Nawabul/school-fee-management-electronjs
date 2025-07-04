@@ -3,11 +3,27 @@ import Database from 'better-sqlite3'
 import db from '../db/db'
 import { monthly_fee } from '../db/schema/monthly_fee'
 import { and, desc, eq, gt, gte, inArray, lt, lte, sql } from 'drizzle-orm'
-import { Monthly_Fee_Read, Monthly_Fee_Read_Paid_Unpaid, Monthly_Fee_Record, Monthly_Fee_Write } from '../../types/interfaces/monthly_fee'
+import {
+  Monthly_Fee_Insert_Update,
+  Monthly_Fee_Read,
+  Monthly_Fee_Read_Paid_Unpaid,
+  Monthly_Fee_Record
+} from '../../types/interfaces/monthly_fee'
 import { students } from '../db/schema/student'
 import { classes } from '../db/schema/class'
 import { Transaction } from '@type/interfaces/db'
-
+import { DB_DATE_FORMAT } from '@main/utils/constant/date'
+import { addMonths } from 'date-fns'
+import { format } from 'date-fns'
+import PaymentService from './PaymentService'
+type BulkCreate = {
+  student_id: number
+  class_id: number
+  from: string
+  count: number
+  fee: number
+  haveAmount: number
+}
 class MonthlyFeeService {
   db: BetterSQLite3Database<Record<string, never>> & {
     $client: Database.Database
@@ -17,21 +33,60 @@ class MonthlyFeeService {
     this.db = db
   }
 
-  async create(tx: typeof this.db | null = null, data: Monthly_Fee_Write[]): Promise<boolean> {
-    try {
-      const dbInstance = tx || this.db
-      const result = await dbInstance.insert(monthly_fee).values(data)
-      if (!result.changes) {
-        throw new Error('Failed to create monthly fees, no rows affected')
-      }
-      return result.changes > 0
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error('Error while listing monthly fees: ' + error.message)
-      } else {
-        throw new Error('Unknown error while listing monthly fees')
-      }
+  create(data: Monthly_Fee_Insert_Update, tx: Transaction = this.db): number {
+    const result = tx.insert(monthly_fee).values(data).returning({ id: monthly_fee.id }).get()
+    return result.id
+  }
+
+  createBulk({ student_id, class_id, from, count, fee, haveAmount }: BulkCreate, tx): number {
+    if (count <= 0) {
+      return 0
     }
+    let used = 0
+    let remain = haveAmount
+
+    for (let i = 0; i < count; i++) {
+      let paid = 0
+      const amount = fee
+      if (remain > amount) {
+        paid = amount
+        remain = remain - amount
+      } else if (remain > 0) {
+        paid = remain
+        remain = 0
+      } else {
+        paid = 0
+      }
+      used += paid
+      const input: Monthly_Fee_Insert_Update = {
+        student_id,
+        class_id,
+        amount: fee,
+        paid: paid,
+        date: format(addMonths(from, i), DB_DATE_FORMAT)
+      }
+      this.create(input, tx)
+    }
+
+    return used
+  }
+
+  createBulkWithPayment(
+    { student_id, class_id, from, count, fee, haveAmount }: BulkCreate,
+    tx
+  ): number {
+    const input = {
+      student_id: student_id,
+      class_id: class_id,
+      from: from,
+      count,
+      fee: fee,
+      haveAmount
+    }
+    const usedAmount = this.createBulk(input, tx)
+    PaymentService.adjustUsed(usedAmount, 'monthly', tx)
+
+    return usedAmount
   }
   async delete(
     tx: BetterSQLite3Database<Record<string, never>> | null = null,

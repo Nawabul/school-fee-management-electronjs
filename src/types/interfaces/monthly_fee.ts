@@ -5,6 +5,10 @@ export interface Monthly_Fee_Write {
   amount: number
 }
 
+export interface Monthly_Fee_Insert_Update extends Monthly_Fee_Write {
+  paid: number
+}
+
 export interface Monthly_Fee_Record {
   id: number
   class_name: string
