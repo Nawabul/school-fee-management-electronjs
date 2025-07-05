@@ -93,7 +93,6 @@ export const currentSchemaStatements: string[] = [
         FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
         FOREIGN KEY (class_id) REFERENCES classes(id) ON UPDATE NO ACTION ON DELETE RESTRICT
       );`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS admission_student_class_unique ON admission (student_id, class_id);`,
 
   `CREATE UNIQUE INDEX IF NOT EXISTS versions_name_unique ON versions (name);`,
   `INSERT INTO versions(name, value) VALUES ('${DB_VERSION_NAME}', '${app_version}')`
@@ -201,7 +200,8 @@ const versionSchemaStatements: Record<string, string[]> = {
     `ALTER TABLE payments ADD COLUMN mis_charge INTEGER DEFAULT 0 NOT NULL;`,
     `ALTER TABLE admission ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `ALTER TABLE monthly_fee ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
-    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`
+    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
+    `DROP INDEX IF EXISTS admission_student_class_unique;`
   ]
 }
 
