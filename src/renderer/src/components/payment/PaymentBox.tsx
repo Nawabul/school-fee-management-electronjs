@@ -44,7 +44,7 @@ function PaymentBox({
   })
   useEffect(() => {
     setValue('amount', amount)
-  }, [amount])
+  }, [amount, setValue])
 
   const onSubmit = (data: z.infer<typeof schema>): void => {
     const input = {
