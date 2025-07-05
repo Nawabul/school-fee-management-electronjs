@@ -154,7 +154,7 @@ class PaymentService {
 
   handleUsedUp(amount: number, type: Payment_Type, tx: Transaction): number {
     const list = this.unsed_list()
-    console.log('list ', list)
+
     let used = 0
     let remain = amount
 
@@ -171,7 +171,7 @@ class PaymentService {
         remain -= toUsed
       }
     }
-    console.log(used)
+
     return used
   }
 
@@ -228,12 +228,12 @@ class PaymentService {
       const haveUsed = this.handleUsedDown(amount, type, tx)
 
       used = -haveUsed
-      console.log('Ajdust paid used ', used)
+
     } else {
       // add the paid amount
       const haveUsed = this.handleUsedUp(amount, type, tx)
       used = haveUsed
-      console.log('Ajdust paid used ', used)
+
     }
 
     return used

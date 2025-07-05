@@ -1,4 +1,3 @@
-
 import { useMutation } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
@@ -10,6 +9,7 @@ import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
+import { todayISODate } from '@renderer/types/constant/date'
 
 const Schema = z.object({
   date: z.string({
@@ -20,11 +20,14 @@ const Schema = z.object({
 const StudentTransfer = (): React.JSX.Element => {
   const navigate = useNavigate()
   const studentId = useParams().id
-  const { control, handleSubmit,formState:{errors} } = useForm<z.infer<typeof Schema>>({
+  const { control, handleSubmit } = useForm<z.infer<typeof Schema>>({
     //@ts-ignore ites working well
-    resolver: zodResolver(Schema)
+    resolver: zodResolver(Schema),
+    defaultValues: {
+      date: todayISODate
+    }
   })
-  console.log(errors)
+
   const studentMutation = useMutation({
     mutationKey: ['student', 'transfer'],
     mutationFn: (data) => StudentController.transfer(Number(studentId), data),
@@ -33,7 +36,6 @@ const StudentTransfer = (): React.JSX.Element => {
       // Optionally reset form or show success message
     },
     onError: () => {
-
       // Optionally show error message
     }
   })

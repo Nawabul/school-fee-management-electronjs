@@ -24,10 +24,8 @@ const PaymentForm = ({
   const { control, handleSubmit } = useForm<z.infer<typeof Payment_Schema>>({
     //@ts-ignore ites working well
     resolver: zodResolver(Payment_Schema),
-    defaultValues
+    defaultValues: defaultValues || { date: todayISODate }
   })
-
-  console.log('today iso date', todayISODate)
 
   return (
     <form

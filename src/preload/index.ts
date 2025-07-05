@@ -3,7 +3,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { Class } from '../types/interfaces/class'
 import { successResponse, errorResponse } from '../types/utils/apiReturn'
 import { Student_Get, Student_Record, Student_Write } from '../types/interfaces/student'
-import { Payment_Read, Payment_Record, Payment_Write } from '../types/interfaces/payment'
+import {
+  Payment_Read,
+  Payment_Record,
+  Payment_Type,
+  Payment_Write
+} from '../types/interfaces/payment'
 import { Mis_Item_Read, Mis_Item_Record, Mis_Item_Write } from '../types/interfaces/mis_item'
 import {
   Mis_Charge_Read,
@@ -63,8 +68,11 @@ if (process.contextIsolated) {
 
     // payment
     contextBridge.exposeInMainWorld('payment', {
-      create: async (data: Payment_Write): Promise<successResponse<number> | errorResponse> =>
-        ipcRenderer.invoke('student:payment:create', data),
+      create: async (
+        data: Payment_Write,
+        type: Payment_Type
+      ): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('student:payment:create', data, type),
       update: async (
         id: number,
         data: Payment_Write

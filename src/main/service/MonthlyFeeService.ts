@@ -320,7 +320,7 @@ class MonthlyFeeService {
       const havePaid = this.handlePaidDown(amount, tx)
 
       used = -havePaid
-      console.log('Ajdust paid used ', used)
+
     } else {
       // add the paid amount
       const havePaid = this.handlePaidUp(amount, tx)

@@ -1,5 +1,7 @@
 import Sidebar from '@renderer/components/drawer/Sidebar'
+import Model from '@renderer/components/model/Model'
 import InitController from '@renderer/controller/InitController'
+import { ModelProvider } from '@renderer/hooks/useModel'
 import { StudentDetailsProvider } from '@renderer/hooks/useStudentDetails'
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
@@ -40,7 +42,6 @@ const Authlayer = (): React.ReactElement => {
         InitController.app_update()
       } else {
         window.addEventListener('online', () => {
-
           InitController.app_update()
         })
       }
@@ -49,17 +50,20 @@ const Authlayer = (): React.ReactElement => {
 
   return (
     <StudentDetailsProvider>
-      <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
-        <div className="flex dark:text-white pt-1">
-          <Sidebar />
-          <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
-            <div className="dark:bg-gray-800 rounded-xl">
-              {!completed.status && <span> {completed.message} </span>}
-              {completed.status && <Outlet />}
+      <ModelProvider>
+        <Model />
+        <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
+          <div className="flex dark:text-white pt-1">
+            <Sidebar />
+            <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
+              <div className="dark:bg-gray-800 rounded-xl">
+                {!completed.status && <span> {completed.message} </span>}
+                {completed.status && <Outlet />}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ModelProvider>
     </StudentDetailsProvider>
   )
 }

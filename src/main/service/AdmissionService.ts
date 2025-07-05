@@ -7,8 +7,7 @@ import {
   Admission_Insert_Update,
   Admission_Read,
   Admission_Read_Paid_Unpaid,
-  Admission_Record,
-  Admission_Write
+  Admission_Record
 } from '@type/interfaces/admission'
 import { classes } from '@main/db/schema/class'
 import { Transaction } from '@type/interfaces/db'
@@ -218,7 +217,7 @@ class AdmissionService {
       const havePaid = this.handlePaidDown(amount, tx)
 
       used = -havePaid
-      console.log('Ajdust paid used ', used)
+
     } else {
       // add the paid amount
       const havePaid = this.handlePaidUp(amount, tx)

@@ -8,6 +8,7 @@ import { queryKey } from '@renderer/types/constant/queryKey'
 import PaymentController from '@renderer/controller/PaymentController'
 import { Payment_Record } from '@renderer/types/ts/payments'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
+import useModel from '@renderer/hooks/useModel'
 
 const PaymentRecord = (): JSX.Element => {
   const studentId = useParams().id
@@ -19,7 +20,7 @@ const PaymentRecord = (): JSX.Element => {
   })
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
-
+  const { openModel } = useModel()
   const paymentDelete = useMutation({
     mutationFn: PaymentController.delete,
     onSuccess: () => {
@@ -40,7 +41,11 @@ const PaymentRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/payment/update/${id}`)
     },
-    delete: handleDelete
+    delete: (id: number) => {
+      openModel({
+        fun: () => handleDelete(id)
+      })
+    }
   }
 
   return (

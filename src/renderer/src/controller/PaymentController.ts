@@ -1,13 +1,15 @@
 import { successResponse } from '../../../types/utils/apiReturn'
-import { Payment_Record, Payment_Read } from '../../../types/interfaces/payment'
+import { Payment_Record, Payment_Read, Payment_Type } from '../../../types/interfaces/payment'
 
 class PaymentController {
-  async create(studentId, data): Promise<number> {
+  async create(studentId, data, type: Payment_Type = 'admission'): Promise<number> {
     const body = {
       student_id: studentId,
       ...data
     }
-    const result = await window.payment.create(body)
+
+    const result = await window.payment.create(body, type)
+
     if (result.success) {
       return (result as successResponse<number>).data
     }

@@ -45,14 +45,14 @@ const AdmissionRecord = (): JSX.Element => {
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
         <div className="flex gap-2 items-center">
           <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Admission Record</h1>
+          <h1 className="text-2xl font-bold">Promote Class Record</h1>
         </div>
         <div>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             to={`/admission/insert/${studentId}`}
           >
-            Add Admission Record
+            Promote Class
           </Link>
         </div>
       </div>

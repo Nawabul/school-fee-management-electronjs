@@ -8,6 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import StudentController from '@renderer/controller/StudentController'
 import { Student_Record } from '@renderer/types/ts/student'
 import useStudentDetails from '@renderer/hooks/useStudentDetails'
+import useModel from '@renderer/hooks/useModel'
 
 const StudentRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
@@ -38,13 +39,13 @@ const StudentRecord = (): JSX.Element => {
       setId(0)
     }
   })
-
+  const { openModel } = useModel()
   const handleDelete = (id: number): void => {
     studentDelete.mutate(id)
     setId(id)
   }
   const handleContinue = (id: number): void => {
-    console.log(id)
+
     studyContinue.mutate(id)
     setId(id)
   }
@@ -63,13 +64,17 @@ const StudentRecord = (): JSX.Element => {
     },
 
     continue: handleContinue,
-    delete: handleDelete,
+    delete: (id: number) => {
+      openModel({
+        fun: () => handleDelete(id)
+      })
+    },
     payment: (id: number, data: Student_Record): void => {
       setStudentDetails(data)
       navigate(`/payment/${id}`)
     },
     mis_charge: (id: number, data: Student_Record): void => {
-      console.log(data)
+
       setStudentDetails(data)
       navigate(`/mis_charge/${id}`)
     },

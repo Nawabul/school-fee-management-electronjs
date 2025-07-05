@@ -1,4 +1,9 @@
-import { Payment_Read, Payment_Record, Payment_Write } from '../../types/interfaces/payment'
+import {
+  Payment_Read,
+  Payment_Record,
+  Payment_Type,
+  Payment_Write
+} from '../../types/interfaces/payment'
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import PaymentService from '../service/PaymentService'
@@ -11,22 +16,50 @@ import AdmissionService from '@main/service/AdmissionService'
 class PaymentController {
   async create(
     _event: IpcMainInvokeEvent,
-    data: Payment_Write
+    data: Payment_Write,
+    type: Payment_Type = 'admission'
   ): Promise<successResponse<number> | errorResponse> {
     try {
       let remain = data.amount
 
       const result = PaymentService.db.transaction((tx: Transaction): number => {
+        let admission = 0
+        let misCharge = 0
+        let monthly = 0
         // adjust admission
-        const admission = AdmissionService.adjustPaid(remain, tx)
-        remain -= admission
-        // adjust monthly
-        const monthly = MonthlyFeeService.adjustPaid(remain, tx)
+        const services = {
+          admission: () => {
+            admission = AdmissionService.adjustPaid(remain, tx)
+            remain -= admission
+          },
+          mis_charge: () => {
+            misCharge = MisChargeService.adjustPaid(remain, tx)
+            remain -= misCharge
+          },
+          monthly: () => {
+            monthly = MonthlyFeeService.adjustPaid(remain, tx)
+            remain -= monthly
+          }
+        }
 
-        remain -= monthly
+        const serviceName: Payment_Type[] = ['admission', 'monthly', 'mis_charge']
+
+        const index = serviceName.indexOf(type)
+        if (index == -1) {
+          throw new Error('Send a valid type')
+        }
+
+        const firstService = services[serviceName[index]]
+        firstService()
+        // remove that element from array
+        serviceName.splice(index, 1)
+        // call the rest of the services
+        for (const service of serviceName) {
+          services[service]()
+        }
+        // adjust monthly
+
         // adjust mis charge
-        const misCharge = MisChargeService.adjustPaid(remain, tx)
-        remain -= misCharge
 
         const used = {
           admission: admission,

@@ -10,7 +10,6 @@ import {
   Mis_Charge_Read_Paid_Unpaid,
   Mis_Charege_Insert_Update
 } from '../../types/interfaces/mis_charge'
-import StudentService from './StudentService'
 import { mis_items } from '../db/schema/mis_item'
 type Transaction = BetterSQLite3Database<Record<string, never>>
 class MisChargeService {
@@ -230,7 +229,7 @@ class MisChargeService {
       const havePaid = this.handlePaidDown(amount, tx)
 
       used = -havePaid
-      console.log('Ajdust paid used ', used)
+
     } else {
       // add the paid amount
       const havePaid = this.handlePaidUp(amount, tx)

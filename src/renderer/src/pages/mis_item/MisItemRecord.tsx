@@ -7,12 +7,14 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import MisItemController from '@renderer/controller/MisItemController'
 import { Mis_Item_Record } from '@renderer/types/ts/mis_item'
+import useModel from '@renderer/hooks/useModel'
 const MisItemRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
     queryKey: queryKey.mis_item,
     queryFn: MisItemController.list,
     refetchOnWindowFocus: true
   })
+  const { openModel } = useModel()
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
 
@@ -36,7 +38,11 @@ const MisItemRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/mis_item/update/${id}`)
     },
-    delete: handleDelete
+    delete: (id: number) => {
+      openModel({
+        fun: () => handleDelete(id)
+      })
+    }
   }
 
   return (

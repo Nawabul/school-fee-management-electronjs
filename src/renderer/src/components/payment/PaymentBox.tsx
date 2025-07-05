@@ -37,7 +37,7 @@ function PaymentBox({
 
   const mutation = useMutation({
     mutationKey: ['payment'],
-    mutationFn: (data) => PaymentController.create(studentId, data),
+    mutationFn: (data) => PaymentController.create(studentId, data, type),
     onSuccess: () => {
       successFn()
     }
@@ -52,7 +52,7 @@ function PaymentBox({
       remark,
       amount: data.amount
     }
-    console.log(input)
+
     //@ts-ignore data structure is ok
     mutation.mutate(input)
   }

@@ -30,20 +30,20 @@ class MonthlyFeeController {
     tx: BetterSQLite3Database<Record<string, never>> | null = null
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      console.log('Test 1')
+
       const MonthCount = this.countMonth(data.from, data.to)
       const count = MonthCount.count
       const end = MonthCount.end
       if (count < 1) {
         return apiSuccess(true, 'No need ')
       }
-      console.log('Test 2')
+
       // fetch class details
       const classDetails = this.classService.get(data.class_id)
       if (!classDetails) {
         return apiError('Class Not found')
       }
-      console.log('Test 3')
+
       const fee = classDetails.amount
       // fetch amount for paid
       let amount = amountToPaid
@@ -56,7 +56,7 @@ class MonthlyFeeController {
         amount = paidAmount
       }
 
-      console.log('Test 4')
+
       const input = {
         student_id: data.student_id,
         class_id: data.class_id,
@@ -66,14 +66,14 @@ class MonthlyFeeController {
         haveAmount: amount
       }
       const total = fee * count
-      console.log('total', total)
+
       if (tx == null) {
         MonthlyFeeService.db.transaction((tx: Transaction) => {
           MonthlyFeeService.createBulkWithPayment(input, tx)
           StudentService.decrementBalance(tx, data.student_id, total)
           // update student last date
           StudentService.last_fee_date_update(data.student_id, end, tx)
-          console.log('total 2', total)
+
         })
       } else {
         MonthlyFeeService.createBulkWithPayment(input, tx)

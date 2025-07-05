@@ -25,9 +25,9 @@ class StudentController {
     throw result.message
   }
   async continue(id: number): Promise<boolean> {
-    console.log(id)
+
     const result = await window.student.continue(id)
-    console.log(result)
+
     if (result.success) {
       return (result as successResponse<boolean>).data
     }

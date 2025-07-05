@@ -10,6 +10,7 @@ import { Mis_Charge_Record } from '@renderer/types/ts/mis_charge'
 import { CgUserList } from 'react-icons/cg'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import PaymentBox from '@renderer/components/payment/PaymentBox'
+import useModel from '@renderer/hooks/useModel'
 
 const MisChargeRecord = (): JSX.Element => {
   const studentId = useParams().id
@@ -37,6 +38,7 @@ const MisChargeRecord = (): JSX.Element => {
       setId(0)
     }
   })
+  const { openModel } = useModel()
 
   const handleDelete = (id: number): void => {
     misChargeMutation.mutate(id)
@@ -47,7 +49,11 @@ const MisChargeRecord = (): JSX.Element => {
     update: (id: number): void => {
       navigate(`/mis_charge/update/${id}`)
     },
-    delete: handleDelete
+    delete: (id: number) => {
+      openModel({
+        fun: () => handleDelete(id)
+      })
+    }
   }
 
   const total = useMemo(() => {
