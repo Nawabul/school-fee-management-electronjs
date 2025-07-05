@@ -13,6 +13,7 @@ export interface Payment_Insert extends Payment_Write {
 export interface Payment_Record {
   id: number
   amount: number
+  used: number
   date: string
   remark?: string | null
 }

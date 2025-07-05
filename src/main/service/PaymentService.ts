@@ -51,6 +51,7 @@ class PaymentService {
           id: payments.id,
           date: payments.date,
           amount: payments.amount,
+          used: payments.used,
           remark: payments.remark
         })
         .from(payments)

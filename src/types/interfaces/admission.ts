@@ -13,7 +13,8 @@ export interface Admission_Insert_Update extends Admission_Write {
 export interface Admission_Record {
   id: number
   class: string
-  amount: number
+  amount: number,
+  paid: number
   date: string
   remark?: string | null
 }

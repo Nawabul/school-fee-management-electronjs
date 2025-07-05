@@ -116,6 +116,7 @@ class MonthlyFeeService {
           id: monthly_fee.id,
           date: monthly_fee.date,
           amount: monthly_fee.amount,
+          paid: monthly_fee.paid,
           class_name: classes.name,
           student_name: students.student_name
         })

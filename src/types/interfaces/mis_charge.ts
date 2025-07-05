@@ -14,6 +14,7 @@ export interface Mis_Charge_Record {
   id: number
   item_name: string
   amount: number
+  paid: number
   date: string
   remark?: string | null
 }

@@ -27,5 +27,26 @@ export const monthly_fee_columns = () // item: Record<string, (id: number) => vo
     accessorKey: 'class_name',
     header: 'Class',
     enableHiding: false
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    enableHiding: false,
+    cell: ({ row }) => {
+      const amount = row.original.amount
+      const paid = row.original.paid
+      if (amount == paid) {
+        return <span className="text-green-700">Paid</span>
+      } else if (paid > 0) {
+        return (
+          <div className="flex flex-col">
+            <span className="text-yellow-400"> Partial</span>
+            <span className="text-xs">{paid}</span>
+          </div>
+        )
+      } else {
+        return <span className="text-red-700">Unpaid</span>
+      }
+    }
   }
 ]

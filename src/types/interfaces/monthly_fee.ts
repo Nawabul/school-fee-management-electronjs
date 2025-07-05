@@ -14,6 +14,7 @@ export interface Monthly_Fee_Record {
   class_name: string
   date: string // ISO date string
   amount: number
+  paid: number
 }
 
 export interface Monthly_Fee_Read {

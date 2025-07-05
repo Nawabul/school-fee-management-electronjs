@@ -59,6 +59,7 @@ class MisChargeService {
             id: mis_charges.id,
             date: mis_charges.date,
             amount: mis_charges.amount,
+            paid: mis_charges.paid,
             remark: mis_charges.remark,
             item_name: mis_items.name
           })
