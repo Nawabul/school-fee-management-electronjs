@@ -15,7 +15,7 @@ export const paymentColumns = (
   },
   {
     accessorKey: 'date',
-    header: 'Name',
+    header: 'Date',
     enableHiding: false,
     cell: ({ row }) => format(new Date(row.original.date), date_format)
   },
