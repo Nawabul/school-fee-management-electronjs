@@ -201,7 +201,8 @@ const versionSchemaStatements: Record<string, string[]> = {
     `ALTER TABLE payments ADD COLUMN mis_charge INTEGER DEFAULT 0 NOT NULL;`,
     `ALTER TABLE admission ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `ALTER TABLE monthly_fee ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
-    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`
+    `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
+    `DROP INDEX IF EXISTS admission_student_class_unique;`
   ]
 }
 
