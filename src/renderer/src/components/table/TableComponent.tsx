@@ -16,6 +16,8 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
+  PaginationState,
   useReactTable
 } from '@tanstack/react-table'
 import MultiSelectDropdown from './MultiSelect'
@@ -30,16 +32,22 @@ interface props {
 export function TableComponent({ data, columns, id, isLoading = false }: props): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0, //initial page index
+    pageSize: 25 //default page size
+  })
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       globalFilter: globleFilter,
-      columnFilters: columnFilters
+      columnFilters: columnFilters,
+      pagination
     },
     onGlobalFilterChange: setGlobleFilter
   })
@@ -49,7 +57,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
   const classOptions = Array.from(new Set(data.map((row) => row.class_name)))
 
   return (
-    <>
+    <div>
       <div className="flex ml-auto gap-3 pb-2 justify-between h-full">
         <div className="flex gap-3">
           <TextInput
@@ -99,7 +107,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           />
         </div>
       </div>
-      <div className="overflow-x-auto min-h-dvh">
+      <div className="overflow-x-auto min-h-[70vh]">
         <Table hoverable>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
@@ -141,6 +149,30 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           </TableBody>
         </Table>
       </div>
-    </>
+      <div className="flex items-center justify-end space-x-2 pt-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredRowModel().rows.length} row(s).
+        </div>
+        <div className="space-x-2 flex">
+          <Button
+            size="xs"
+            pill
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            size="xs"
+            pill
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
