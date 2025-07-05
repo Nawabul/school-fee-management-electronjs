@@ -1,5 +1,5 @@
 // Imports...
-import { JSX, useState } from 'react'
+import { JSX, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
@@ -9,12 +9,17 @@ import { queryKey } from '@renderer/types/constant/queryKey'
 import { Mis_Charge_Record } from '@renderer/types/ts/mis_charge'
 import { CgUserList } from 'react-icons/cg'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
+import PaymentBox from '@renderer/components/payment/PaymentBox'
 
 const MisChargeRecord = (): JSX.Element => {
   const studentId = useParams().id
   const navigate = useNavigate()
 
-  const { data = [], refetch } = useQuery({
+  const {
+    data = [],
+    refetch,
+    isSuccess
+  } = useQuery({
     queryKey: [queryKey.mis_charge, studentId],
     queryFn: () => MisChargeController.list(Number(studentId)),
     refetchOnWindowFocus: true
@@ -45,7 +50,9 @@ const MisChargeRecord = (): JSX.Element => {
     delete: handleDelete
   }
 
-
+  const total = useMemo(() => {
+    return data.reduce((acc, item) => acc + (item.amount - item.paid), 0) || 0
+  }, [data])
 
   return (
     <>
@@ -58,7 +65,6 @@ const MisChargeRecord = (): JSX.Element => {
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             to={`/mis_charge/insert/${studentId}`}
-
           >
             Add Mis. Charge
           </Link>
@@ -75,6 +81,16 @@ const MisChargeRecord = (): JSX.Element => {
           isLoading={misChargeMutation.isPending}
           id={id}
         />
+        <br />
+        {studentId && isSuccess && (
+          <PaymentBox
+            amount={total}
+            remark="Miscellaneous Charge"
+            studentId={Number(studentId)}
+            type="mis_charge"
+            successFn={refetch}
+          />
+        )}
       </div>
     </>
   )

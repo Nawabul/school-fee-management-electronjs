@@ -1,5 +1,5 @@
 // Imports...
-import { JSX, useState } from 'react'
+import { JSX, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
@@ -9,11 +9,16 @@ import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import AdmissionController from '@renderer/controller/AdmissionController'
 import { Admission_Record } from '@type/interfaces/admission'
 import { admissionColumns } from '@renderer/components/admission/columns'
+import PaymentBox from '@renderer/components/payment/PaymentBox'
 
 const AdmissionRecord = (): JSX.Element => {
   const studentId = useParams().id
 
-  const { data = [], refetch } = useQuery({
+  const {
+    data = [],
+    refetch,
+    isSuccess
+  } = useQuery({
     queryKey: [queryKey.admission, studentId],
     queryFn: () => AdmissionController.list(Number(studentId)),
     refetchOnWindowFocus: true
@@ -31,6 +36,9 @@ const AdmissionRecord = (): JSX.Element => {
       setId(0)
     }
   })
+  const total = useMemo(() => {
+    return data.reduce((acc, item) => acc + (item.amount - item.paid), 0) || 0
+  }, [data])
 
   return (
     <>
@@ -59,6 +67,17 @@ const AdmissionRecord = (): JSX.Element => {
           isLoading={admissionMutation.isPending}
           id={id}
         />
+
+        <br />
+        {studentId && isSuccess && (
+          <PaymentBox
+            amount={total}
+            remark="Admission"
+            studentId={Number(studentId)}
+            type="admission"
+            successFn={refetch}
+          />
+        )}
       </div>
     </>
   )
