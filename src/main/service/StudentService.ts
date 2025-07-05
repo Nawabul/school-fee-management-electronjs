@@ -307,42 +307,34 @@ class StudentService {
       throw new Error('Error while fetching student last fee month ago: ')
     }
   }
-  async get(id: number): Promise<Student_Get | null> {
-    try {
-      const query = this.db
-        .select({
-          id: students.id,
-          reg_number: students.reg_number,
-          student_name: students.student_name,
-          father_name: students.father_name,
-          mobile: students.mobile,
-          address: students.address,
-          admission_date: students.admission_date,
-          transfer_date: students.transfer_date,
-          is_whatsapp: students.is_whatsapp,
-          class_id: students.class_id,
-          initial_balance: students.initial_balance,
-          current_balance: students.current_balance,
-          last_fee_date: students.last_fee_date,
-          last_notification_date: students.last_notification_date
-        })
-        .from(students)
-        .where(eq(students.id, id))
-      const result = await query.get()
-      if (!result) {
-        return null
-      }
-      return {
-        ...result,
-        is_whatsapp: result.is_whatsapp === 1, // Convert 1/0 to boolean
-        transfer_date: result.transfer_date || null // Ensure transfer_date is null if not set
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while fetching students: ' + error.message)
-      } else {
-        throw new Error('Error while fetching students')
-      }
+  get(id: number): Student_Get | null {
+    const query = this.db
+      .select({
+        id: students.id,
+        reg_number: students.reg_number,
+        student_name: students.student_name,
+        father_name: students.father_name,
+        mobile: students.mobile,
+        address: students.address,
+        admission_date: students.admission_date,
+        transfer_date: students.transfer_date,
+        is_whatsapp: students.is_whatsapp,
+        class_id: students.class_id,
+        initial_balance: students.initial_balance,
+        current_balance: students.current_balance,
+        last_fee_date: students.last_fee_date,
+        last_notification_date: students.last_notification_date
+      })
+      .from(students)
+      .where(eq(students.id, id))
+    const result = query.get()
+    if (!result) {
+      return null
+    }
+    return {
+      ...result,
+      is_whatsapp: result.is_whatsapp === 1, // Convert 1/0 to boolean
+      transfer_date: result.transfer_date || null // Ensure transfer_date is null if not set
     }
   }
   //@ts-ignore there will be any table with this name

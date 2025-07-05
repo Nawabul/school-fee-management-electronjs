@@ -68,89 +68,126 @@ class PaymentController {
       }
       const result = PaymentService.db.transaction((tx: Transaction): boolean => {
         const balanceDiff = data.amount - paymentRecord.amount
-        const havePaid = balanceDiff
-        let usedNow = 0
+        let newAdmission = paymentRecord.admission
+        let newMonthly = paymentRecord.monthly
+        let newMisCharge = paymentRecord.mis_charge
+        let newUsed = paymentRecord.used
 
-        let inputused = {
-          admission: paymentRecord.admission,
-          monthly: paymentRecord.monthly,
-          mis_charge: paymentRecord.mis_charge
+        // Refund adjustment if payment amount is reduced
+        if (balanceDiff < 0) {
+          const remainingRefund = Math.abs(balanceDiff)
+          const surplus = paymentRecord.amount - paymentRecord.used
+
+          // refund more than surplus
+          if (remainingRefund > surplus) {
+            let refund = remainingRefund - surplus
+            let needRefund = refund
+            const student = StudentService.get(paymentRecord.student_id)
+            if (!student) {
+              throw new Error('Student not found')
+            }
+            const unused = student.current_balance
+            // let remainingAdjust = 0
+            if (unused < 0) {
+              // remainingAdjust = 0
+            } else if (unused < refund) {
+              needRefund = refund - unused
+              // remainingAdjust = unused
+            } else {
+              needRefund = 0
+              // remainingAdjust = refund
+            }
+            // mis charge
+            const refundMis = Math.min(needRefund, paymentRecord.mis_charge)
+            MisChargeService.adjustPaid(-refundMis, tx)
+            needRefund -= refundMis
+            let actualAdjustMis = 0
+            if (refund > 0) {
+              const actualRefudMis = Math.min(refund, paymentRecord.mis_charge)
+              newMisCharge -= actualRefudMis
+              newUsed -= actualRefudMis
+              refund -= actualRefudMis
+              actualAdjustMis = actualRefudMis - refundMis
+            }
+
+            // monthly
+            const refundMonthly = Math.min(needRefund, paymentRecord.monthly)
+            MonthlyFeeService.adjustPaid(-refundMonthly, tx)
+            needRefund -= refundMonthly
+            let actualAdjustMonthly = 0
+            if (refund > 0) {
+              const actualRefundMonthly = Math.min(refund, paymentRecord.monthly)
+              newMonthly -= actualRefundMonthly
+              newUsed -= actualRefundMonthly
+              refund -= actualRefundMonthly
+              actualAdjustMonthly = actualRefundMonthly - refundMonthly
+            }
+
+            // admission
+            const refundAdmission = Math.min(needRefund, paymentRecord.admission)
+            AdmissionService.adjustPaid(-refundAdmission, tx)
+            needRefund -= refundAdmission
+            let actualAdjustAdmission = 0
+            if (refund > 0) {
+              const actualRefundAdmission = Math.min(refund, paymentRecord.admission)
+              newMonthly -= actualRefundAdmission
+              newUsed -= actualRefundAdmission
+              refund -= actualRefundAdmission
+              actualAdjustAdmission = actualRefundAdmission - refundAdmission
+            }
+
+            // update payment
+            const updatedData = {
+              ...data,
+              mis_charge: newMisCharge,
+              monthly: newMonthly,
+              admission: newAdmission,
+              used: newUsed
+            }
+            const paymentUpdate = PaymentService.update(id, updatedData, tx)
+
+            // adjust amount
+            PaymentService.adjustUsed(actualAdjustMis, 'mis_charge', tx)
+            PaymentService.adjustUsed(actualAdjustMonthly, 'monthly', tx)
+            PaymentService.adjustUsed(actualAdjustAdmission, 'admission', tx)
+
+            // update student amount
+            StudentService.incrementBalance(tx, paymentRecord.student_id, balanceDiff)
+            return paymentUpdate
+          }
         }
-        let input = {
+        // Allocation if payment is increased
+        if (balanceDiff > 0) {
+          let remainingAdd = balanceDiff
+
+          const addAdmission = AdmissionService.adjustPaid(remainingAdd, tx)
+          remainingAdd -= addAdmission
+          newAdmission += addAdmission
+          newUsed += addAdmission
+
+          const addMonthly = MonthlyFeeService.adjustPaid(remainingAdd, tx)
+          remainingAdd -= addMonthly
+          newMonthly += addMonthly
+          newUsed += addMonthly
+
+          const addMis = MisChargeService.adjustPaid(remainingAdd, tx)
+          remainingAdd -= addMis
+          newMisCharge += addMis
+          newUsed += addMis
+        }
+
+        const updatedData = {
           ...data,
-          ...inputused,
-          used: paymentRecord.used
+          mis_charge: newMisCharge,
+          monthly: newMonthly,
+          admission: newAdmission,
+          used: newUsed
         }
-        let remain = havePaid
-        if (balanceDiff != 0) {
-          let misCharge = paymentRecord.mis_charge
-          let monthly = paymentRecord.monthly
-          let admission = paymentRecord.admission
-          if (balanceDiff < 0) {
-            // adjust mis charge
-            if (Math.abs(remain) < paymentRecord.mis_charge) {
-              misCharge = MisChargeService.adjustPaid(remain, tx)
-            } else {
-              misCharge = MisChargeService.adjustPaid(-paymentRecord.mis_charge, tx)
-            }
 
-            remain -= misCharge
-            usedNow += misCharge
-
-            // adjust monthly
-            if (Math.abs(remain) < paymentRecord.monthly) {
-              monthly = MonthlyFeeService.adjustPaid(remain, tx)
-            } else {
-              monthly = MonthlyFeeService.adjustPaid(-paymentRecord.monthly, tx)
-            }
-
-            remain -= monthly
-            usedNow += monthly
-            // adjust admission
-
-            // adjust monthly
-            if (Math.abs(remain) < paymentRecord.admission) {
-              admission = AdmissionService.adjustPaid(remain, tx)
-            } else {
-              admission = AdmissionService.adjustPaid(-paymentRecord.admission, tx)
-            }
-
-            remain -= admission
-            usedNow += admission
-          } else {
-            admission = AdmissionService.adjustPaid(remain, tx)
-            remain -= admission
-            usedNow += admission
-            monthly = MonthlyFeeService.adjustPaid(remain, tx)
-            remain -= monthly
-            usedNow += monthly
-            misCharge = MisChargeService.adjustPaid(remain, tx)
-            remain -= misCharge
-            usedNow += misCharge
-          }
-          // adjust admission
-
-          // adjust monthly
-
-          // adjust mis charge
-
-          inputused = {
-            admission: paymentRecord.admission + admission,
-            monthly: paymentRecord.monthly + monthly,
-            mis_charge: paymentRecord.mis_charge + misCharge
-          }
-          input = {
-            ...data,
-            ...inputused,
-            used: paymentRecord.used + usedNow
-          }
-
-          // adjust student current amount
-          console.log('diff', balanceDiff)
-          StudentService.incrementBalance(tx, paymentRecord.student_id, balanceDiff)
-        }
         // update payment
-        const paymentUpdate = PaymentService.update(id, input, tx)
+        const paymentUpdate = PaymentService.update(id, updatedData, tx)
+        // update student balance
+        StudentService.incrementBalance(tx, paymentRecord.student_id, balanceDiff)
         return paymentUpdate
       })
       if (!result) {
@@ -177,20 +214,47 @@ class PaymentController {
       }
       const result = PaymentService.db.transaction((tx: Transaction): boolean => {
         const used = paymentRecord.used
+        const paymentDelete = PaymentService.delete(id, tx)
 
         if (used != 0) {
-          // adjust admission
-          AdmissionService.adjustPaid(-paymentRecord.admission, tx)
+          const student = StudentService.get(paymentRecord.student_id)
+          if (!student) {
+            throw new Error('Student not found')
+          }
+          const unused = student.current_balance
+          let adjustAmount = 0
+          if (unused < 0) {
+            adjustAmount = 0
+          } else if (unused < used) {
+            adjustAmount = unused
+          } else {
+            adjustAmount = used
+          }
           // adjust monthly
-          MonthlyFeeService.adjustPaid(-paymentRecord.monthly, tx)
+          const adjustAdmission = Math.min(adjustAmount, paymentRecord.admission)
+          const refundAdmission = paymentRecord.admission - adjustAdmission
+          AdmissionService.adjustPaid(-refundAdmission, tx)
+          PaymentService.adjustUsed(adjustAdmission, 'admission', tx)
+          adjustAmount -= adjustAdmission
+
+          // adjust monthly
+          const adjustMonthly = Math.min(adjustAmount, paymentRecord.monthly)
+          const refundMonthly = paymentRecord.monthly - adjustMonthly
+          MonthlyFeeService.adjustPaid(-refundMonthly, tx)
+          PaymentService.adjustUsed(adjustMonthly, 'monthly', tx)
+          adjustAmount -= adjustMonthly
+
           // adjust mis charge
-          MisChargeService.adjustPaid(-paymentRecord.mis_charge, tx)
+          const adjustMis = Math.min(adjustAmount, paymentRecord.mis_charge)
+          const refundMis = paymentRecord.mis_charge - adjustMis
+          MisChargeService.adjustPaid(-refundMis, tx)
+          PaymentService.adjustUsed(adjustMis, 'mis_charge', tx)
+          adjustAmount -= adjustMis
 
           // adjust student current amount
         }
         // update payment
         StudentService.decrementBalance(tx, paymentRecord.student_id, paymentRecord.amount)
-        const paymentDelete = PaymentService.delete(id, tx)
         return paymentDelete
       })
       return apiSuccess(result, 'Payment deleted successfully')
