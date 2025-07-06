@@ -93,7 +93,6 @@ export const currentSchemaStatements: string[] = [
         FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
         FOREIGN KEY (class_id) REFERENCES classes(id) ON UPDATE NO ACTION ON DELETE RESTRICT
       );`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS admission_student_class_unique ON admission (student_id, class_id);`,
 
   `CREATE UNIQUE INDEX IF NOT EXISTS versions_name_unique ON versions (name);`,
   `INSERT INTO versions(name, value) VALUES ('${DB_VERSION_NAME}', '${app_version}')`
