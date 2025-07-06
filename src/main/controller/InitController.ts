@@ -15,12 +15,13 @@ class InitController {
       const today = format(new Date(), DB_DATE_FORMAT)
       // loop through students
       for (const student of students) {
+        const active_until = student.active_until || today
         // create monthly fee records of each
         const input = {
           student_id: student.student_id,
           class_id: student.class_id,
           from: student.last_fee_date,
-          to: today
+          to: today < active_until ? today : active_until
         }
 
         await MonthlyFeeController.create(input)

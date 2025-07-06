@@ -24,6 +24,8 @@ class StudentController {
       const id = StudentService.db.transaction((tx: Transaction) => {
         const student = StudentService.create(body, tx)
         const last_date = student.last_date
+        const today = format(new Date(), DB_DATE_FORMAT)
+        const active_until = student.active_until || today
         const studentId = student.id
         const payment = PaymentService.unsed_list(studentId)
         const payable = payment.reduce((acc, payment) => acc + (payment.amount - payment.used), 0)
@@ -51,8 +53,8 @@ class StudentController {
         // adjust payment
         PaymentService.adjustUsed(studentId, paid, 'admission', tx)
         used += admission_charge
-        const today = format(new Date(), DB_DATE_FORMAT)
-        const month = MonthlyFeeController.countMonth(last_date, today)
+        const endDate = active_until < today ? active_until : today
+        const month = MonthlyFeeController.countMonth(last_date, endDate)
         const fetchClass = ClassService.get(data.class_id)
         if (!fetchClass) {
           throw new Error('Class Not found')

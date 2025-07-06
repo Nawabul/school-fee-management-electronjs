@@ -21,6 +21,7 @@ type ListLastFeeMonthAgo = {
   student_id: number
   last_fee_date: string
   class_id: number
+  active_until: string | null
 }
 
 class StudentService {
@@ -34,17 +35,19 @@ class StudentService {
   create(
     data: Student_Write,
     tx: BetterSQLite3Database<Record<string, never>> = this.db
-  ): { id: number; last_date: string } {
+  ): { id: number; last_date: string; active_until: string | null } {
     const today = new Date()
     const month = today.getMonth() + 1 // getMonth() returns 0-11, so we add 1
     let sub = 0
     if (month < 4) {
       sub = 1
     }
-    const march30 = set(new Date(), { month: 3, date: 1 })
-    const lastDate = subYears(new Date(march30), sub)
+    const apr1 = set(new Date(), { month: 3, date: 1 })
+    const lastDate = subYears(new Date(apr1), sub)
     const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
-
+    const march30 = set(new Date(), { month: 2, date: 30 })
+    const nextYear = addYears(march30, 1)
+    const active_until = format(new Date(nextYear), DB_DATE_FORMAT)
     const now = new Date().toISOString()
     type InsertRow = InferInsertModel<typeof students>
     const row: InsertRow = {
@@ -59,13 +62,18 @@ class StudentService {
       initial_balance: 0,
       current_balance: 0,
       last_fee_date: fee_date,
-      last_notification_date: now
+      last_notification_date: now,
+      active_until
     }
 
     const result = tx
       .insert(students)
       .values(row)
-      .returning({ id: students.id, last_date: students.last_fee_date })
+      .returning({
+        id: students.id,
+        last_date: students.last_fee_date,
+        active_until: students.active_until
+      })
       .get()
 
     if (!result?.id) {
@@ -287,14 +295,13 @@ class StudentService {
         .select({
           student_id: students.id,
           class_id: students.class_id,
-          last_fee_date: students.last_fee_date
+          last_fee_date: students.last_fee_date,
+          active_until: students.active_until
         })
         .from(students)
         .where(
           sql`
       ${students.transfer_date} IS NULL AND
-      (${students.active_until} IS NULL OR
-      ${students.active_until} < ${compareDate}) AND
       strftime('%Y-%m', ${students.last_fee_date}) < strftime('%Y-%m', ${compareDate})
     `
         )
