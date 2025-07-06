@@ -18,8 +18,9 @@ class MisChargeController {
     try {
       const result = MisChargeService.db.transaction((tx: Transaction) => {
         const needPaid = data.amount
+        const studentId = data.student_id
         // adjust payment
-        const havePaid = PaymentService.adjustUsed(needPaid, 'mis_charge', tx)
+        const havePaid = PaymentService.adjustUsed(studentId, needPaid, 'mis_charge', tx)
 
         const input = {
           ...data,
@@ -57,9 +58,10 @@ class MisChargeController {
           paid: misCharge.paid
         }
         const needPaid = data.amount - misCharge.paid
+        const studentId = misCharge.student_id
         if (needPaid != 0) {
           // adjust payment
-          const havePaid = PaymentService.adjustUsed(needPaid, 'mis_charge', tx)
+          const havePaid = PaymentService.adjustUsed(studentId, needPaid, 'mis_charge', tx)
 
           input.paid = misCharge.paid + havePaid
           const downAmount = amountChange
@@ -95,10 +97,10 @@ class MisChargeController {
 
       const result = MisChargeService.db.transaction((tx: Transaction) => {
         const paid = misCharge.paid
-
+        const studentId = misCharge.student_id
         if (paid != 0) {
           // adjust payment
-          PaymentService.adjustUsed(-paid, 'mis_charge', tx)
+          PaymentService.adjustUsed(studentId, -paid, 'mis_charge', tx)
         }
         // up amount from student
         StudentService.incrementBalance(tx, misCharge.student_id, misCharge.amount)

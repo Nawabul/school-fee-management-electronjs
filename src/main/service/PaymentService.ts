@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { desc, eq, gt, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
 import {
   Payment_Insert,
   Payment_Read,
@@ -92,7 +92,8 @@ class PaymentService {
     return payment || null
   }
 
-  unsed_list(): Payment_Used_Unused[] {
+  unsed_list(studentId: number): Payment_Used_Unused[] {
+    const condition = [eq(payments.student_id, studentId), lt(payments.used, payments.amount)]
     const list = this.db
       .select({
         id: payments.id,
@@ -103,14 +104,15 @@ class PaymentService {
         mis_charge: payments.mis_charge
       })
       .from(payments)
-      .where(lt(payments.used, payments.amount))
+      .where(and(...condition))
       .orderBy(desc(payments.used), desc(payments.date))
       .all()
     return list
   }
 
   //used list
-  used_list(): Payment_Used_Unused[] {
+  used_list(studentId: number): Payment_Used_Unused[] {
+    const condition = [eq(payments.student_id, studentId), gt(payments.used, 0)]
     const list = this.db
       .select({
         id: payments.id,
@@ -121,7 +123,7 @@ class PaymentService {
         mis_charge: payments.mis_charge
       })
       .from(payments)
-      .where(gt(payments.used, 0))
+      .where(and(...condition))
       .orderBy(payments.used, desc(payments.date))
       .all()
     return list
@@ -152,8 +154,8 @@ class PaymentService {
     return used.changes > 0
   }
 
-  handleUsedUp(amount: number, type: Payment_Type, tx: Transaction): number {
-    const list = this.unsed_list()
+  handleUsedUp(studentId: number, amount: number, type: Payment_Type, tx: Transaction): number {
+    const list = this.unsed_list(studentId)
 
     let used = 0
     let remain = amount
@@ -177,8 +179,8 @@ class PaymentService {
 
   // handle used down
 
-  handleUsedDown(amount: number, type: Payment_Type, tx: Transaction): number {
-    const list = this.used_list()
+  handleUsedDown(studentId: number, amount: number, type: Payment_Type, tx: Transaction): number {
+    const list = this.used_list(studentId)
 
     let collect = 0
     let remain = Math.abs(amount) // will be negative
@@ -202,7 +204,12 @@ class PaymentService {
   }
   // adjust the paid amount
 
-  adjustUsed(amount: number, type: Payment_Type, tx: Transaction | null): number {
+  adjustUsed(
+    studentId: number,
+    amount: number,
+    type: Payment_Type,
+    tx: Transaction | null
+  ): number {
     let used = 0
     if (amount == 0) {
       return 0
@@ -211,11 +218,11 @@ class PaymentService {
       const used = this.db.transaction((tx: Transaction) => {
         if (amount < 0) {
           // reverse the used amount
-          const haveUsed = this.handleUsedDown(amount, type, tx)
+          const haveUsed = this.handleUsedDown(studentId, amount, type, tx)
           return -haveUsed
         } else {
           // add the used amount
-          const haveUsed = this.handleUsedUp(amount, type, tx)
+          const haveUsed = this.handleUsedUp(studentId, amount, type, tx)
           return haveUsed
         }
       })
@@ -225,15 +232,13 @@ class PaymentService {
 
     if (amount < 0) {
       // reverse the paid amount
-      const haveUsed = this.handleUsedDown(amount, type, tx)
+      const haveUsed = this.handleUsedDown(studentId, amount, type, tx)
 
       used = -haveUsed
-
     } else {
       // add the paid amount
-      const haveUsed = this.handleUsedUp(amount, type, tx)
+      const haveUsed = this.handleUsedUp(studentId, amount, type, tx)
       used = haveUsed
-
     }
 
     return used

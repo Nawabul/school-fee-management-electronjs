@@ -20,13 +20,12 @@ class StudentController {
     data: studentCreate
   ): Promise<successResponse<number> | errorResponse> {
     try {
-
       const { admission_charge, ...body } = data
       const id = StudentService.db.transaction((tx: Transaction) => {
         const student = StudentService.create(body, tx)
         const last_date = student.last_date
         const studentId = student.id
-        const payment = PaymentService.unsed_list()
+        const payment = PaymentService.unsed_list(studentId)
         const payable = payment.reduce((acc, payment) => acc + (payment.amount - payment.used), 0)
         let remain = payable
         let used = 0
@@ -50,7 +49,7 @@ class StudentController {
           student_id: studentId
         })
         // adjust payment
-        PaymentService.adjustUsed(paid, 'admission', tx)
+        PaymentService.adjustUsed(studentId, paid, 'admission', tx)
         used += admission_charge
         const today = format(new Date(), DB_DATE_FORMAT)
         const month = MonthlyFeeController.countMonth(last_date, today)
@@ -73,7 +72,7 @@ class StudentController {
         )
         used += month.count * fee
         // payment
-        PaymentService.adjustUsed(montly, 'monthly', tx)
+        PaymentService.adjustUsed(studentId, montly, 'monthly', tx)
 
         // update student
         StudentService.last_fee_date_update(studentId, month.end, tx)

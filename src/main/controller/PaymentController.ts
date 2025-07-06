@@ -21,7 +21,7 @@ class PaymentController {
   ): Promise<successResponse<number> | errorResponse> {
     try {
       let remain = data.amount
-
+      const studentId = data.student_id
       const result = PaymentService.db.transaction((tx: Transaction): number => {
         let admission = 0
         let misCharge = 0
@@ -29,15 +29,15 @@ class PaymentController {
         // adjust admission
         const services = {
           admission: () => {
-            admission = AdmissionService.adjustPaid(remain, tx)
+            admission = AdmissionService.adjustPaid(studentId, remain, tx)
             remain -= admission
           },
           mis_charge: () => {
-            misCharge = MisChargeService.adjustPaid(remain, tx)
+            misCharge = MisChargeService.adjustPaid(studentId, remain, tx)
             remain -= misCharge
           },
           monthly: () => {
-            monthly = MonthlyFeeService.adjustPaid(remain, tx)
+            monthly = MonthlyFeeService.adjustPaid(studentId, remain, tx)
             remain -= monthly
           }
         }
@@ -105,6 +105,7 @@ class PaymentController {
         let newMonthly = paymentRecord.monthly
         let newMisCharge = paymentRecord.mis_charge
         let newUsed = paymentRecord.used
+        const studentId = paymentRecord.student_id
 
         // Refund adjustment if payment amount is reduced
         if (balanceDiff < 0) {
@@ -132,7 +133,7 @@ class PaymentController {
             }
             // mis charge
             const refundMis = Math.min(needRefund, paymentRecord.mis_charge)
-            MisChargeService.adjustPaid(-refundMis, tx)
+            MisChargeService.adjustPaid(studentId, -refundMis, tx)
             needRefund -= refundMis
             let actualAdjustMis = 0
             if (refund > 0) {
@@ -145,7 +146,7 @@ class PaymentController {
 
             // monthly
             const refundMonthly = Math.min(needRefund, paymentRecord.monthly)
-            MonthlyFeeService.adjustPaid(-refundMonthly, tx)
+            MonthlyFeeService.adjustPaid(studentId, -refundMonthly, tx)
             needRefund -= refundMonthly
             let actualAdjustMonthly = 0
             if (refund > 0) {
@@ -158,7 +159,7 @@ class PaymentController {
 
             // admission
             const refundAdmission = Math.min(needRefund, paymentRecord.admission)
-            AdmissionService.adjustPaid(-refundAdmission, tx)
+            AdmissionService.adjustPaid(studentId, -refundAdmission, tx)
             needRefund -= refundAdmission
             let actualAdjustAdmission = 0
             if (refund > 0) {
@@ -180,9 +181,9 @@ class PaymentController {
             const paymentUpdate = PaymentService.update(id, updatedData, tx)
 
             // adjust amount
-            PaymentService.adjustUsed(actualAdjustMis, 'mis_charge', tx)
-            PaymentService.adjustUsed(actualAdjustMonthly, 'monthly', tx)
-            PaymentService.adjustUsed(actualAdjustAdmission, 'admission', tx)
+            PaymentService.adjustUsed(studentId, actualAdjustMis, 'mis_charge', tx)
+            PaymentService.adjustUsed(studentId, actualAdjustMonthly, 'monthly', tx)
+            PaymentService.adjustUsed(studentId, actualAdjustAdmission, 'admission', tx)
 
             // update student amount
             StudentService.incrementBalance(tx, paymentRecord.student_id, balanceDiff)
@@ -193,17 +194,17 @@ class PaymentController {
         if (balanceDiff > 0) {
           let remainingAdd = balanceDiff
 
-          const addAdmission = AdmissionService.adjustPaid(remainingAdd, tx)
+          const addAdmission = AdmissionService.adjustPaid(studentId, remainingAdd, tx)
           remainingAdd -= addAdmission
           newAdmission += addAdmission
           newUsed += addAdmission
 
-          const addMonthly = MonthlyFeeService.adjustPaid(remainingAdd, tx)
+          const addMonthly = MonthlyFeeService.adjustPaid(studentId, remainingAdd, tx)
           remainingAdd -= addMonthly
           newMonthly += addMonthly
           newUsed += addMonthly
 
-          const addMis = MisChargeService.adjustPaid(remainingAdd, tx)
+          const addMis = MisChargeService.adjustPaid(studentId, remainingAdd, tx)
           remainingAdd -= addMis
           newMisCharge += addMis
           newUsed += addMis
@@ -245,6 +246,7 @@ class PaymentController {
       if (!paymentRecord) {
         return apiError('Payment not found')
       }
+      const studentId = paymentRecord.student_id
       const result = PaymentService.db.transaction((tx: Transaction): boolean => {
         const used = paymentRecord.used
         const paymentDelete = PaymentService.delete(id, tx)
@@ -266,22 +268,22 @@ class PaymentController {
           // adjust monthly
           const adjustAdmission = Math.min(adjustAmount, paymentRecord.admission)
           const refundAdmission = paymentRecord.admission - adjustAdmission
-          AdmissionService.adjustPaid(-refundAdmission, tx)
-          PaymentService.adjustUsed(adjustAdmission, 'admission', tx)
+          AdmissionService.adjustPaid(studentId, -refundAdmission, tx)
+          PaymentService.adjustUsed(studentId, adjustAdmission, 'admission', tx)
           adjustAmount -= adjustAdmission
 
           // adjust monthly
           const adjustMonthly = Math.min(adjustAmount, paymentRecord.monthly)
           const refundMonthly = paymentRecord.monthly - adjustMonthly
-          MonthlyFeeService.adjustPaid(-refundMonthly, tx)
-          PaymentService.adjustUsed(adjustMonthly, 'monthly', tx)
+          MonthlyFeeService.adjustPaid(studentId, -refundMonthly, tx)
+          PaymentService.adjustUsed(studentId, adjustMonthly, 'monthly', tx)
           adjustAmount -= adjustMonthly
 
           // adjust mis charge
           const adjustMis = Math.min(adjustAmount, paymentRecord.mis_charge)
           const refundMis = paymentRecord.mis_charge - adjustMis
-          MisChargeService.adjustPaid(-refundMis, tx)
-          PaymentService.adjustUsed(adjustMis, 'mis_charge', tx)
+          MisChargeService.adjustPaid(studentId, -refundMis, tx)
+          PaymentService.adjustUsed(studentId, adjustMis, 'mis_charge', tx)
           adjustAmount -= adjustMis
 
           // adjust student current amount

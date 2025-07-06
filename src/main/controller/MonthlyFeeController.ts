@@ -30,7 +30,6 @@ class MonthlyFeeController {
     tx: BetterSQLite3Database<Record<string, never>> | null = null
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-
       const MonthCount = this.countMonth(data.from, data.to)
       const count = MonthCount.count
       const end = MonthCount.end
@@ -45,17 +44,17 @@ class MonthlyFeeController {
       }
 
       const fee = classDetails.amount
+      const studentId = data.student_id
       // fetch amount for paid
       let amount = amountToPaid
       if (amount < 0) {
-        const paymentRecord = PaymentService.unsed_list()
+        const paymentRecord = PaymentService.unsed_list(studentId)
         const paidAmount = paymentRecord.reduce((acc, payment) => {
           return acc + (payment.amount - payment.used)
         }, 0)
 
         amount = paidAmount
       }
-
 
       const input = {
         student_id: data.student_id,
@@ -73,7 +72,6 @@ class MonthlyFeeController {
           StudentService.decrementBalance(tx, data.student_id, total)
           // update student last date
           StudentService.last_fee_date_update(data.student_id, end, tx)
-
         })
       } else {
         MonthlyFeeService.createBulkWithPayment(input, tx)

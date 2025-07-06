@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { desc, eq, gt, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
 import { mis_charges } from '../db/schema/mis_charge'
 import {
   Mis_Charge_Write,
@@ -97,7 +97,11 @@ class MisChargeService {
     return charge || null
   }
 
-  unpaid_list(): Mis_Charge_Read_Paid_Unpaid[] {
+  unpaid_list(studentId: number): Mis_Charge_Read_Paid_Unpaid[] {
+    const condition = [
+      eq(mis_charges.student_id, studentId),
+      lt(mis_charges.paid, mis_charges.amount)
+    ]
     const list = this.db
       .select({
         id: mis_charges.id,
@@ -105,14 +109,15 @@ class MisChargeService {
         paid: mis_charges.paid
       })
       .from(mis_charges)
-      .where(lt(mis_charges.paid, mis_charges.amount))
+      .where(and(...condition))
       .orderBy(desc(mis_charges.paid), desc(mis_charges.date))
       .all()
     return list
   }
 
   //paid list
-  paid_list(): Mis_Charge_Read_Paid_Unpaid[] {
+  paid_list(studentId: number): Mis_Charge_Read_Paid_Unpaid[] {
+    const condition = [eq(mis_charges.student_id, studentId), gt(mis_charges.paid, 0)]
     const list = this.db
       .select({
         id: mis_charges.id,
@@ -120,7 +125,7 @@ class MisChargeService {
         paid: mis_charges.paid
       })
       .from(mis_charges)
-      .where(gt(mis_charges.paid, 0))
+      .where(and(...condition))
       .orderBy(mis_charges.paid, desc(mis_charges.date))
       .all()
     return list
@@ -153,8 +158,8 @@ class MisChargeService {
     return pay.changes > 0
   }
 
-  handlePaidUp(amount: number, tx: Transaction): number {
-    const list = this.unpaid_list()
+  handlePaidUp(studentId: number, amount: number, tx: Transaction): number {
+    const list = this.unpaid_list(studentId)
     let used = 0
     let remain = amount
 
@@ -177,8 +182,8 @@ class MisChargeService {
 
   // handle paid down
 
-  handlePaidDown(amount: number, tx: Transaction): number {
-    const list = this.paid_list()
+  handlePaidDown(studentId: number, amount: number, tx: Transaction): number {
+    const list = this.paid_list(studentId)
 
     let collect = 0
     let remain = Math.abs(amount) // will be negative
@@ -202,7 +207,7 @@ class MisChargeService {
   }
   // adjust the paid amount
 
-  adjustPaid(amount: number, tx: Transaction | null): number {
+  adjustPaid(studentId: number, amount: number, tx: Transaction | null): number {
     let used = 0
     if (amount == 0) {
       return 0
@@ -211,11 +216,11 @@ class MisChargeService {
       const paid = this.db.transaction((tx: Transaction) => {
         if (amount < 0) {
           // reverse the paid amount
-          const havePaid = this.handlePaidDown(amount, tx)
+          const havePaid = this.handlePaidDown(studentId, amount, tx)
           return -havePaid
         } else {
           // add the paid amount
-          const havePaid = this.handlePaidUp(amount, tx)
+          const havePaid = this.handlePaidUp(studentId, amount, tx)
           return havePaid
         }
       })
@@ -226,13 +231,12 @@ class MisChargeService {
 
     if (amount < 0) {
       // reverse the paid amount
-      const havePaid = this.handlePaidDown(amount, tx)
+      const havePaid = this.handlePaidDown(studentId, amount, tx)
 
       used = -havePaid
-
     } else {
       // add the paid amount
-      const havePaid = this.handlePaidUp(amount, tx)
+      const havePaid = this.handlePaidUp(studentId, amount, tx)
       used = havePaid
     }
 

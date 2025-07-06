@@ -14,8 +14,9 @@ class AddmissionController {
     try {
       const result = AdmissionService.db.transaction((tx: Transaction) => {
         const needPaid = data.amount
+        const studentId = data.student_id
         // adjust payment
-        const havePaid = PaymentService.adjustUsed(needPaid, 'admission', tx)
+        const havePaid = PaymentService.adjustUsed(studentId, needPaid, 'admission', tx)
 
         const input = {
           ...data,

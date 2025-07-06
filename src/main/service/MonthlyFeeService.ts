@@ -84,7 +84,7 @@ class MonthlyFeeService {
       haveAmount
     }
     const usedAmount = this.createBulk(input, tx)
-    PaymentService.adjustUsed(usedAmount, 'monthly', tx)
+    PaymentService.adjustUsed(student_id, usedAmount, 'monthly', tx)
 
     return usedAmount
   }
@@ -188,7 +188,11 @@ class MonthlyFeeService {
     return charge || null
   }
 
-  unpaid_list(): Monthly_Fee_Read_Paid_Unpaid[] {
+  unpaid_list(studentId: number): Monthly_Fee_Read_Paid_Unpaid[] {
+    const condition = [
+      eq(monthly_fee.student_id, studentId),
+      lt(monthly_fee.paid, monthly_fee.amount)
+    ]
     const list = this.db
       .select({
         id: monthly_fee.id,
@@ -196,14 +200,15 @@ class MonthlyFeeService {
         paid: monthly_fee.paid
       })
       .from(monthly_fee)
-      .where(lt(monthly_fee.paid, monthly_fee.amount))
+      .where(and(...condition))
       .orderBy(desc(monthly_fee.paid), monthly_fee.date)
       .all()
     return list
   }
 
   //paid list
-  paid_list(): Monthly_Fee_Read_Paid_Unpaid[] {
+  paid_list(studentId: number): Monthly_Fee_Read_Paid_Unpaid[] {
+    const condition = [eq(monthly_fee.student_id, studentId), gt(monthly_fee.paid, 0)]
     const list = this.db
       .select({
         id: monthly_fee.id,
@@ -211,7 +216,7 @@ class MonthlyFeeService {
         paid: monthly_fee.paid
       })
       .from(monthly_fee)
-      .where(gt(monthly_fee.paid, 0))
+      .where(and(...condition))
       .orderBy(monthly_fee.paid, desc(monthly_fee.date))
       .all()
     return list
@@ -244,8 +249,8 @@ class MonthlyFeeService {
     return pay.changes > 0
   }
 
-  handlePaidUp(amount: number, tx: Transaction): number {
-    const list = this.unpaid_list()
+  handlePaidUp(studentId: number, amount: number, tx: Transaction): number {
+    const list = this.unpaid_list(studentId)
     let used = 0
     let remain = amount
 
@@ -268,8 +273,8 @@ class MonthlyFeeService {
 
   // handle paid down
 
-  handlePaidDown(amount: number, tx: Transaction): number {
-    const list = this.paid_list()
+  handlePaidDown(studentId: number, amount: number, tx: Transaction): number {
+    const list = this.paid_list(studentId)
 
     let collect = 0
     let remain = Math.abs(amount) // will be negative
@@ -293,7 +298,7 @@ class MonthlyFeeService {
   }
   // adjust the paid amount
 
-  adjustPaid(amount: number, tx: Transaction | null): number {
+  adjustPaid(studentId: number, amount: number, tx: Transaction | null): number {
     let used = 0
     if (amount == 0) {
       return 0
@@ -302,11 +307,11 @@ class MonthlyFeeService {
       const paid = this.db.transaction((tx: Transaction) => {
         if (amount < 0) {
           // reverse the paid amount
-          const havePaid = this.handlePaidDown(amount, tx)
+          const havePaid = this.handlePaidDown(studentId, amount, tx)
           return -havePaid
         } else {
           // add the paid amount
-          const havePaid = this.handlePaidUp(amount, tx)
+          const havePaid = this.handlePaidUp(studentId, amount, tx)
           return havePaid
         }
       })
@@ -317,13 +322,12 @@ class MonthlyFeeService {
 
     if (amount < 0) {
       // reverse the paid amount
-      const havePaid = this.handlePaidDown(amount, tx)
+      const havePaid = this.handlePaidDown(studentId, amount, tx)
 
       used = -havePaid
-
     } else {
       // add the paid amount
-      const havePaid = this.handlePaidUp(amount, tx)
+      const havePaid = this.handlePaidUp(studentId, amount, tx)
       used = havePaid
     }
 
