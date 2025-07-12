@@ -45,7 +45,6 @@ const StudentRecord = (): JSX.Element => {
     setId(id)
   }
   const handleContinue = (id: number): void => {
-
     studyContinue.mutate(id)
     setId(id)
   }
@@ -66,15 +65,14 @@ const StudentRecord = (): JSX.Element => {
     continue: handleContinue,
     delete: (id: number) => {
       openModel({
-        fun: () => handleDelete(id)
+        submitFun: () => handleDelete(id)
       })
     },
     payment: (id: number, data: Student_Record): void => {
       setStudentDetails(data)
-      navigate(`/payment/${id}`)
+      navigate(`/finance/payment/${id}`)
     },
     mis_charge: (id: number, data: Student_Record): void => {
-
       setStudentDetails(data)
       navigate(`/mis_charge/${id}`)
     },

@@ -53,7 +53,14 @@ export const StudentSchema = {
     .string({
       required_error: 'Admission date is required'
     })
-    .min(1, 'Admission date cannot be empty')
+    .min(1, 'Admission date cannot be empty'),
+  monthly: z.coerce
+    .number({
+      required_error: 'Monthly Charge is required',
+      invalid_type_error: 'Monthly Charge must be a number'
+    })
+    .optional()
+    .default(0)
 }
 
 export const StudentCreateSchema = z.object({
@@ -69,6 +76,13 @@ export const StudentCreateSchema = z.object({
     .number({
       required_error: 'Admission Charge is required',
       invalid_type_error: 'Admission Charge must be a number'
+    })
+    .optional()
+    .default(0),
+  monthly: z.coerce
+    .number({
+      required_error: 'Monthly Charge is required',
+      invalid_type_error: 'Monthly Charge must be a number'
     })
     .optional()
     .default(0)

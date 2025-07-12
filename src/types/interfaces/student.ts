@@ -7,6 +7,7 @@ export interface Student_Write {
   admission_date: string // ISO date string
   address: string
   class_id: number
+  monthly: number
 }
 
 export interface Student_Insert extends Student_Write {
@@ -41,4 +42,5 @@ export interface Student_Get {
   current_balance: number
   last_fee_date: string // ISO date string
   last_notification_date: string // ISO date string
+  monthly: number
 }

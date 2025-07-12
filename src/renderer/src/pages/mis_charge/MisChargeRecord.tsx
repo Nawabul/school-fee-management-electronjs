@@ -47,11 +47,11 @@ const MisChargeRecord = (): JSX.Element => {
 
   const item: Record<string, (id: number) => void> = {
     update: (id: number): void => {
-      navigate(`/mis_charge/update/${id}`)
+      navigate(`/finance/mis_charge/update/${id}`)
     },
     delete: (id: number) => {
       openModel({
-        fun: () => handleDelete(id)
+        submitFun: () => handleDelete(id)
       })
     }
   }
@@ -70,15 +70,13 @@ const MisChargeRecord = (): JSX.Element => {
         <div>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to={`/mis_charge/insert/${studentId}`}
+            to={`/finance/mis_charge/insert/${studentId}`}
           >
             Add Mis. Charge
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
+
 
       <div className="rounded-xl bg-gray-800 p-1 md:p-5">
         <SimpleTableComponent<Mis_Charge_Record>

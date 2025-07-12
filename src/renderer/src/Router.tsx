@@ -19,6 +19,7 @@ import MonthlyFeeRecord from './pages/monthly_fee/MonthlyFeeRecord'
 import StudentTransfer from './pages/student/StudentTransfer'
 import AdmissionRecord from './pages/admission/AdmissionRecord'
 import AdmissionInsert from './pages/admission/AdmissionInsert'
+import StudentFinanceLayer from './layer/StudentFinanceLayer'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -52,68 +53,74 @@ const Router = (): React.ReactElement => (
               }
             ]
           },
-          // payment
           {
-            path: 'payment',
+            path: 'finance',
+            element: <StudentFinanceLayer />,
             children: [
+              // payment
               {
-                path: ':id',
-                element: <PaymentRecord />
+                path: 'payment',
+                children: [
+                  {
+                    path: ':id',
+                    element: <PaymentRecord />
+                  },
+                  {
+                    path: 'insert/:id',
+                    element: <PaymentInsert />
+                  },
+                  {
+                    path: 'update/:id',
+                    element: <PaymentUpdate />
+                  }
+                ]
               },
+              // mis charge
               {
-                path: 'insert/:id',
-                element: <PaymentInsert />
+                path: 'mis_charge',
+                children: [
+                  {
+                    path: ':id',
+                    element: <MisChargeRecord />
+                  },
+                  {
+                    path: 'insert/:id',
+                    element: <MisChargeInsert />
+                  },
+                  {
+                    path: 'update/:id',
+                    element: <MisChargeUpdate />
+                  }
+                ]
               },
+              // montly fee
               {
-                path: 'update/:id',
-                element: <PaymentUpdate />
-              }
-            ]
-          },
-          // mis charge
-          {
-            path: 'mis_charge',
-            children: [
-              {
-                path: ':id',
-                element: <MisChargeRecord />
+                path: 'monthly_fee',
+                children: [
+                  {
+                    path: ':id',
+                    element: <MonthlyFeeRecord />
+                  }
+                ]
               },
+
+              // admission
               {
-                path: 'insert/:id',
-                element: <MisChargeInsert />
-              },
-              {
-                path: 'update/:id',
-                element: <MisChargeUpdate />
-              }
-            ]
-          },
-          // montly fee
-          {
-            path: 'monthly_fee',
-            children: [
-              {
-                path: ':id',
-                element: <MonthlyFeeRecord />
+                path: 'admission',
+                children: [
+                  {
+                    path: ':id',
+                    element: <AdmissionRecord />
+                  },
+                  {
+                    path: 'insert/:id',
+                    element: <AdmissionInsert />
+                  }
+                ]
               }
             ]
           },
 
-          // admission
-          {
-            path: 'admission',
-            children: [
-              {
-                path: ':id',
-                element: <AdmissionRecord />
-              },
-              {
-                path: 'insert/:id',
-                element: <AdmissionInsert />
-              },
-
-            ]
-          },
           // class
           {
             path: 'class',

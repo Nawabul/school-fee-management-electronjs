@@ -50,6 +50,7 @@ const StudentForm = ({
         const item = classList.find((item) => item.id == value.class_id)
         if (item) {
           setValue('admission_charge', item.admission_charge)
+          setValue('monthly', item.amount)
         }
       }
     })
@@ -140,6 +141,14 @@ const StudentForm = ({
           control={control}
         />
       )}
+      {/* monthly fee */}
+      <FormInput
+        name="monthly"
+        label="Monthly Fee"
+        placeholder="e.g. 0 | 200 | -500"
+        type="number"
+        control={control}
+      />
 
       {/* Submit */}
       <div className="md:col-span-2 mt-auto ml-auto">

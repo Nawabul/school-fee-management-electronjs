@@ -39,6 +39,7 @@ const AdmissionForm = ({
         const item = classList.find((item) => item.id == value.class_id)
         if (item) {
           setValue('amount', item.admission_charge)
+          setValue('monthly', item.amount)
         }
       }
     })
@@ -62,7 +63,21 @@ const AdmissionForm = ({
         placeholder="Select Class"
       />
       {/* Admission Charge */}
-      <FormInput name="amount" label="Amount" placeholder="1300" type="number" control={control} />
+      <FormInput
+        name="amount"
+        label="Admission Charge"
+        placeholder="1300"
+        type="number"
+        control={control}
+      />
+      {/* Monthly  Charge */}
+      <FormInput
+        name="monthly"
+        label="Monthly Fee"
+        placeholder="700"
+        type="number"
+        control={control}
+      />
 
       {/* Date */}
       <FormInput name="date" label="Date" placeholder="e.g. 300" type="date" control={control} />

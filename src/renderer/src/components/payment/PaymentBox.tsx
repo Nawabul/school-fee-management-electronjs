@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import z from 'zod'
 import FormInput from '../form/FormInput'
 import { useEffect } from 'react'
+import { Button } from 'flowbite-react'
 
 type props = {
   type: Payment_Type
@@ -58,12 +59,13 @@ function PaymentBox({
   }
   return (
     <form className="flex gap-2 w-full justify-end items-end" onSubmit={handleSubmit(onSubmit)}>
-      <button
+      <Button
         className="bg-blue-800 text-white text-xl rounded-xl px-2 py-0 h-10"
         type={mutation.isPending ? 'button' : 'submit'}
+
       >
-        {mutation.isPending ? 'Submitting...' : 'Submit'}
-      </button>
+        {mutation.isPending ? 'Paying...' : 'Pay'}
+      </Button>
       <FormInput
         control={control}
         label="Amount"

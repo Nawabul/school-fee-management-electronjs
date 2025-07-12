@@ -1,7 +1,9 @@
 import Sidebar from '@renderer/components/drawer/Sidebar'
 import Model from '@renderer/components/model/Model'
+import SessionEndSet from '@renderer/components/session/SessionEndSet'
 import InitController from '@renderer/controller/InitController'
-import { ModelProvider } from '@renderer/hooks/useModel'
+import SessionController from '@renderer/controller/SessionController'
+import useModel from '@renderer/hooks/useModel'
 import { StudentDetailsProvider } from '@renderer/hooks/useStudentDetails'
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
@@ -12,6 +14,7 @@ const Authlayer = (): React.ReactElement => {
     status: false,
     message: 'Please wait app is being tested'
   })
+  const { openModel, closeModel } = useModel()
 
   useEffect(() => {
     const handleResize = (): void => setHeight(window.innerHeight)
@@ -21,21 +24,79 @@ const Authlayer = (): React.ReactElement => {
 
   // setip
   useEffect(function init() {
+    type step = {
+      fun: () => Promise<boolean>
+      message: string
+    }
+    const container: step[] = [
+      {
+        fun: InitController.database,
+        message: 'Database connection failed'
+      },
+      {
+        fun: async function (): Promise<boolean> {
+          // check session is set or not
+          const session = await SessionController.check()
+          console.log(session)
+          if (session) {
+            return true
+          }
+          const set = new Promise<boolean>((resolve) => {
+            const completed = (): void => {
+              resolve(true)
+              closeModel()
+            }
+            openModel({
+              title: 'Session Expired',
+              description:
+                'Month will be considered as end month of the student who are stil studing',
+              closeable: false,
+              showSubmitBtn: false,
+              component: <SessionEndSet sumbitFun={completed} />
+            })
+          })
+          const result = await set
+          return result
+        },
+        message: 'Session Expired setup failed'
+      },
+      {
+        fun: InitController.monthly_fee,
+        message: 'Monthly fee setup failed'
+      }
+    ]
+
+    function* sequence(): Generator<step> {
+      for (let i = 0; i < container.length; i++) {
+        yield container[i]
+      }
+    }
     ;(async () => {
-      // databse handler
-      const db = await InitController.database()
-      if (!db) {
-        setCompleted({ status: false, message: 'Database connection failed' })
-      }
+      const steps = sequence()
+      let done = false
+      while (!done) {
+        const step = steps.next()
 
-      // monthly fee
-      const monthlyFee = await InitController.monthly_fee()
-      if (!monthlyFee) {
-        setCompleted({ status: false, message: 'Monthly fee Calculation failed' })
-      }
+        try {
+          if (step.done) {
+            done = true
+            setCompleted({ status: true, message: 'Initialization completed' })
+            break
+          }
+          const result = await step.value.fun()
 
+          if (result === false) {
+            // Stop if function returned false
+            setCompleted({ status: false, message: step.value.message })
+            return
+          }
+        } catch (e) {
+          console.log('setup error', e)
+          setCompleted({ status: false, message: step.value.message })
+          return
+        }
+      }
       // success
-      setCompleted({ status: true, message: 'Initialization completed' })
 
       // check for app update
       if (navigator.onLine) {
@@ -50,20 +111,18 @@ const Authlayer = (): React.ReactElement => {
 
   return (
     <StudentDetailsProvider>
-      <ModelProvider>
-        <Model />
-        <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
-          <div className="flex dark:text-white pt-1">
-            <Sidebar />
-            <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
-              <div className="dark:bg-gray-800 rounded-xl">
-                {!completed.status && <span> {completed.message} </span>}
-                {completed.status && <Outlet />}
-              </div>
+      <Model />
+      <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
+        <div className="flex dark:text-white pt-1">
+          <Sidebar />
+          <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
+            <div className="dark:bg-gray-800 rounded-xl">
+              {!completed.status && <span> {completed.message} </span>}
+              {completed.status && <Outlet />}
             </div>
           </div>
         </div>
-      </ModelProvider>
+      </div>
     </StudentDetailsProvider>
   )
 }

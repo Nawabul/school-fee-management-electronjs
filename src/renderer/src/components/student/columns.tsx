@@ -5,6 +5,7 @@ import { Student_Record } from '@renderer/types/ts/student'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
 import { Dropdown, DropdownItem } from 'flowbite-react'
+import { ClipboardList, Pen, Trash2 } from 'lucide-react'
 
 export const studentColumns = (
   item: Record<string, (id: number, data: Student_Record) => void>
@@ -102,37 +103,11 @@ export const studentColumns = (
     header: 'Actions',
     enableHiding: false,
     cell: ({ row }) => (
-      <Dropdown label="Edit" arrowIcon={false} placement="bottom">
-        <DropdownItem onClick={() => item.payment(row.original.id, row.original)}>
-          Payment
-        </DropdownItem>
-        <DropdownItem onClick={() => item.monthly_fee(row.original.id, row.original)}>
-          Monthly Fee
-        </DropdownItem>
-
-        <DropdownItem onClick={() => item.mis_charge(row.original.id, row.original)}>
-          Mis. Charges
-        </DropdownItem>
-        <DropdownItem onClick={() => item.admission(row.original.id, row.original)}>
-          Promote Class
-        </DropdownItem>
-        {row.original.transfer_date == null ? (
-          <DropdownItem onClick={() => item.transfer(row.original.id, row.original)}>
-            Not Active
-          </DropdownItem>
-        ) : (
-          <DropdownItem onClick={() => item.continue(row.original.id, row.original)}>
-            Continue
-          </DropdownItem>
-        )}
-
-        <DropdownItem onClick={() => item.update(row.original.id, row.original)}>Edit</DropdownItem>
-        <DropdownItem onClick={() => item.delete(row.original.id, row.original)}>
-          Delete
-        </DropdownItem>
-
-
-      </Dropdown>
+      <div className="flex gap-2 ">
+        <Pen onClick={(): void => item.update(row.original.id, row.original)} />
+        <ClipboardList onClick={(): void => item.payment(row.original.id, row.original)} />
+        <Trash2 onClick={(): void => item.delete(row.original.id, row.original)} />
+      </div>
     )
   }
 ]

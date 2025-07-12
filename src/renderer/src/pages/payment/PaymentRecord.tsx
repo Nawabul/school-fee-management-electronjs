@@ -7,7 +7,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import PaymentController from '@renderer/controller/PaymentController'
 import { Payment_Record } from '@renderer/types/ts/payments'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import useModel from '@renderer/hooks/useModel'
 
 const PaymentRecord = (): JSX.Element => {
@@ -39,11 +38,11 @@ const PaymentRecord = (): JSX.Element => {
 
   const item: Record<string, (id: number) => void> = {
     update: (id: number): void => {
-      navigate(`/payment/update/${id}`)
+      navigate(`/finance/payment/update/${id}`)
     },
     delete: (id: number) => {
       openModel({
-        fun: () => handleDelete(id)
+        submitFun: () => handleDelete(id)
       })
     }
   }
@@ -58,14 +57,13 @@ const PaymentRecord = (): JSX.Element => {
         <div>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to={`/payment/insert/${studentId}`}
+            to={`/finance/payment/insert/${studentId}`}
           >
             Collect Payment
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
+
       {/* END HEADER CARD */}
       <div className="md:p-5 ">
         <SimpleTableComponent<Payment_Record>

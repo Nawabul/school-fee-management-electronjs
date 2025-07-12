@@ -37,16 +37,15 @@ const MisChargeInsert = (): React.JSX.Element => {
           <h1 className="text-2xl font-bold">Mis. Charge Insert</h1>
         </div>
         <div>
-          <Link to={`/mis_charge/${studentId}`}>
+          <Link to={`/finance/mis_charge/${studentId}`}>
             <Button>View All Mis. Charge</Button>
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
       <div className="md:p-5">
-        <MisChargeForm onSubmit={handleFormSubmit} isPending={misChargeMutation.isPending}
+        <MisChargeForm
+          onSubmit={handleFormSubmit}
+          isPending={misChargeMutation.isPending}
           defaultValues={{
             date: todayISODate
           }}

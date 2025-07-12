@@ -1,5 +1,4 @@
 import MisChargeForm from '@renderer/components/mis_charge/MisChargeForm'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import MisChargeController from '@renderer/controller/MisChargeController'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
@@ -56,9 +55,7 @@ const MisChargeUpdate = (): React.JSX.Element => {
           <Button onClick={() => navigate(-1)}>View All Mis. Charge</Button>
         </div>
       </div>
-            {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
+
       <div className="md:p-5">
         {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
         {isError && <p className="text-red-500">Error: {error.message}</p>}

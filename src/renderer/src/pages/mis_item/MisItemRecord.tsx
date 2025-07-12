@@ -40,7 +40,7 @@ const MisItemRecord = (): JSX.Element => {
     },
     delete: (id: number) => {
       openModel({
-        fun: () => handleDelete(id)
+        submitFun: () => handleDelete(id)
       })
     }
   }

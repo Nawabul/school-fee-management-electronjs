@@ -50,15 +50,13 @@ const AdmissionRecord = (): JSX.Element => {
         <div>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to={`/admission/insert/${studentId}`}
+            to={`/finance/admission/insert/${studentId}`}
           >
             Promote Class
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
+
 
       <div className="rounded-xl bg-gray-800 p-1 md:p-5">
         <SimpleTableComponent<Admission_Record>

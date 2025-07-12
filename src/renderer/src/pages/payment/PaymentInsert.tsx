@@ -37,14 +37,12 @@ const PaymentInsert = (): React.JSX.Element => {
           <h1 className="text-2xl font-bold">Collect Payment</h1>
         </div>
         <div>
-          <Link to={`/payment/${studentId}`}>
+          <Link to={`/finance/payment/${studentId}`}>
             <Button>View All Payment</Button>
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
+
       <div className="md:p-5">
         <PaymentForm
           onSubmit={handleFormSubmit}

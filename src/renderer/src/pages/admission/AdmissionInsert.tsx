@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import AdmissionForm from '@renderer/components/admission/AdmissionFrom'
 import AdmissionController from '@renderer/controller/AdmissionController'
 import { Admission_Write } from '@type/interfaces/admission'
@@ -38,14 +37,12 @@ const AdmissionInsert = (): React.JSX.Element => {
           <h1 className="text-2xl font-bold">Promote Class</h1>
         </div>
         <div>
-          <Link to={`/admission/${studentId}`}>
+          <Link to={`/finance/admission/${studentId}`}>
             <Button>View All Promote Class</Button>
           </Link>
         </div>
       </div>
-      {/* START STUDENT DETAIL HEADER CARD */}
-      <StudentDetailHeader />
-      {/* END HEADER CARD */}
+
       <div className="md:p-5">
         <AdmissionForm
           onSubmit={handleFormSubmit}

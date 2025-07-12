@@ -18,6 +18,12 @@ export const Admission_Schema = z.object({
       invalid_type_error: 'Amount must be a valid number'
     })
     .min(0, 'Amount must be a positive number'),
+  monthly: z.coerce
+    .number({
+      required_error: 'Amount is required',
+      invalid_type_error: 'Amount must be a valid number'
+    })
+    .min(0, 'Amount must be a positive number'),
   class_id: z.coerce
     .number({
       required_error: 'Class is required',
