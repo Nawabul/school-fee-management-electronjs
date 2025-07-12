@@ -1,11 +1,33 @@
 import { createContext, useState, useContext, ReactNode, JSX } from 'react'
 // Define the shape of the context
-type setAlert = {
-  fun: () => void
+interface setProps {
+  title?: string | null
+  description?: string | null
+  submitTitle?: string
+  closeTitle?: string
+  closeable?: boolean
+  showSubmitBtn?: boolean
+  component?: React.ReactNode | null
+  componentOnly?: boolean
+  submitFun?: () => void
+  closeFun?: () => void
+}
+type props = {
+  title: string | null
+  description: string | null
+  submitTitle: string
+  closeTitle: string
+  closeable: boolean
+  showSubmitBtn: boolean
+  component: React.ReactNode | null
+  componentOnly: boolean
+  submitFun: () => void
+  closeFun: () => void
+  show: boolean
 }
 interface ModelContextType {
-  alert: { fun: () => void } | null
-  openModel: (data: setAlert) => void
+  content: props
+  openModel: (data: setProps) => void
   closeModel: () => void
 }
 
@@ -14,18 +36,66 @@ const ModelContext = createContext<ModelContextType | null>(null)
 
 // Define the provider component
 export const ModelProvider = ({ children }: { children: ReactNode }): JSX.Element => {
-  const [alert, setAlert] = useState<setAlert | null>(null)
+  const notShow = {
+    show: false,
+    submitTitle: 'Delete',
+    closeTitle: 'Cancel',
+    closeable: true,
+    component: null,
+    componentOnly: false,
+    submitFun: () => {},
+    closeFun: () => {},
+    showSubmitBtn: true,
+    title: 'Are you sure you want to delete this ? ',
+    description: null
+  }
+  const [content, setContent] = useState<props>(notShow)
 
-  const openModelHandler = (data: setAlert): void => {
-    setAlert(data)
+  const openModelHandler = ({
+    title = 'Are you sure you want to delete this ? ',
+    description = null,
+    showSubmitBtn = true,
+    submitTitle = 'Delete',
+    closeTitle = 'Cancel',
+    closeable = true,
+    component = null,
+    componentOnly = false,
+    submitFun = () => {},
+    closeFun = () => {}
+  }: setProps): void => {
+    setContent({
+      title,
+      description,
+      submitTitle,
+      closeTitle,
+      closeable,
+      component,
+      componentOnly,
+      submitFun,
+      showSubmitBtn,
+      closeFun,
+      show: true
+    })
   }
   const closeModelHandler = (): void => {
-    setAlert(null)
+    setContent({
+      show: false,
+      submitTitle: 'Delete',
+      closeTitle: 'Cancel',
+      closeable: true,
+      component: null,
+      componentOnly: false,
+      submitFun: () => {},
+      closeFun: () => {},
+      showSubmitBtn: true,
+      title: 'Are you sure you want to delete this ? ',
+      description: null
+    })
   }
 
   return (
     <ModelContext.Provider
-      value={{ alert, openModel: openModelHandler, closeModel: closeModelHandler }}
+      value={{ content, openModel: openModelHandler, closeModel: closeModelHandler }}
     >
       {children}
     </ModelContext.Provider>
