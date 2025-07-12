@@ -147,6 +147,16 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('init:student:monthly:fee'),
       app_update: async (): Promise<void> => ipcRenderer.invoke('init:app:update')
     })
+
+    // session
+    contextBridge.exposeInMainWorld('session', {
+      check: async (): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('session:end:check'),
+      getEndMonth: async (): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('session:end:get'),
+      set: async (month: string | number): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('session:end:set', month)
+    })
   } catch (error) {
     console.error(error)
   }

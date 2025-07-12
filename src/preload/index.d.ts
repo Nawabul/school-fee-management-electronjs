@@ -85,5 +85,12 @@ declare global {
       monthly_fee: () => Promise<successResponse<boolean> | errorResponse>
       app_update: () => Promise<void>
     }
+
+    // session
+    session: {
+      check: () => Promise<successResponse<boolean> | errorResponse>
+      getEndMonth: () => Promise<successResponse<number> | errorResponse>
+      set: (month: string | number) => Promise<successResponse<boolean> | errorResponse>
+    }
   }
 }
