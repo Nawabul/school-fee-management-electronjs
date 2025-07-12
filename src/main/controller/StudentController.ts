@@ -9,7 +9,6 @@ import { DB_DATE_FORMAT } from '@main/utils/constant/date'
 import { Transaction } from '@type/interfaces/db'
 import PaymentService from '@main/service/PaymentService'
 import MonthlyFeeService from '@main/service/MonthlyFeeService'
-import ClassService from '@main/service/ClassService'
 
 interface studentCreate extends Student_Write {
   admission_charge: number
@@ -22,7 +21,9 @@ class StudentController {
     try {
       const { admission_charge, ...body } = data
       const id = StudentService.db.transaction((tx: Transaction) => {
+        console.log(body)
         const student = StudentService.create(body, tx)
+        console.log(student)
         const last_date = student.last_date
         const today = format(new Date(), DB_DATE_FORMAT)
         const active_until = student.active_until || today
@@ -48,18 +49,16 @@ class StudentController {
           class_id: data.class_id,
           date: data.admission_date,
           paid,
-          student_id: studentId
+          student_id: studentId,
+          monthly: data.monthly
         })
         // adjust payment
         PaymentService.adjustUsed(studentId, paid, 'admission', tx)
         used += admission_charge
         const endDate = active_until < today ? active_until : today
         const month = MonthlyFeeController.countMonth(last_date, endDate)
-        const fetchClass = ClassService.get(data.class_id)
-        if (!fetchClass) {
-          throw new Error('Class Not found')
-        }
-        const fee = fetchClass.amount
+
+        const fee = data.monthly
         // monthly fee
         const montly = MonthlyFeeService.createBulk(
           {

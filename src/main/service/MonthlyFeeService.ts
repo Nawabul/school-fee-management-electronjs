@@ -13,7 +13,7 @@ import { students } from '../db/schema/student'
 import { classes } from '../db/schema/class'
 import { Transaction } from '@type/interfaces/db'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
-import { addMonths } from 'date-fns'
+import { addMonths, set } from 'date-fns'
 import { format } from 'date-fns'
 import PaymentService from './PaymentService'
 type BulkCreate = {
@@ -44,7 +44,7 @@ class MonthlyFeeService {
     }
     let used = 0
     let remain = haveAmount
-
+    const start = set(from, { date: 1 })
     for (let i = 0; i < count; i++) {
       let paid = 0
       const amount = fee
@@ -63,7 +63,7 @@ class MonthlyFeeService {
         class_id,
         amount: fee,
         paid: paid,
-        date: format(addMonths(from, i), DB_DATE_FORMAT)
+        date: format(addMonths(start, i), DB_DATE_FORMAT)
       }
       this.create(input, tx)
     }

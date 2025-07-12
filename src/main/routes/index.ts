@@ -8,6 +8,7 @@ import MonthlyFeeController from '../controller/MonthlyFeeController'
 import VersionController from '../controller/VersionController'
 import InitController from '../controller/InitController'
 import AddmissionController from '@main/controller/AddmissionController'
+import SessionController from '@main/controller/SessionController'
 
 export default async function routes(): Promise<void> {
   // class
@@ -62,4 +63,9 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('init:student:monthly:fee', InitController.generate)
   // app update
   ipcMain.handle('init:app:update', InitController.checkForUpdates)
+
+  // session
+  ipcMain.handle('session:end:check', SessionController.isEndSet)
+  ipcMain.handle('session:end:get', SessionController.getEndSet)
+  ipcMain.handle('session:end:set', SessionController.setEndMonth)
 }

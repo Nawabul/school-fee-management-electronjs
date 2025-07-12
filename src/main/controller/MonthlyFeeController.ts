@@ -9,12 +9,14 @@ import { Monthly_Fee_Record } from '../../types/interfaces/monthly_fee'
 import { IpcMainInvokeEvent } from 'electron'
 import PaymentService from '@main/service/PaymentService'
 import { Transaction } from '@type/interfaces/db'
+import SessionService from '@main/service/SessionService'
 
 type MonthlyFeeAddInput = {
   student_id: number
   class_id: number
   from: string
   to: string
+  monthly: number
 }
 type DeleteMonthlyFeeRequest = Omit<MonthlyFeeAddInput, 'class_id'>
 class MonthlyFeeController {
@@ -37,13 +39,7 @@ class MonthlyFeeController {
         return apiSuccess(true, 'No need ')
       }
 
-      // fetch class details
-      const classDetails = this.classService.get(data.class_id)
-      if (!classDetails) {
-        return apiError('Class Not found')
-      }
-
-      const fee = classDetails.amount
+      const fee = data.monthly
       const studentId = data.student_id
       // fetch amount for paid
       let amount = amountToPaid
@@ -147,7 +143,6 @@ class MonthlyFeeController {
     const to = new Date(end)
 
     let MonthCount = differenceInMonths(to, from)
-
     MonthCount = Number(MonthCount)
     if (MonthCount < 0) {
       return {
@@ -159,9 +154,9 @@ class MonthlyFeeController {
     if (MonthCount == 0 && from.getMonth() != to.getMonth()) {
       MonthCount = 1
     }
-
+    const endMonth = SessionService.getEndMonth() - 1
     // if march then
-    if (to.getMonth() == 2) {
+    if (to.getMonth() == endMonth) {
       MonthCount += 1
       end = format(addMonths(to, 1), DB_DATE_FORMAT)
     }

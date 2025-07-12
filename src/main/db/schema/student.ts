@@ -14,6 +14,7 @@ export const students = sqliteTable('students', {
   address: text('address').notNull(),
   initial_balance: integer('initial_balance').notNull().default(0),
   current_balance: integer('current_balance').notNull().default(0),
+  monthly: integer('monthly').notNull().default(0),
   class_id: integer('class_id')
     .notNull()
     .references(() => classes.id, { onDelete: 'restrict' }),

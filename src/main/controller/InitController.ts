@@ -21,7 +21,8 @@ class InitController {
           student_id: student.student_id,
           class_id: student.class_id,
           from: student.last_fee_date,
-          to: today < active_until ? today : active_until
+          to: today < active_until ? today : active_until,
+          monthly: student.monthly
         }
 
         await MonthlyFeeController.create(input)

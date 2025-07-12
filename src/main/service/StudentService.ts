@@ -2,7 +2,7 @@ import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { addYears, format, set, subYears } from 'date-fns'
+import { addYears, format, set } from 'date-fns'
 import { eq, sql } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
@@ -12,6 +12,9 @@ import { mis_charges } from '../db/schema/mis_charge'
 import { monthly_fee } from '../db/schema/monthly_fee'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import { admission } from '@main/db/schema/admission'
+import { Transaction } from '@type/interfaces/db'
+import { Session } from 'inspector/promises'
+import SessionService from './SessionService'
 
 type StudentUpdateInput = Partial<Student_Write> & {
   current_balance?: number
@@ -22,6 +25,7 @@ type ListLastFeeMonthAgo = {
   last_fee_date: string
   class_id: number
   active_until: string | null
+  monthly: number
 }
 
 class StudentService {
@@ -36,18 +40,9 @@ class StudentService {
     data: Student_Write,
     tx: BetterSQLite3Database<Record<string, never>> = this.db
   ): { id: number; last_date: string; active_until: string | null } {
-    const today = new Date()
-    const month = today.getMonth() + 1 // getMonth() returns 0-11, so we add 1
-    let sub = 0
-    if (month < 4) {
-      sub = 1
-    }
-    const apr1 = set(new Date(), { month: 3, date: 1 })
-    const lastDate = subYears(new Date(apr1), sub)
-    const fee_date = format(new Date(lastDate), DB_DATE_FORMAT)
-    const march30 = set(new Date(), { month: 2, date: 30 })
-    const nextYear = addYears(march30, 1)
-    const active_until = format(new Date(nextYear), DB_DATE_FORMAT)
+    const date1 = set(new Date(data.admission_date), { date: 1 })
+    const fee_date = format(new Date(date1), DB_DATE_FORMAT)
+    const active_until = SessionService.endDate()
     const now = new Date().toISOString()
     type InsertRow = InferInsertModel<typeof students>
     const row: InsertRow = {
@@ -63,7 +58,8 @@ class StudentService {
       current_balance: 0,
       last_fee_date: fee_date,
       last_notification_date: now,
-      active_until
+      active_until,
+      monthly: data.monthly
     }
 
     const result = tx
@@ -205,18 +201,24 @@ class StudentService {
   class_update(
     studentId: number,
     classId: number,
+    monthly: number,
     tx: BetterSQLite3Database<Record<string, never>> | null = null
   ): boolean {
     const dbInstance = tx || this.db
-    const march31 = set(new Date(), { month: 2, date: 31 })
-    const nextDate = addYears(new Date(march31), 1)
-    const active = format(new Date(nextDate), DB_DATE_FORMAT)
+    const active = SessionService.endDate()
     const result = dbInstance
       .update(students)
-      .set({ class_id: classId, active_until: active })
+      .set({ class_id: classId, active_until: active, monthly })
       .where(eq(students.id, studentId))
       .run()
     return result.changes > 0
+  }
+
+  active_student_active_until_update(date: string, tx: Transaction = this.db): void {
+    tx.update(students)
+      .set({ active_until: date })
+      .where(sql`${students.transfer_date} IS NULL`)
+      .run()
   }
 
   async delete(studentId: number): Promise<boolean> {
@@ -296,7 +298,8 @@ class StudentService {
           student_id: students.id,
           class_id: students.class_id,
           last_fee_date: students.last_fee_date,
-          active_until: students.active_until
+          active_until: students.active_until,
+          monthly: students.monthly
         })
         .from(students)
         .where(
@@ -330,7 +333,8 @@ class StudentService {
         initial_balance: students.initial_balance,
         current_balance: students.current_balance,
         last_fee_date: students.last_fee_date,
-        last_notification_date: students.last_notification_date
+        last_notification_date: students.last_notification_date,
+        monthly: students.monthly
       })
       .from(students)
       .where(eq(students.id, id))
