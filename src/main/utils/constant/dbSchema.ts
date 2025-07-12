@@ -1,5 +1,5 @@
 import { DB_VERSION_NAME } from './config'
-const app_version = '1.0.2'
+const app_version = '1.0.3'
 export const currentSchemaStatements: string[] = [
   `CREATE TABLE IF NOT EXISTS classes (
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -30,6 +30,7 @@ export const currentSchemaStatements: string[] = [
     address text NOT NULL,
     initial_balance integer DEFAULT 0 NOT NULL,
     current_balance integer DEFAULT 0 NOT NULL,
+    monthly integer DEFAULT 0 NOT NULL,
     class_id integer NOT NULL,
     last_fee_date text NOT NULL,
     active_until text,
@@ -88,6 +89,7 @@ export const currentSchemaStatements: string[] = [
         class_id integer NOT NULL,
         amount integer DEFAULT 0 NOT NULL,
         paid integer DEFAULT 0 NOT NULL,
+        monthly integer DEFAULT 0 NOT NULL,
         date text NOT NULL,
         remark text,
         FOREIGN KEY (student_id) REFERENCES students(id) ON UPDATE NO ACTION ON DELETE RESTRICT,
@@ -202,6 +204,12 @@ const versionSchemaStatements: Record<string, string[]> = {
     `ALTER TABLE monthly_fee ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `DROP INDEX IF EXISTS admission_student_class_unique;`
+  ],
+  // 1.0.3: Custom monthly charge
+  '1.0.3': [
+    `ALTER TABLE students ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE admission ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
+    `UPDATE students SET monthly = ( SELECT classes.amount FROM classes WHERE classes.id = students.class_id);`
   ]
 }
 
