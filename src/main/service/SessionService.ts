@@ -61,9 +61,16 @@ class SessionService {
 
   endDate(): string {
     const month = this.getEndMonth()
-    const format = this.formatEndDate(month)
+    const format = this.formatNextEndDate(month)
 
     return format
+  }
+
+  formatNextEndDate(month: number): string {
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear() + 1
+    const date = format(new Date(currentYear, month, 0), DB_DATE_FORMAT)
+    return date
   }
 
   formatEndDate(month: number): string {
