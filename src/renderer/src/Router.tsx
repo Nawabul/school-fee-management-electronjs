@@ -20,6 +20,7 @@ import StudentTransfer from './pages/student/StudentTransfer'
 import AdmissionRecord from './pages/admission/AdmissionRecord'
 import AdmissionInsert from './pages/admission/AdmissionInsert'
 import StudentFinanceLayer from './layer/StudentFinanceLayer'
+import Setting from './pages/setting/Setting'
 
 const Router = (): React.ReactElement => (
   <RouterProvider
@@ -31,6 +32,10 @@ const Router = (): React.ReactElement => (
           {
             path: '',
             element: <Home />
+          },
+          {
+            path: 'setting',
+            element: <Setting />
           },
           {
             path: 'student/',
