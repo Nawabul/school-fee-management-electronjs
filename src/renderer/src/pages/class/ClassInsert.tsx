@@ -1,4 +1,5 @@
 import ClassForm from '@renderer/components/class/ClassForm'
+import Header from '@renderer/components/Header'
 import ClassController from '@renderer/controller/ClassController'
 import { useMutation } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
@@ -25,25 +26,21 @@ const ClassInsert = (): React.JSX.Element => {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Add Class</h1>
-        </div>
-        <div>
-          <Link to={'/class'}>
-            <Button>View All Classs</Button>
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5">
-        <ClassForm
-          onSubmit={handleFormSubmit}
-          isPending={classMutation.isPending}
-          defaultValues={{ name: '', amount: 0, admission_charge: 0  }}
-        />
-      </div>
+    <div className="p-5">
+      <Header
+        buttonLink="/class"
+        buttonText="View All Classes"
+        title="Add Class"
+        subtitle="Classes / Add Class"
+        icon={<HiAcademicCap size={45} />}
+      />
+      <hr className="text-gray-600" />
+      <br />
+      <ClassForm
+        onSubmit={handleFormSubmit}
+        isPending={classMutation.isPending}
+        defaultValues={{ name: '', amount: 0, admission_charge: 0 }}
+      />
     </div>
   )
 }

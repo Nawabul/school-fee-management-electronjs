@@ -1,3 +1,4 @@
+import Header from '@renderer/components/Header'
 import MisItemForm from '@renderer/components/mis_item/MisItemFrom'
 import MisItemController from '@renderer/controller/MisItemController'
 import { useMutation } from '@tanstack/react-query'
@@ -25,25 +26,22 @@ const MisItemInsert = (): React.JSX.Element => {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Add Mis. Item</h1>
-        </div>
-        <div>
-          <Link to={'/mis_item'}>
-            <Button>View All Mis. Item</Button>
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5">
-        <MisItemForm
-          onSubmit={handleFormSubmit}
-          isPending={classMutation.isPending}
-          defaultValues={{ name: '', amount: 0 }}
-        />
-      </div>
+    <div className="p-5">
+      <Header
+        title="Add Mis. Item"
+        subtitle="Mis. Item / Mis. Item Insert"
+        buttonLink="/mis_item"
+        buttonText="View All Mis. Item"
+        icon={<HiAcademicCap size={45} />}
+      />
+      <hr className="text-gray-600" />
+      <br />
+
+      <MisItemForm
+        onSubmit={handleFormSubmit}
+        isPending={classMutation.isPending}
+        defaultValues={{ name: '', amount: 0 }}
+      />
     </div>
   )
 }
