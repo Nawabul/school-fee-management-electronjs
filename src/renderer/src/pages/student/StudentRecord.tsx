@@ -1,7 +1,7 @@
 import { studentColumns } from '@renderer/components/student/columns'
 import { TableComponent } from '@renderer/components/table/TableComponent'
 import { JSX, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -9,6 +9,7 @@ import StudentController from '@renderer/controller/StudentController'
 import { Student_Record } from '@renderer/types/ts/student'
 import useStudentDetails from '@renderer/hooks/useStudentDetails'
 import useModel from '@renderer/hooks/useModel'
+import Header from '@renderer/components/Header'
 
 const StudentRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
@@ -83,30 +84,23 @@ const StudentRecord = (): JSX.Element => {
   }
 
   return (
-    <>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Student Record</h1>
-        </div>
-        <div>
-          <Link
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to="/student/insert"
-          >
-            Add Student
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5 min-h-full ">
-        <TableComponent
-          columns={studentColumns(item)}
-          data={data}
-          id={id}
-          isLoading={studentDelete.isPending}
-        />
-      </div>
-    </>
+    <div className="p-5">
+      <Header
+        title="Student Record"
+        subtitle="Students / Student Record"
+        buttonText="Add Student"
+        buttonLink="/student/insert"
+        icon={<CgUserList size={45} />}
+      />
+      <hr className="text-gray-600" />
+      <br />
+      <TableComponent
+        columns={studentColumns(item)}
+        data={data}
+        id={id}
+        isLoading={studentDelete.isPending}
+      />
+    </div>
   )
 }
 

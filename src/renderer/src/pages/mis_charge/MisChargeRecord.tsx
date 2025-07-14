@@ -8,7 +8,6 @@ import MisChargeController from '@renderer/controller/MisChargeController'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { Mis_Charge_Record } from '@renderer/types/ts/mis_charge'
 import { CgUserList } from 'react-icons/cg'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import PaymentBox from '@renderer/components/payment/PaymentBox'
 import useModel from '@renderer/hooks/useModel'
 
@@ -62,28 +61,16 @@ const MisChargeRecord = (): JSX.Element => {
 
   return (
     <>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Mis. Charge Record</h1>
-        </div>
-        <div>
-          <Link
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to={`/finance/mis_charge/insert/${studentId}`}
-          >
-            Add Mis. Charge
-          </Link>
-        </div>
-      </div>
 
-
-      <div className="rounded-xl bg-gray-800 p-1 md:p-5">
+      <div className="rounded-xl p-1 md:p-5">
         <SimpleTableComponent<Mis_Charge_Record>
           columns={misChargeColumns(item)}
           data={data || []}
           isLoading={misChargeMutation.isPending}
           id={id}
+          btn
+          btnLink={`/finance/mis_charge/insert/${studentId}`}
+          btnTitle="Add Mis. Charge"
         />
         <br />
         {studentId && isSuccess && (

@@ -25,13 +25,6 @@ const MonthlyFeeRecord = (): JSX.Element => {
   }, [data])
   return (
     <>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Monthly Fee Record</h1>
-        </div>
-        <div></div>
-      </div>
       <div className="md:p-5 ">
         <SimpleTableComponent<Monthly_Fee_Record>
           columns={monthly_fee_columns()}
