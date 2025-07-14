@@ -58,7 +58,7 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
 
   return (
     <div>
-      <div className="flex ml-auto gap-3 pb-2 justify-between h-full">
+      <div className="flex ml-auto gap-3 pb-2 justify-between">
         <div className="flex gap-3">
           <TextInput
             placeholder="Filter here..."
@@ -107,8 +107,8 @@ export function TableComponent({ data, columns, id, isLoading = false }: props):
           />
         </div>
       </div>
-      <div className="overflow-x-auto min-h-[70vh]">
-        <Table hoverable>
+      <div className="overflow-x-auto pt-2">
+        <Table striped>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
