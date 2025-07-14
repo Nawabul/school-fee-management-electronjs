@@ -50,49 +50,55 @@ const AdmissionForm = ({
   }, [watch, classList, setValue])
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto p-6 rounded-lg"
-    >
-      {/* Class */}
-      <FormSelect
-        name="class_id"
-        control={control}
-        label="Class"
-        options={classList}
-        placeholder="Select Class"
-      />
-      {/* Admission Charge */}
-      <FormInput
-        name="amount"
-        label="Admission Charge"
-        placeholder="1300"
-        type="number"
-        control={control}
-      />
-      {/* Monthly  Charge */}
-      <FormInput
-        name="monthly"
-        label="Monthly Fee"
-        placeholder="700"
-        type="number"
-        control={control}
-      />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Class */}
+          <FormSelect
+            name="class_id"
+            control={control}
+            label="Class"
+            options={classList}
+            placeholder="Select Class"
+          />
+          {/* Admission Charge */}
+          <FormInput
+            name="amount"
+            label="Admission Charge"
+            placeholder="1300"
+            type="number"
+            control={control}
+          />
+          {/* Monthly  Charge */}
+          <FormInput
+            name="monthly"
+            label="Monthly Fee"
+            placeholder="700"
+            type="number"
+            control={control}
+          />
 
-      {/* Date */}
-      <FormInput name="date" label="Date" placeholder="e.g. 300" type="date" control={control} />
+          {/* Date */}
+          <FormInput
+            name="date"
+            label="Date"
+            placeholder="e.g. 300"
+            type="date"
+            control={control}
+          />
 
-      {/* Remark*/}
-      <FormInput
-        name="remark"
-        label="Remark"
-        placeholder="Renew 2025 admission"
-        type="text"
-        control={control}
-      />
-
+          {/* Remark*/}
+          <FormInput
+            name="remark"
+            label="Remark"
+            placeholder="Renew 2025 admission"
+            type="text"
+            control={control}
+          />
+        </div>
+      </div>
       {/* Submit */}
-      <div className="md:col-span-2 mt-auto ml-auto">
+      <div className="flex pt-4 ml-auto justify-end items-center">
         <Button type="submit" size="md" className="w-60">
           {isPending ? 'Submitting...' : 'Submit'}
         </Button>
