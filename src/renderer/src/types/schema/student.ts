@@ -15,7 +15,7 @@ export const StudentSchema = {
       required_error: 'Student name is required'
     })
     .min(1, 'Student name cannot be empty')
-    .regex(/^[a-zA-Z]+$/, {
+    .regex(/^[a-zA-Z\s]+$/, {
       message: 'Only alphabets are allowed'
     }),
 
