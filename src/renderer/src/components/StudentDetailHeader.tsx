@@ -1,4 +1,12 @@
-import { BookOpen, Hash, Phone, MapPin } from 'lucide-react'
+import {
+  BookOpen,
+  Hash,
+  Phone,
+  MapPin,
+  UserCircleIcon,
+  PhoneIcon,
+  LocationEditIcon
+} from 'lucide-react'
 import { JSX } from 'react'
 import useStudentDetails from '@renderer/hooks/useStudentDetails'
 const StudentDetailHeader = (): JSX.Element => {
@@ -8,43 +16,37 @@ const StudentDetailHeader = (): JSX.Element => {
     return <div>Loading student details...</div>
   }
   return (
-    <div className="mb-2 rounded-xl bg-gray-800 p-4 text-white shadow-lg">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
-        {/* Left Side: Student Info */}
-        <div className="flex gap-6">
-          <div className="">
-            <h1 className="text-2xl font-bold text-cyan-400">{studentDetail.student_name}</h1>
-            <p className="text-md text-gray-300">s/o {studentDetail.father_name}</p>
-          </div>
-          <div className="grid grid-cols-1 gap-x-6 gap-y-2 md:grid-cols-2">
-            <div className="flex items-center gap-2 text-sm">
-              <BookOpen size={16} className="text-gray-400" />
-              <span>
-                Class: <strong>{studentDetail.class_name}</strong>
+    <div className="bg-slate-800 p-6 rounded-xl shadow-lg mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-6">
+        <div className="flex items-center gap-5">
+          <UserCircleIcon className="w-20 h-20 text-blue-400" />
+          <div>
+            <h1 className="text-3xl font-bold text-white">{studentDetail?.student_name}</h1>
+            <p className="text-slate-400">s/o {studentDetail?.father_name}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-400">
+              <span className="flex items-center gap-1.5">
+                <b>Class:</b> {studentDetail?.class_name}
               </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Hash size={16} className="text-gray-400" />
-              <span>
-                Reg. No: <strong>{studentDetail.reg_number}</strong>
+              <span className="flex items-center gap-1.5">
+                <b>Reg. No:</b> {studentDetail?.reg_number}
               </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Phone size={16} className="text-gray-400" />
-              <span>
-                Mobile: <strong>{studentDetail.mobile}</strong>
+              <span className="flex items-center gap-1.5">
+                <PhoneIcon className="w-4 h-4" /> {studentDetail?.mobile}
               </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin size={16} className="text-gray-400" />
-              <span>
-                Address: <strong>{studentDetail.address}</strong>
+              <span className="flex items-center gap-1.5">
+                <LocationEditIcon className="w-4 h-4" /> {studentDetail?.address}
               </span>
             </div>
           </div>
         </div>
-
-        {/* Right Side: Actions and Balance */}
+        <div className="text-right">
+          <p className="text-sm text-slate-400 mb-1">Current Balance</p>
+          <p
+            className={`text-3xl font-bold ${studentDetail.current_balance < 0 ? 'text-red-500' : 'text-green-500'}`}
+          >
+            {studentDetail.current_balance}₹
+          </p>
+        </div>
       </div>
     </div>
   )
