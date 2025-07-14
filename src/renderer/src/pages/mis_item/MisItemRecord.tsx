@@ -8,6 +8,7 @@ import { queryKey } from '@renderer/types/constant/queryKey'
 import MisItemController from '@renderer/controller/MisItemController'
 import { Mis_Item_Record } from '@renderer/types/ts/mis_item'
 import useModel from '@renderer/hooks/useModel'
+import Header from '@renderer/components/Header'
 const MisItemRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
     queryKey: queryKey.mis_item,
@@ -46,30 +47,23 @@ const MisItemRecord = (): JSX.Element => {
   }
 
   return (
-    <>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Mis. Item Record</h1>
-        </div>
-        <div>
-          <Link
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to="/mis_item/insert"
-          >
-            Add Mis. Item
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5 ">
-        <SimpleTableComponent<Mis_Item_Record>
-          columns={misItemColumns(item)}
-          data={data || []}
-          isLoading={misItemDelete.isPending}
-          id={id}
-        />
-      </div>
-    </>
+    <div className="p-5">
+      <Header
+        title="Mis. Item Record"
+        subtitle="Mis. Item / Mis. Item Record"
+        buttonLink="/mis_item/insert"
+        buttonText="Add Mis. Item"
+        icon={<CgUserList size={45} />}
+      />
+      <hr className="text-gray-600" />
+      <br />
+      <SimpleTableComponent<Mis_Item_Record>
+        columns={misItemColumns(item)}
+        data={data || []}
+        isLoading={misItemDelete.isPending}
+        id={id}
+      />
+    </div>
   )
 }
 

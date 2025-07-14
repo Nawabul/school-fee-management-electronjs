@@ -1,8 +1,7 @@
 import { paymentColumns } from '@renderer/components/payment/columns'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
 import { JSX, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CgUserList } from 'react-icons/cg'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import PaymentController from '@renderer/controller/PaymentController'
@@ -49,21 +48,6 @@ const PaymentRecord = (): JSX.Element => {
 
   return (
     <>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <CgUserList size={40} />
-          <h1 className="text-2xl font-bold">Payment Record</h1>
-        </div>
-        <div>
-          <Link
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            to={`/finance/payment/insert/${studentId}`}
-          >
-            Collect Payment
-          </Link>
-        </div>
-      </div>
-
       {/* END HEADER CARD */}
       <div className="md:p-5 ">
         <SimpleTableComponent<Payment_Record>
@@ -71,6 +55,9 @@ const PaymentRecord = (): JSX.Element => {
           data={data || []}
           isLoading={paymentDelete.isPending}
           id={id}
+          btn
+          btnLink={`/finance/payment/insert/${studentId}`}
+          btnTitle="Collect Payment"
         />
       </div>
     </>
