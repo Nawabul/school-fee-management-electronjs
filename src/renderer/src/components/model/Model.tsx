@@ -30,9 +30,10 @@ function Model(): React.ReactNode {
     <>
       {show && (
         <div className="h-[100vh] w-[100vw] absolute bg-gray-600/50 flex justify-center items-center z-50">
+          <div className="absolute inset-0 pb-22 bg-black/60 backdrop-blur-xs"></div>
           <div
             id="popup-modal"
-            className="overflow-y-auto overflow-x-hidden  top-0 right-0 left-0 z-50 justify-center items-center "
+            className="overflow-y-auto  overflow-x-hidden  top-0 right-0 left-0 z-50 justify-center items-center "
           >
             <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
               {closeable && (
@@ -51,37 +52,35 @@ function Model(): React.ReactNode {
 
               {!componentOnly && (
                 <div className="p-4 md:p-5 text-center">
-                  <CircleAlert className="mx-auto mb-4 text-red-900 w-12 h-12 dark:text-gray-200" />
+                  <CircleAlert className="mx-auto mb-4 text-yellow-400 w-12 h-12" />
 
                   <div className="flex flex-col gap-2">
-                    <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                      {title}
-                    </h3>
-                    <p>{description}</p>
-
+                    <h3 className="mb-2 text-2xl font-bold dark:text-white">{title}</h3>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                      {description}
+                    </p>
                     {component && <div>{component}</div>}
                   </div>
-                  {showSubmitBtn && (
-                    <button
-                      data-modal-hide="popup-modal"
-                      type="button"
-                      onClick={susscesHander}
-                      className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-                    >
-                      {submitTitle}
-                    </button>
-                  )}
-
-                  {closeable && (
-                    <button
-                      data-modal-hide="popup-modal"
-                      type="button"
-                      className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                      onClick={closeModelHandler}
-                    >
-                      {closeTitle}
-                    </button>
-                  )}
+                  <div className="flex mt-5 justify-center items-center gap-4 w-full">
+                    {closeable && (
+                      <button
+                        type="button"
+                        onClick={closeModelHandler}
+                        className="w-full py-2.5 px-5 text-sm font-medium text-slate-300 focus:outline-none bg-slate-700 rounded-lg border border-slate-600 hover:bg-slate-600 hover:text-white focus:z-10 focus:ring-4 focus:ring-slate-500 transition-colors"
+                      >
+                        {closeTitle}
+                      </button>
+                    )}
+                    {showSubmitBtn && (
+                      <button
+                        type="button"
+                        onClick={susscesHander}
+                        className="w-full py-2.5 px-5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 transition-colors disabled:bg-slate-500 disabled:cursor-not-allowed flex justify-center items-center"
+                      >
+                        {submitTitle}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
