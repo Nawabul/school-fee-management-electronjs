@@ -51,47 +51,48 @@ const MisChargeForm = ({
   }, [watch, itemsList, setValue])
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto p-6 rounded-lg"
-    >
-      {/* mis. items */}
-      <FormSelect
-        name="item_id"
-        control={control}
-        label="Item"
-        options={itemsList}
-        placeholder="Select Item"
-      />
-      {/* expense date */}
-      <FormInput
-        name="date"
-        label="Date"
-        placeholder="e.g. 01/01/2025"
-        type="date"
-        control={control}
-      />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* mis. items */}
+          <FormSelect
+            name="item_id"
+            control={control}
+            label="Item"
+            options={itemsList}
+            placeholder="Select Item"
+          />
+          {/* expense date */}
+          <FormInput
+            name="date"
+            label="Date"
+            placeholder="e.g. 01/01/2025"
+            type="date"
+            control={control}
+          />
 
-      {/* amount */}
-      <FormInput
-        name="amount"
-        label="Amount"
-        placeholder="e.g. 900"
-        type="number"
-        control={control}
-      />
+          {/* amount */}
+          <FormInput
+            name="amount"
+            label="Amount"
+            placeholder="e.g. 900"
+            type="number"
+            control={control}
+          />
 
-      {/* remark */}
-      <FormInput
-        name="remark"
-        label="Remark"
-        placeholder="e.g. Admission Charge 2025 (optional)"
-        type="text"
-        control={control}
-      />
+          {/* remark */}
+          <FormInput
+            name="remark"
+            label="Remark"
+            placeholder="e.g. Admission Charge 2025 (optional)"
+            type="text"
+            control={control}
+          />
+        </div>
+      </div>
 
       {/* Submit */}
-      <div className="md:col-span-2 mt-auto ml-auto">
+      <div className="flex pt-4 ml-auto justify-end items-center">
         {isPending ? (
           <Loader2 className="animate-spin" />
         ) : (
