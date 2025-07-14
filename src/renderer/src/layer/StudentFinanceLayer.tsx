@@ -30,22 +30,30 @@ function StudentFinanceLayer(): React.ReactNode {
     }
   ]
   return (
-    <div className="flex flex-col gap-4">
-      {/* START STUDENT DETAIL HEADER CARD */}
+    <div className="p-5">
+      {/* Student Details Header */}
       <StudentDetailHeader />
-      {/* END HEADER CARD */}
-      <ul className="flex w-1/3 ">
-        {nav.map((item) => (
-          <li key={item.path} className="flex items-center h-12 border-2 border-gray-500">
-            <NavLink
-              to={item.path}
-              className={({ isActive }) => (`px-4 py-2 ${isActive ? 'bg-blue-700 text-white': ''}`)}
-            >
-              {item.title}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+      {/* Tabs Navigation */}
+      <div className="mb-6">
+        <div className="border-b border-slate-700">
+          <nav className="-mb-px flex space-x-6">
+            {nav.map((item) => (
+              <NavLink
+                to={item.path}
+                key={item.path}
+                className={({ isActive }) => `
+                  ${
+                    isActive
+                      ? 'border-blue-500 text-blue-400'
+                      : 'border-transparent text-slate-400 hover:text-white hover:border-slate-500'
+                  } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                {item.title}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      </div>
       <Outlet />
     </div>
   )
