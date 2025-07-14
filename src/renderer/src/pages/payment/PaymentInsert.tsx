@@ -4,7 +4,6 @@ import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import PaymentController from '@renderer/controller/PaymentController'
 import PaymentForm from '@renderer/components/payment/PaymentForm'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import { todayISODate } from '@renderer/types/constant/date'
 
 const PaymentInsert = (): React.JSX.Element => {
@@ -30,8 +29,8 @@ const PaymentInsert = (): React.JSX.Element => {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
+    <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+      <div className="flex gap-2 justify-between items-center">
         <div className="flex gap-2 items-center">
           <HiAcademicCap size={40} />
           <h1 className="text-2xl font-bold">Collect Payment</h1>
@@ -42,16 +41,16 @@ const PaymentInsert = (): React.JSX.Element => {
           </Link>
         </div>
       </div>
-
-      <div className="md:p-5">
-        <PaymentForm
-          onSubmit={handleFormSubmit}
-          isPending={paymentMutation.isPending}
-          defaultValues={{
-            date: todayISODate
-          }}
-        />
-      </div>
+      <br />
+      <hr className='text-gray-600' />
+      <br />
+      <PaymentForm
+        onSubmit={handleFormSubmit}
+        isPending={paymentMutation.isPending}
+        defaultValues={{
+          date: todayISODate
+        }}
+      />
     </div>
   )
 }

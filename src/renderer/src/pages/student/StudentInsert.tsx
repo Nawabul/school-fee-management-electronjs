@@ -1,10 +1,9 @@
 import StudentForm from '@renderer/components/student/StudentForm'
 import { useMutation } from '@tanstack/react-query'
-import { Button } from 'flowbite-react'
-import { HiAcademicCap } from 'react-icons/hi'
 import StudentController from '@renderer/controller/StudentController'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { todayISODate } from '@renderer/types/constant/date'
+import Header from '@renderer/components/Header'
 
 const StudentInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -26,27 +25,22 @@ const StudentInsert = (): React.JSX.Element => {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Student Insert</h1>
-        </div>
-        <div>
-          <Link to={'/student'}>
-            <Button>View All Student</Button>
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5">
-        <StudentForm
-          onSubmit={handleFormSubmit}
-          isPending={studentMutation.isPending}
-          defaultValues={{
-            admission_date: todayISODate
-          }}
-        />
-      </div>
+    <div className="p-5">
+      <Header
+        buttonLink="/student"
+        buttonText="View All Students"
+        title="Add New Student"
+        subtitle="Students / Add New Student"
+      />
+      <hr className="text-gray-600" />
+      <br />
+      <StudentForm
+        onSubmit={handleFormSubmit}
+        isPending={studentMutation.isPending}
+        defaultValues={{
+          admission_date: todayISODate
+        }}
+      />
     </div>
   )
 }
