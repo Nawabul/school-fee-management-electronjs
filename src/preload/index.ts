@@ -25,6 +25,15 @@ const api = {}
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
+    contextBridge.exposeInMainWorld('setting', {
+      minimize: () => ipcRenderer.invoke('minimize'),
+      toggle: () => ipcRenderer.invoke('toggle'),
+      close: () => ipcRenderer.invoke('close'),
+      eventTrigger: (channel: string, fun: () => void) => {
+        return ipcRenderer.on(channel, fun)
+      }
+    })
+
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('class', {
