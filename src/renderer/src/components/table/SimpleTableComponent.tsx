@@ -18,19 +18,26 @@ import {
   PaginationState,
   useReactTable
 } from '@tanstack/react-table'
+import { Link } from 'react-router-dom'
 
 interface props<T> {
   data: T[]
   columns: ColumnDef<T>[]
   isLoading?: boolean
   id?: number
+  btn?: boolean
+  btnTitle?: string
+  btnLink?: string
 }
 
 export function SimpleTableComponent<T>({
   data,
   columns,
   isLoading = false,
-  id = 0
+  id = 0,
+  btn = false,
+  btnLink = '',
+  btnTitle
 }: props<T>): JSX.Element {
   const [globleFilter, setGlobleFilter] = React.useState('')
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -61,9 +68,14 @@ export function SimpleTableComponent<T>({
             onChange={(e) => setGlobleFilter(e.target.value)}
           />
         </div>
+        {btn && (
+          <Link to={btnLink}>
+            <Button>{btnTitle}</Button>
+          </Link>
+        )}
       </div>
       <div className="overflow-x-auto">
-        <Table hoverable>
+        <Table striped hoverable>
           <TableHead>
             {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
