@@ -1,11 +1,10 @@
+import Header from '@renderer/components/Header'
 import StudentForm from '@renderer/components/student/StudentForm'
 import StudentController from '@renderer/controller/StudentController'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { HiAcademicCap } from 'react-icons/hi'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const StudentUpdate = (): React.JSX.Element => {
   const id = useParams().id
@@ -45,30 +44,25 @@ const StudentUpdate = (): React.JSX.Element => {
   }, [])
 
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
-        <div className="flex gap-2 items-center">
-          <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Update Student</h1>
-        </div>
-        <div>
-          <Link to={'/student'}>
-            <Button>View All Student</Button>
-          </Link>
-        </div>
-      </div>
-      <div className="md:p-5">
-        {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
-        {isError && <p className="text-red-500">Error: {error.message}</p>}
-        {isSuccess && (
-          <StudentForm
-            onSubmit={handleFormSubmit}
-            isPending={studentMutation.isPending}
-            defaultValues={data}
-            isUpdate={true}
-          />
-        )}
-      </div>
+    <div className="p-5">
+      <Header
+        buttonLink="/student"
+        buttonText="View All Students"
+        title="Update Student"
+        subtitle="Students / Update Student"
+      />
+      <hr className="text-gray-600" />
+      <br />
+      {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
+      {isError && <p className="text-red-500">Error: {error.message}</p>}
+      {isSuccess && (
+        <StudentForm
+          onSubmit={handleFormSubmit}
+          isPending={studentMutation.isPending}
+          defaultValues={data}
+          isUpdate={true}
+        />
+      )}
     </div>
   )
 }
