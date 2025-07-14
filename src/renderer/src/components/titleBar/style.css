@@ -1,0 +1,7 @@
+.cus-head{
+    -webkit-app-region:drag;
+    z-index: 99999;
+}
+.title_theme,.title_menu,.title_button{
+    -webkit-app-region:no-drag;
+}
