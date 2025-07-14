@@ -38,25 +38,25 @@ const ModelContext = createContext<ModelContextType | null>(null)
 export const ModelProvider = ({ children }: { children: ReactNode }): JSX.Element => {
   const notShow = {
     show: false,
-    submitTitle: 'Delete',
-    closeTitle: 'Cancel',
+    submitTitle: 'Yes, Delete',
+    closeTitle: 'No, Keep it',
     closeable: true,
     component: null,
     componentOnly: false,
     submitFun: () => {},
     closeFun: () => {},
     showSubmitBtn: true,
-    title: 'Are you sure you want to delete this ? ',
-    description: null
+    title: null,
+    description: 'Are you sure you want to delete this ? '
   }
   const [content, setContent] = useState<props>(notShow)
 
   const openModelHandler = ({
-    title = 'Are you sure you want to delete this ? ',
-    description = null,
+    title = null,
+    description = 'Are you sure you want to delete this ? ',
     showSubmitBtn = true,
-    submitTitle = 'Delete',
-    closeTitle = 'Cancel',
+    submitTitle = 'Yes, Delete',
+    closeTitle = 'No, Keep it',
     closeable = true,
     component = null,
     componentOnly = false,
@@ -80,16 +80,16 @@ export const ModelProvider = ({ children }: { children: ReactNode }): JSX.Elemen
   const closeModelHandler = (): void => {
     setContent({
       show: false,
-      submitTitle: 'Delete',
-      closeTitle: 'Cancel',
+      submitTitle: 'Yes, Delete',
+      closeTitle: 'No, Keep it',
       closeable: true,
       component: null,
       componentOnly: false,
       submitFun: () => {},
       closeFun: () => {},
       showSubmitBtn: true,
-      title: 'Are you sure you want to delete this ? ',
-      description: null
+      title: null,
+      description:'Are you sure you want to delete this ? '
     })
   }
 
