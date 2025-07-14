@@ -8,10 +8,11 @@ type TextInputType = ComponentProps<typeof TextInput>['type']
 
 interface Props {
   name: string
-  label: string
+  label?: string
   placeholder: string
   type?: TextInputType
   control: any
+  className?: string
 }
 
 const FormInput = ({ type = 'text', label, name, control, ...props }: Props): JSX.Element => {
