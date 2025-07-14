@@ -7,7 +7,7 @@ import { JSX, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import ClassController from '@renderer/controller/ClassController'
-import FormCheckBox from '../form/FromCheckBox'
+import { ToggleSwitch } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { StudentCreateSchema, StudentUpdateSchema } from '@renderer/types/schema/student'
 import { z } from 'zod'
@@ -61,104 +61,121 @@ const StudentForm = ({
   }, [watch, classList, setValue, isUpdate])
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto p-6 rounded-lg"
-    >
-      {/* Class */}
-      {!isUpdate && (
-        <FormSelect
-          name="class_id"
-          control={control}
-          label="Class"
-          options={classList}
-          placeholder="Select Class"
-        />
-      )}
+    // The form now wraps the sections
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-8">
+        {/* Student Details Section */}
+        <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+          <h2 className="text-lg font-semibold text-white mb-6 border-b border-slate-700 pb-4">
+            Student Details
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {!isUpdate && (
+              <FormSelect
+                name="class_id"
+                label="Class"
+                control={control}
+                options={classList}
+                placeholder="Select Class"
+              />
+            )}
+            <FormInput
+              name="reg_number"
+              label="Reg. Number"
+              placeholder="Registration Number"
+              control={control}
+            />
+            <FormInput
+              name="student_name"
+              label="Student Name"
+              placeholder="e.g. Anjali Verma"
+              control={control}
+            />
+            <FormInput
+              name="father_name"
+              label="Father Name"
+              placeholder="e.g. Rajesh Verma"
+              control={control}
+            />
+          </div>
+        </div>
 
-      {/* Registration Number */}
-      <FormInput
-        name="reg_number"
-        label="Reg. Number"
-        placeholder="Registration Number"
-        type="text"
-        control={control}
-      />
-      {/* Student Name */}
-      <FormInput
-        name="student_name"
-        label="Student Name"
-        placeholder=""
-        type="text"
-        control={control}
-      />
+        {/* Contact Information Section */}
+        <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+          <h2 className="text-lg font-semibold text-white mb-6 border-b border-slate-700 pb-4">
+            Contact Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormInput
+              name="mobile"
+              label="Mobile No."
+              placeholder="e.g. 9876543210"
+              control={control}
+            />
+            <ToggleSwitch
+              name="is_whatsapp"
+              label="Has WhatsApp"
+              className="mt-8 pl-5"
+              checked={watch('is_whatsapp')}
+              onChange={(checked) => setValue('is_whatsapp', checked)}
+              color="green"
+              sizing="md"
+            />
+            <div className="md:col-span-2">
+              <FormInput
+                name="address"
+                label="Address"
+                placeholder="e.g. Near Red Fort, New Delhi, India"
+                control={control}
+              />
+            </div>
+          </div>
+        </div>
 
-      {/* father Name */}
-      <FormInput
-        name="father_name"
-        label="Father Name"
-        placeholder=""
-        type="text"
-        control={control}
-      />
+        {/* Fee & Admission Details Section */}
+        <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+          <h2 className="text-lg font-semibold text-white mb-6 border-b border-slate-700 pb-4">
+            Fee & Admission Details
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormInput
+              placeholder=""
+              name="admission_date"
+              label="Admission Date"
+              type="date"
+              control={control}
+            />
+            {!isUpdate && (
+              <FormInput
+                placeholder=""
+                name="admission_charge"
+                label="Admission Charge (₹)"
+                type="number"
+                control={control}
+              />
+            )}
+            <FormInput
+              placeholder=""
+              name="monthly"
+              label="Monthly Fee (₹)"
+              type="number"
+              control={control}
+            />
+          </div>
+        </div>
 
-      {/* mobile  */}
-      <FormInput
-        name="mobile"
-        label="Mobile No."
-        placeholder="e.g. 9876543210"
-        type="text"
-        control={control}
-      />
-
-      {/* is whatsapp */}
-      <FormCheckBox name="is_whatsapp" label="Have Whatsapp" control={control} />
-
-      {/* Admission Date */}
-      <FormInput
-        name="admission_date"
-        label="Admission Date"
-        placeholder="e.g. 01/01/2025"
-        type="date"
-        control={control}
-      />
-      {/* Address */}
-      <FormInput
-        name="address"
-        label="Address"
-        placeholder="e.g. Near Red For New Dehli India"
-        type="text"
-        control={control}
-      />
-
-      {/* admission charge */}
-      {!isUpdate && (
-        <FormInput
-          name="admission_charge"
-          label="Admission Charge"
-          placeholder="e.g. 0 | 200 | -500"
-          type="number"
-          control={control}
-        />
-      )}
-      {/* monthly fee */}
-      <FormInput
-        name="monthly"
-        label="Monthly Fee"
-        placeholder="e.g. 0 | 200 | -500"
-        type="number"
-        control={control}
-      />
-
-      {/* Submit */}
-      <div className="md:col-span-2 mt-auto ml-auto">
-        {isPending ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <Button type="submit" size="md" className="w-60">
-            Submit
+        {/* Form Actions */}
+        <div className="flex justify-end pt-4">
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <Loader2 className="animate-spin h-5 w-5 text-white" />
+            ) : isUpdate ? (
+              'Update Student'
+            ) : (
+              'Add Student'
+            )}
           </Button>
-        )}
+        </div>
       </div>
     </form>
   )
