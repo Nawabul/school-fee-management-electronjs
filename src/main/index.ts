@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import routes from './routes'
-
+import titleBar from './titleBar/titleBar'
 
 function createWindow(): void {
   // Create the browser window.
@@ -12,6 +12,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     title: 'School Fee Management',
+    frame: false, // Disable the default frame
 
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -24,7 +25,7 @@ function createWindow(): void {
 
   // routes
   routes()
-
+  titleBar(ipcMain, mainWindow)
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -41,8 +42,6 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-
 }
 
 // This method will be called when Electron has finished
