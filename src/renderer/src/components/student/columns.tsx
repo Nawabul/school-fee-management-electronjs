@@ -4,7 +4,6 @@ import FilterClass from '../table/FilterClass'
 import { Student_Record } from '@renderer/types/ts/student'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
-import { Dropdown, DropdownItem } from 'flowbite-react'
 import { ClipboardList, Pen, Trash2 } from 'lucide-react'
 
 export const studentColumns = (
