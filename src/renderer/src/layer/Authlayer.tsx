@@ -1,6 +1,7 @@
 import Sidebar from '@renderer/components/drawer/Sidebar'
 import Model from '@renderer/components/model/Model'
 import SessionEndSet from '@renderer/components/session/SessionEndSet'
+import TitleBar from '@renderer/components/titleBar/TitleBar'
 import InitController from '@renderer/controller/InitController'
 import SessionController from '@renderer/controller/SessionController'
 import useModel from '@renderer/hooks/useModel'
@@ -111,12 +112,13 @@ const Authlayer = (): React.ReactElement => {
 
   return (
     <StudentDetailsProvider>
-      <Model />
-      <div className="dark:bg-gray-900 p-1 pr-0 md:pr-1">
+      <TitleBar />
+      <div className="dark:bg-gray-900 p-1 pr-0 pt-10 md:pr-1">
+        <Model />
         <div className="flex dark:text-white pt-1">
           <Sidebar />
-          <div className="flex-1 md:pl-2 pr-1 overflow-auto" style={{ height: height }}>
-            <div className="dark:bg-gray-800 rounded-xl">
+          <div className="flex-1 md:pl-2 pr-1 overflow-auto pb-4" style={{ height: height }}>
+            <div className="rounded-xl">
               {!completed.status && <span> {completed.message} </span>}
               {completed.status && <Outlet />}
             </div>
