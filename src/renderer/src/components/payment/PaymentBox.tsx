@@ -19,7 +19,7 @@ type props = {
   successFn?: () => void
 }
 const schema = z.object({
-  amount: z.coerce.number().min(1)
+  amount: z.coerce.number().min(1, 'Amount must be greater than 0')
 })
 function PaymentBox({
   type,
@@ -58,14 +58,10 @@ function PaymentBox({
     mutation.mutate(input)
   }
   return (
-    <form className="flex gap-2 w-full justify-end items-end" onSubmit={handleSubmit(onSubmit)}>
-      <Button
-        className="bg-blue-800 text-white text-xl rounded-xl px-2 py-0 h-10"
-        type={mutation.isPending ? 'button' : 'submit'}
-
-      >
-        {mutation.isPending ? 'Paying...' : 'Pay'}
-      </Button>
+    <form
+      className="space-y-2 justify-end items-end flex flex-col"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <FormInput
         control={control}
         label="Amount"
@@ -73,6 +69,12 @@ function PaymentBox({
         type="number"
         placeholder="e.g. 1000"
       />
+      <Button
+        className="bg-blue-800 text-white px-2 max-w-md"
+        type={mutation.isPending ? 'button' : 'submit'}
+      >
+        {mutation.isPending ? 'Paying...' : 'Pay Now'}
+      </Button>
     </form>
   )
 }
