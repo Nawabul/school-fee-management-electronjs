@@ -26,14 +26,13 @@ function Home(): React.JSX.Element {
     queryFn: DashbaordController.statics,
     refetchOnMount: true
   })
-
+  console.log(data)
   // chart data =
   const { data: paymentChart = [] } = useQuery({
     queryKey: queryKey.dashboard_payment_chart,
     queryFn: DashbaordController.paymentChart,
     refetchOnMount: true
   })
-  console.log(paymentChart)
   const statics = useMemo(() => {
     const stats = [
       {
