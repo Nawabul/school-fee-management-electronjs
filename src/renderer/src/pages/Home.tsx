@@ -1,10 +1,93 @@
 import FeeChart from '@renderer/components/dashboard/FeeChart'
 import Header from '@renderer/components/Header'
-import { Users, DollarSign, Shapes, LayoutDashboard, History } from 'lucide-react'
+import DashbaordController from '@renderer/controller/DashbaordController'
+import { queryKey } from '@renderer/types/constant/queryKey'
+import { useQuery } from '@tanstack/react-query'
+import {
+  Users,
+  DollarSign,
+  Shapes,
+  LayoutDashboard,
+  History,
+  UserCheck,
+  PiggyBank,
+  Receipt,
+  AlertTriangle,
+  BookOpen,
+  Package
+} from 'lucide-react'
+import { useMemo } from 'react'
 
 function Home(): React.JSX.Element {
   // const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
+  const { data, isSuccess } = useQuery({
+    queryKey: queryKey.dashboard_statics,
+    queryFn: DashbaordController.statics,
+    refetchOnMount: true
+  })
+
+  // chart data =
+  const { data: paymentChart = [] } = useQuery({
+    queryKey: queryKey.dashboard_payment_chart,
+    queryFn: DashbaordController.paymentChart,
+    refetchOnMount: true
+  })
+  console.log(paymentChart)
+  const statics = useMemo(() => {
+    const stats = [
+      {
+        title: 'Total Students',
+        value: data?.total_student || 0,
+        icon: <Users className="w-8 h-8" />,
+        color: 'text-blue-400'
+      },
+      {
+        title: 'Active Students',
+        value: data?.active_student || 0,
+        icon: <UserCheck className="w-8 h-8" />,
+        color: 'text-blue-600'
+      },
+      {
+        title: 'Total Advance Paid',
+        value: data?.total_advance || 0,
+        icon: <PiggyBank className="w-8 h-8" />,
+        color: 'text-green-600'
+      },
+      {
+        title: 'Active Student Advance Paid',
+        value: data?.active_advance || 0,
+        icon: <Receipt className="w-8 h-8" />,
+        color: 'text-green-700'
+      },
+      {
+        title: 'Total Due Amount',
+        value: data?.total_due || 0,
+        icon: <AlertTriangle className="w-8 h-8" />,
+        color: 'text-red-600'
+      },
+      {
+        title: 'Active Student Due Amount',
+        value: data?.active_due || 0,
+        icon: <AlertTriangle className="w-8 h-8" />,
+        color: 'text-red-700'
+      },
+      {
+        title: 'Total Classes',
+        value: data?.total_class || 0,
+        icon: <BookOpen className="w-8 h-8" />,
+        color: 'text-indigo-500'
+      },
+      {
+        title: 'Total Mis. Items',
+        value: data?.total_item || 0,
+        icon: <Package className="w-8 h-8" />,
+        color: 'text-purple-500'
+      }
+    ]
+
+    return stats
+  }, [isSuccess])
   return (
     <>
       <div className="p-5 space-y-5">
@@ -15,7 +98,7 @@ function Home(): React.JSX.Element {
         />
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat) => (
+          {statics.map((stat) => (
             <div
               key={stat.title}
               className="bg-slate-800 p-6 rounded-xl shadow-lg flex items-center gap-6"
@@ -23,19 +106,19 @@ function Home(): React.JSX.Element {
               <div className={`p-3 rounded-full bg-slate-700 ${stat.color}`}>{stat.icon}</div>
               <div>
                 <p className="text-slate-400 text-md">{stat.title}</p>
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
+                <p className={`text-3xl font-bold ${stat.color} `}>{stat.value}</p>
               </div>
             </div>
           ))}
         </div>
         <div className="lg:flex gap-5 space-y-5">
-          <FeeChart chartData={chartData} className="flex-1" />
-          <div className="bg-slate-800 h-fit p-6 rounded-xl shadow-lg">
+          <FeeChart chartData={paymentChart} className="flex-1" />
+          {/* <div className="bg-slate-800 h-fit p-6 rounded-xl shadow-lg">
             <div className="flex gap-2 items-center mb-4">
               <History size={20} />
               <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
             </div>
-            <ul className="space-y-4">
+             <ul className="space-y-4">
               {recentActivities.map((activity) => (
                 <li key={activity.action} className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0"></div>
@@ -49,7 +132,7 @@ function Home(): React.JSX.Element {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
@@ -58,52 +141,12 @@ function Home(): React.JSX.Element {
 
 export default Home
 
-// Mock Data
-const stats = [
-  {
-    title: 'Total Students',
-    value: '1,250',
-    icon: <Users className="w-8 h-8" />,
-    color: 'text-blue-400'
-  },
-  {
-    title: 'Total Classes',
-    value: '18',
-    icon: <Shapes className="w-8 h-8" />,
-    color: 'text-blue-400'
-  },
-  {
-    title: 'Fees Collected (Today)',
-    value: '₹45,600',
-    icon: <DollarSign className="w-8 h-8" />,
-    color: 'text-green-400'
-  },
-  {
-    title: 'Fees Collected (Monthly)',
-    value: '₹45,600',
-    icon: <DollarSign className="w-8 h-8" />,
-    color: 'text-green-400'
-  },
-  {
-    title: 'Pending Fees',
-    value: '₹1,20,500',
-    icon: <DollarSign className="w-8 h-8" />,
-    color: 'text-red-400'
-  },
-  {
-    title: 'Fees Collected (Yearly)',
-    value: '85',
-    icon: <DollarSign className="w-8 h-8" />,
-    color: 'text-yellow-400'
-  }
-]
-
-const recentActivities = [
-  { name: 'Priya Sharma', action: 'paid ₹1500 for June fees.', time: '2 mins ago' },
-  { name: 'New Student', action: 'Ankit Verma admitted to Class 10.', time: '15 mins ago' },
-  { name: 'Rohan Gupta', action: 'paid ₹500 for exam fees.', time: '1 hour ago' },
-  { name: 'Staff Update', action: 'New science teacher, Mrs. Kavita, joined.', time: '3 hours ago' }
-]
+// const recentActivities = [
+//   { name: 'Priya Sharma', action: 'paid ₹1500 for June fees.', time: '2 mins ago' },
+//   { name: 'New Student', action: 'Ankit Verma admitted to Class 10.', time: '15 mins ago' },
+//   { name: 'Rohan Gupta', action: 'paid ₹500 for exam fees.', time: '1 hour ago' },
+//   { name: 'Staff Update', action: 'New science teacher, Mrs. Kavita, joined.', time: '3 hours ago' }
+// ]
 
 const chartData = [
   { name: 'Jan', value: 120000 },
