@@ -1,7 +1,7 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, gte, lt, lte, sql } from 'drizzle-orm'
 import {
   Payment_Insert,
   Payment_Read,
@@ -57,6 +57,34 @@ class PaymentService {
         .from(payments)
         .where(eq(payments.student_id, studentId))
         .orderBy(desc(payments.date))
+        .all()
+
+      return results || []
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error('Error while fetching payments: ' + error.message)
+      } else {
+        throw new Error('Unknown error while fetching payments')
+      }
+    }
+  }
+  async listByRange(from: string, to: string, student: number = 0): Promise<Payment_Record[]> {
+    try {
+      const condition = [gte(payments.date,from), lte(payments.date, to)]
+      if (student != 0) {
+        condition.push(eq(payments.student_id, student))
+      }
+      const results = this.db
+        .select({
+          id: payments.id,
+          date: payments.date,
+          amount: payments.amount,
+          used: payments.used,
+          remark: payments.remark
+        })
+        .from(payments)
+        .where(and(...condition))
+        .orderBy(payments.date)
         .all()
 
       return results || []
