@@ -76,7 +76,8 @@ class StudentController {
         PaymentService.adjustUsed(studentId, montly, 'monthly', tx)
 
         // update student
-        StudentService.last_fee_date_update(studentId, month.end, tx)
+        const updatedDate = last_date < month.end ? month.end : last_date
+        StudentService.last_fee_date_update(studentId, updatedDate, tx)
         // update student amount
         StudentService.decrementBalance(tx, studentId, used)
 
