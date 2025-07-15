@@ -51,6 +51,7 @@ class AdmissionService {
           id: admission.id,
           date: admission.date,
           amount: admission.amount,
+          monthly: admission.monthly,
           paid: admission.paid,
           remark: admission.remark,
           class: classes.name

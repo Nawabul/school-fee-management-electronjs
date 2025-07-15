@@ -6,7 +6,7 @@ import { Admission_Record } from '@type/interfaces/admission'
 export const admissionColumns = (): ColumnDef<Admission_Record>[] => [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'S.No.',
     enableHiding: false,
     cell: ({ row }) => Number(row.id) + 1
   },
@@ -23,7 +23,12 @@ export const admissionColumns = (): ColumnDef<Admission_Record>[] => [
   },
   {
     accessorKey: 'amount',
-    header: 'Amount',
+    header: 'Promotion Charge',
+    enableHiding: false
+  },
+  {
+    accessorKey: 'monthly',
+    header: 'Tution Fee Monthly',
     enableHiding: false
   },
   {

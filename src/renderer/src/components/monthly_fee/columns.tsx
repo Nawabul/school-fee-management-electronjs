@@ -8,7 +8,7 @@ export const monthly_fee_columns = () // item: Record<string, (id: number) => vo
 : ColumnDef<Monthly_Fee_Record>[] => [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'S.NO.',
     enableHiding: false,
     cell: ({ row }) => Number(row.id) + 1
   },
@@ -20,7 +20,7 @@ export const monthly_fee_columns = () // item: Record<string, (id: number) => vo
   },
   {
     accessorKey: 'amount',
-    header: 'Amount',
+    header: 'Tution Fee',
     enableHiding: false
   },
   {

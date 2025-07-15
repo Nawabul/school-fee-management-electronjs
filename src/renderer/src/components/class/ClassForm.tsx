@@ -33,7 +33,7 @@ const ClassForm = ({
           <FormInput name="name" label="Name" placeholder="Class I" type="text" control={control} />
           <FormInput
             name="amount"
-            label="Fee"
+            label="Tutuion Fee Monthly"
             placeholder="e.g. 300"
             type="number"
             control={control}
@@ -41,7 +41,7 @@ const ClassForm = ({
           <div className="md:col-span-2">
             <FormInput
               name="admission_charge"
-              label="Admission Charge"
+              label="Enrollment Charge"
               placeholder="e.g. 1250"
               type="number"
               control={control}

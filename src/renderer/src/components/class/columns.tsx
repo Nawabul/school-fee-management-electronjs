@@ -7,7 +7,7 @@ export const classColumns = (
 ): ColumnDef<Class_Record>[] => [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'S.NO.',
     enableHiding: false,
     cell: ({ row }) => Number(row.id) + 1
   },
@@ -18,12 +18,12 @@ export const classColumns = (
   },
   {
     accessorKey: 'amount',
-    header: 'Amount',
+    header: 'Tution Fee Monthly',
     enableHiding: false
   },
   {
     accessorKey: 'admission_charge',
-    header: 'Admission Charge',
+    header: 'Enrollment Charge',
     enableHiding: false
   },
   {
@@ -32,8 +32,8 @@ export const classColumns = (
     enableHiding: false,
     cell: ({ row }) => (
       <div className="flex gap-2 ">
-        <Pen onClick={(): void => item.update(row.original.id)} />
-        <Trash2 onClick={(): void => item.delete(row.original.id)} />
+        <Pen fill="blue" onClick={(): void => item.update(row.original.id)} />
+        <Trash2 fill="red" onClick={(): void => item.delete(row.original.id)} />
       </div>
     )
   }

@@ -57,14 +57,14 @@ const AdmissionForm = ({
           <FormSelect
             name="class_id"
             control={control}
-            label="Class"
+            label="Promot to Class"
             options={classList}
             placeholder="Select Class"
           />
           {/* Admission Charge */}
           <FormInput
             name="amount"
-            label="Admission Charge"
+            label="Promote Charge"
             placeholder="1300"
             type="number"
             control={control}
@@ -72,7 +72,7 @@ const AdmissionForm = ({
           {/* Monthly  Charge */}
           <FormInput
             name="monthly"
-            label="Monthly Fee"
+            label="Tution Fee Monthly"
             placeholder="700"
             type="number"
             control={control}

@@ -9,7 +9,7 @@ export const misChargeColumns = (
 ): ColumnDef<Mis_Charge_Record>[] => [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'S.NO.',
     enableHiding: false,
     cell: ({ row }) => Number(row.id) + 1
   },

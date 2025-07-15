@@ -7,7 +7,7 @@ export const misItemColumns = (
 ): ColumnDef<Mis_Item_Record>[] => [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'S.No.',
     enableHiding: false,
     cell: ({ row }) => Number(row.id) + 1
   },
