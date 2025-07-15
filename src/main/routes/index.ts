@@ -63,6 +63,8 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('init:student:monthly:fee', InitController.generate)
   // app update
   ipcMain.handle('init:app:update', InitController.checkForUpdates)
+  // system is dark mode
+  ipcMain.handle('init:theme:mode:dark', InitController.isDarkMode)
 
   // session
   ipcMain.handle('session:end:check', SessionController.isEndSet)

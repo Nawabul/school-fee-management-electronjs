@@ -84,6 +84,7 @@ declare global {
       database: () => Promise<successResponse<boolean> | errorResponse>
       monthly_fee: () => Promise<successResponse<boolean> | errorResponse>
       app_update: () => Promise<void>
+      is_dark_mode: () => Promise<successResponse<boolean> | errorResponse>
     }
 
     // session

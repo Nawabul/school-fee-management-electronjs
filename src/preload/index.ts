@@ -154,6 +154,8 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('init:database'),
       monthly_fee: async (): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('init:student:monthly:fee'),
+      is_dark_mode: async (): Promise<successResponse<boolean> | errorResponse> =>
+        ipcRenderer.invoke('init:theme:mode:dark'),
       app_update: async (): Promise<void> => ipcRenderer.invoke('init:app:update')
     })
 
