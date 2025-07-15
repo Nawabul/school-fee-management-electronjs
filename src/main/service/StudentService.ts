@@ -1,5 +1,10 @@
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
+import {
+  Student_Details,
+  Student_Get,
+  Student_Record,
+  Student_Write
+} from '../../types/interfaces/student'
 import db from '../db/db'
 import Database from 'better-sqlite3'
 import { addYears, format, set } from 'date-fns'
@@ -330,6 +335,36 @@ class StudentService {
         monthly: students.monthly
       })
       .from(students)
+      .where(eq(students.id, id))
+    const result = query.get()
+    if (!result) {
+      return null
+    }
+    return {
+      ...result,
+      is_whatsapp: result.is_whatsapp === 1, // Convert 1/0 to boolean
+      transfer_date: result.transfer_date || null // Ensure transfer_date is null if not set
+    }
+  }
+  detials(id: number): Student_Details | null {
+    const query = this.db
+      .select({
+        id: students.id,
+        reg_number: students.reg_number,
+        student_name: students.student_name,
+        father_name: students.father_name,
+        mobile: students.mobile,
+        address: students.address,
+        admission_date: students.admission_date,
+        transfer_date: students.transfer_date,
+        is_whatsapp: students.is_whatsapp,
+        class_name: classes.name,
+        current_balance: students.current_balance,
+        last_fee_date: students.last_fee_date,
+        last_notification_date: students.last_notification_date
+      })
+      .from(students)
+      .innerJoin(classes, eq(students.class_id, classes.id))
       .where(eq(students.id, id))
     const result = query.get()
     if (!result) {

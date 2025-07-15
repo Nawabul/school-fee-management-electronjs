@@ -1,6 +1,7 @@
 export const queryKey = {
   class: ['class-record'],
   student: ['student-record'],
+  student_details: ['student-details'],
   admission: ['admission-record'],
   payment: ['payment-record'],
   mis_item: ['mis-item-record'],

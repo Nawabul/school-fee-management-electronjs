@@ -1,4 +1,4 @@
-import { Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
+import { Student_Details, Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
@@ -9,7 +9,6 @@ import { DB_DATE_FORMAT } from '@main/utils/constant/date'
 import { Transaction } from '@type/interfaces/db'
 import PaymentService from '@main/service/PaymentService'
 import MonthlyFeeService from '@main/service/MonthlyFeeService'
-import { c } from 'vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf'
 
 interface studentCreate extends Student_Write {
   admission_charge: number
@@ -246,6 +245,26 @@ class StudentController {
       return apiError('Error while fetching student')
     }
   }
+
+  async details(
+    _event: IpcMainInvokeEvent,
+    id: number
+  ): Promise<successResponse<Student_Details> | errorResponse> {
+    try {
+      const result =  StudentService.detials(id)
+
+      if (!result) {
+        return apiError('Student not found')
+      }
+      return apiSuccess(result, 'Student Fetched successfully')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return apiError('Error while fetching student: ' + error.message)
+      }
+      return apiError('Error while fetching student')
+    }
+  }
+
 }
 
 export default new StudentController()

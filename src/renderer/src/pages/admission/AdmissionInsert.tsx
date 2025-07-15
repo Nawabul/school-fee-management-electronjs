@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -6,16 +6,20 @@ import AdmissionForm from '@renderer/components/admission/AdmissionFrom'
 import AdmissionController from '@renderer/controller/AdmissionController'
 import { Admission_Write } from '@type/interfaces/admission'
 import { todayISODate } from '@renderer/types/constant/date'
+import { queryKey } from '@renderer/types/constant/queryKey'
 
 const AdmissionInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
 
   const studentId = useParams<{ id: string }>().id
-
+  const queryClient = useQueryClient()
   const admissionMutation = useMutation({
     mutationKey: ['admission', 'insert'],
     mutationFn: (data: Admission_Write) => AdmissionController.create(Number(studentId), data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKey.student_details
+      })
       navigate(-1)
       // Optionally reset form or show success message
     },

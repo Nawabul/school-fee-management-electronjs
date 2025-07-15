@@ -1,3 +1,4 @@
+import { Student_Details } from '@type/interfaces/student'
 import { successResponse } from '../../../types/utils/apiReturn'
 import { Student_Record, Student_Get } from '@renderer/types/ts/student'
 
@@ -25,7 +26,6 @@ class StudentController {
     throw result.message
   }
   async continue(id: number): Promise<boolean> {
-
     const result = await window.student.continue(id)
 
     if (result.success) {
@@ -54,6 +54,14 @@ class StudentController {
 
     if (result.success) {
       return (result as successResponse<Student_Get>).data
+    }
+    throw result.message
+  }
+  async details(id: number): Promise<Student_Details> {
+    const result = await window.student.details(id)
+
+    if (result.success) {
+      return (result as successResponse<Student_Details>).data
     }
     throw result.message
   }

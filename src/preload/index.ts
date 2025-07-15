@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { Class } from '../types/interfaces/class'
 import { successResponse, errorResponse } from '../types/utils/apiReturn'
-import { Student_Get, Student_Record, Student_Write } from '../types/interfaces/student'
+import { Student_Details, Student_Get, Student_Record, Student_Write } from '../types/interfaces/student'
 import {
   Payment_Read,
   Payment_Record,
@@ -73,7 +73,9 @@ if (process.contextIsolated) {
       list: async (): Promise<successResponse<Student_Record[]> | errorResponse> =>
         ipcRenderer.invoke('student:list'),
       fetch: async (id: number): Promise<successResponse<Student_Get> | errorResponse> =>
-        ipcRenderer.invoke('student:fetch', id)
+        ipcRenderer.invoke('student:fetch', id),
+      details: async (id: number): Promise<successResponse<Student_Details> | errorResponse> =>
+        ipcRenderer.invoke('student:details', id)
     })
 
     // payment

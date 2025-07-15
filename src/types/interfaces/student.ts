@@ -44,3 +44,18 @@ export interface Student_Get {
   last_notification_date: string // ISO date string
   monthly: number
 }
+
+export interface Student_Details {
+   id: number
+  reg_number: string
+  student_name: string
+  father_name: string
+  mobile: string
+  is_whatsapp: boolean
+  admission_date: string // ISO date string
+  transfer_date: string | null // either an ISO date string or the literal "active"
+  address: string
+  class_name: string
+  current_balance: number
+
+}

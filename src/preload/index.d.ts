@@ -2,6 +2,7 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { PaymentChart, statics } from '@type/interfaces/dashboard'
 import { Payment_Type } from '@type/interfaces/payment'
+import { Student_Details } from '@type/interfaces/student'
 import { Class } from '@types/interfaces/class'
 import { Mis_Charge_Read, Mis_Charge_Record, Mis_Charge_Write } from '@types/interfaces/mis_charge'
 import { Mis_Item_Read, Mis_Item_Record, Mis_Item_Write } from '@types/interfaces/mis_item'
@@ -33,6 +34,7 @@ declare global {
       continue: (id: number) => Promise<successResponse<boolean> | errorResponse>
       list: () => Promise<successResponse<Student_Record[]> | errorResponse>
       fetch: (id: number) => Promise<successResponse<Student_Get> | errorResponse>
+      details: (id: number) => Promise<successResponse<Student_Details> | errorResponse>
     }
     // payment
     payment: {

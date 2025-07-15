@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import PaymentController from '@renderer/controller/PaymentController'
 import { DB_DATE_FORMAT } from '@renderer/types/constant/date'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Payment_Type } from '@type/interfaces/payment'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
@@ -9,6 +9,7 @@ import z from 'zod'
 import FormInput from '../form/FormInput'
 import { useEffect } from 'react'
 import { Button } from 'flowbite-react'
+import { queryKey } from '@renderer/types/constant/queryKey'
 
 type props = {
   type: Payment_Type
@@ -36,11 +37,15 @@ function PaymentBox({
     resolver: zodResolver(schema)
   })
 
+  const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationKey: ['payment'],
     mutationFn: (data) => PaymentController.create(studentId, data, type),
     onSuccess: () => {
       successFn()
+      queryClient.invalidateQueries({
+        queryKey: queryKey.student_details
+      })
     }
   })
   useEffect(() => {

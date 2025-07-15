@@ -1,5 +1,6 @@
 import MisChargeForm from '@renderer/components/mis_charge/MisChargeForm'
 import MisChargeController from '@renderer/controller/MisChargeController'
+import { queryKey } from '@renderer/types/constant/queryKey'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
@@ -16,6 +17,9 @@ const MisChargeUpdate = (): React.JSX.Element => {
     onSuccess: () => {
       // Optionally reset form or show success message
       navigate(-1)
+      queryClient.invalidateQueries({
+        queryKey: queryKey.student_details
+      })
     },
     onError: (error) => {
       console.error('Error creating payment:', error)

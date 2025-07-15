@@ -1,20 +1,24 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import MisChargeController from '@renderer/controller/MisChargeController'
 import MisChargeForm from '@renderer/components/mis_charge/MisChargeForm'
 import { todayISODate } from '@renderer/types/constant/date'
+import { queryKey } from '@renderer/types/constant/queryKey'
 
 const MisChargeInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
 
   const studentId = useParams<{ id: string }>().id
-
+  const queryClient = useQueryClient()
   const misChargeMutation = useMutation({
     mutationKey: ['charge', 'insert'],
     mutationFn: (data) => MisChargeController.create(Number(studentId), data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKey.student_details
+      })
       navigate(-1)
       // Optionally reset form or show success message
     },
