@@ -1,5 +1,4 @@
 import PaymentForm from '@renderer/components/payment/PaymentForm'
-import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import PaymentController from '@renderer/controller/PaymentController'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
@@ -45,29 +44,29 @@ const PaymentUpdate = (): React.JSX.Element => {
     }
   }, [])
   return (
-    <div>
-      <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
+    <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+      <div className="flex gap-2 justify-between items-center">
         <div className="flex gap-2 items-center">
           <HiAcademicCap size={40} />
           <h1 className="text-2xl font-bold">Update Payment</h1>
         </div>
         <div>
-          <Button onClick={() => navigate(-1)}>View All Student</Button>
+          <Button onClick={() => navigate(-1)}>View All Payment</Button>
         </div>
       </div>
-
-      <div className="md:p-5">
-        {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
-        {isError && <p className="text-red-500">Error: {error.message}</p>}
-        {isSuccess && (
-          <PaymentForm
-            onSubmit={handleFormSubmit}
-            isPending={studentMutation.isPending}
-            // @ts-ignore working well response type
-            defaultValues={data}
-          />
-        )}
-      </div>
+      <br />
+      <hr className="text-gray-600" />
+      <br />
+      {isLoading && <Loader2 className="animate-spin h-5 w-5 text-gray-500" />}
+      {isError && <p className="text-red-500">Error: {error.message}</p>}
+      {isSuccess && (
+        <PaymentForm
+          onSubmit={handleFormSubmit}
+          isPending={studentMutation.isPending}
+          // @ts-ignore working well response type
+          defaultValues={data}
+        />
+      )}
     </div>
   )
 }

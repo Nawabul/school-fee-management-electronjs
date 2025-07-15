@@ -42,7 +42,7 @@ const PaymentInsert = (): React.JSX.Element => {
         </div>
       </div>
       <br />
-      <hr className='text-gray-600' />
+      <hr className="text-gray-600" />
       <br />
       <PaymentForm
         onSubmit={handleFormSubmit}
