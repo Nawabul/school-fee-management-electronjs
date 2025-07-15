@@ -1,7 +1,7 @@
 import { misItemColumns } from '@renderer/components/mis_item/columns'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
 import { JSX, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'

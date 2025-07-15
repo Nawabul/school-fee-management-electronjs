@@ -2,9 +2,8 @@ import ClassForm from '@renderer/components/class/ClassForm'
 import Header from '@renderer/components/Header'
 import ClassController from '@renderer/controller/ClassController'
 import { useMutation } from '@tanstack/react-query'
-import { Button } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const ClassInsert = (): React.JSX.Element => {
   const navigate = useNavigate()

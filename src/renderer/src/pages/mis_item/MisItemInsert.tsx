@@ -2,9 +2,9 @@ import Header from '@renderer/components/Header'
 import MisItemForm from '@renderer/components/mis_item/MisItemFrom'
 import MisItemController from '@renderer/controller/MisItemController'
 import { useMutation } from '@tanstack/react-query'
-import { Button } from 'flowbite-react'
+
 import { HiAcademicCap } from 'react-icons/hi'
-import { Link, useNavigate } from 'react-router-dom'
+import {  useNavigate } from 'react-router-dom'
 
 const MisItemInsert = (): React.JSX.Element => {
   const navigate = useNavigate()

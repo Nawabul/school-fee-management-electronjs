@@ -47,7 +47,7 @@ const StudentTransfer = (): React.JSX.Element => {
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     const maxDate = new Date(year, month, 0)
-    const smonth = String(month).padStart(2, 0)
+    const smonth = String(month).padStart(2, '0')
 
     const min = `${year}-${smonth}-01`
     const max = `${year}-${smonth}-${maxDate.getDate()}`

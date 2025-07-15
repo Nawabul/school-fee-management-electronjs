@@ -25,15 +25,19 @@ const Sidebar = (): React.JSX.Element => {
           <SidebarItem as={Link} href="#" icon={HiChartPie}>
             Dashboard
           </SidebarItem>
+         {/* @ts-ignore to is used for route link */}
           <SidebarItem as={Link} to="/class" icon={Presentation}>
             Class
           </SidebarItem>
+         {/* @ts-ignore to is used for route link */}
           <SidebarItem as={Link} to="/student" icon={User}>
             Student
           </SidebarItem>
+         {/* @ts-ignore to is used for route link */}
           <SidebarItem as={Link} to="/mis_item" icon={BanknoteArrowDown}>
             Miscellaneous Item
           </SidebarItem>
+         {/* @ts-ignore to is used for route link */}
           <SidebarItem as={Link} to="/setting" icon={Settings}>
             Setting
           </SidebarItem>
