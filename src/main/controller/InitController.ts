@@ -4,6 +4,7 @@ import MonthlyFeeController from './MonthlyFeeController'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import StudentService from '../service/StudentService'
 import { checkAndApplyUpdates } from '@main/utils/handler/autoUpdate'
+import { nativeTheme } from 'electron'
 
 class InitController {
   // generate student monthly records of students
@@ -40,6 +41,19 @@ class InitController {
   async checkForUpdates(): Promise<void> {
     // Check for updates
     checkAndApplyUpdates()
+  }
+
+  // is dark mode
+  async isDarkMode(): Promise<successResponse<boolean> | errorResponse> {
+    try {
+      const dark = nativeTheme.shouldUseDarkColors
+      return apiSuccess(dark, 'Dark mode status')
+    } catch (error) {
+      if (error instanceof Error) {
+        return apiError('Unable to check dark mode status', error.message)
+      }
+      return apiError('Unable to determine dark mode status')
+    }
   }
 }
 
