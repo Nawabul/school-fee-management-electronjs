@@ -1,5 +1,6 @@
 import SessionController from '@renderer/controller/SessionController'
-import { useMutation } from '@tanstack/react-query'
+import { queryKey } from '@renderer/types/constant/queryKey'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import React, { useEffect, useState } from 'react'
 
@@ -8,8 +9,7 @@ type props = {
   value?: string | number
   btnStyle?: React.CSSProperties
 }
-function SessionEndSet({ sumbitFun, value = 3, btnStyle }: props): React.ReactNode {
-  const [selectedMonth, setSelectedMonth] = useState<number>(Number(value))
+function SessionEndSet({ sumbitFun, btnStyle }: props): React.ReactNode {
   const months = [
     { id: 1, name: 'January' },
     { id: 2, name: 'February' },
@@ -24,12 +24,16 @@ function SessionEndSet({ sumbitFun, value = 3, btnStyle }: props): React.ReactNo
     { id: 11, name: 'November' },
     { id: 12, name: 'December' }
   ]
-
+  const { data = 3, isSuccess } = useQuery({
+    queryKey: queryKey.session_end_month,
+    queryFn: SessionController.getEndMonth
+  })
+  const [selectedMonth, setSelectedMonth] = useState<number>(Number(data))
   useEffect(() => {
-    if (selectedMonth != value) {
-      setSelectedMonth(Number(value))
+    if (isSuccess) {
+      setSelectedMonth(Number(data))
     }
-  }, [value])
+  }, [isSuccess, data])
 
   const mutation = useMutation({
     mutationFn: SessionController.set,
@@ -57,7 +61,6 @@ function SessionEndSet({ sumbitFun, value = 3, btnStyle }: props): React.ReactNo
           className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none text-white focus:outline-none"
           onChange={(e) => {
             const value = e.target.value
-            console.log(value)
             setSelectedMonth(Number(value))
           }}
         >
