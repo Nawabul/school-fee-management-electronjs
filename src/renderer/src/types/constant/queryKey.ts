@@ -5,5 +5,6 @@ export const queryKey = {
   payment: ['payment-record'],
   mis_item: ['mis-item-record'],
   mis_charge: ['mis-charge-record'],
-  monthly_fee: ['monthly-fee-record']
+  monthly_fee: ['monthly-fee-record'],
+  session_end_month: ['session-end-month']
 }
