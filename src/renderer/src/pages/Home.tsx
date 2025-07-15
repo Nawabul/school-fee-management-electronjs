@@ -26,7 +26,7 @@ function Home(): React.JSX.Element {
     queryFn: DashbaordController.statics,
     refetchOnMount: true
   })
-  console.log(data)
+
   // chart data =
   const { data: paymentChart = [] } = useQuery({
     queryKey: queryKey.dashboard_payment_chart,

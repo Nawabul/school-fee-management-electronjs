@@ -23,7 +23,7 @@ class DashboardController {
 
   async paymentChart(): Promise<PaymentChart[]> {
     const result = await window.dashboard.payment_chart()
-    console.log(result)
+
     if (!result.success) {
       return []
     }

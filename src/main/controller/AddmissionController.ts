@@ -20,7 +20,7 @@ class AddmissionController {
         const needPaid = data.amount
         const studentId = data.student_id
         const monthly = data.monthly
-        console.log(data)
+
         // adjust payment
         const admisionPaid = PaymentService.adjustUsed(studentId, needPaid, 'admission', tx)
 

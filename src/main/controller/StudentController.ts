@@ -21,9 +21,9 @@ class StudentController {
     try {
       const { admission_charge, ...body } = data
       const id = StudentService.db.transaction((tx: Transaction) => {
-        console.log(body)
+
         const student = StudentService.create(body, tx)
-        console.log(student)
+
         const last_date = student.last_date
         const today = format(new Date(), DB_DATE_FORMAT)
         const active_until = student.active_until || today

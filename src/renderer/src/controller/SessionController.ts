@@ -1,7 +1,7 @@
 class SessionController {
   async check(): Promise<boolean> {
     const result = await window.session.check()
-    console.log(result)
+
     if (!result.success) {
       return false
     }
@@ -13,7 +13,7 @@ class SessionController {
     if (!result.success) {
       throw new Error('Session end error')
     }
-    console.log(result)
+
     return result.data
   }
   async set(month: string | number): Promise<boolean> {

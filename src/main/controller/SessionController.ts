@@ -47,7 +47,7 @@ class SessionController {
         // create end month
         const endDate = SessionService.formatEndDate(Number(month))
         // update student active date
-        console.log(endDate)
+
         StudentService.active_student_active_until_update(endDate, tx)
 
         return true

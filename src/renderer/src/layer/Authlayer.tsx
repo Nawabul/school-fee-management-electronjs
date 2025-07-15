@@ -38,7 +38,7 @@ const Authlayer = (): React.ReactElement => {
         fun: async function (): Promise<boolean> {
           // check session is set or not
           const session = await SessionController.check()
-          console.log(session)
+
           if (session) {
             return true
           }
@@ -92,7 +92,7 @@ const Authlayer = (): React.ReactElement => {
             return
           }
         } catch (e) {
-          console.log('setup error', e)
+
           setCompleted({ status: false, message: step.value.message })
           return
         }

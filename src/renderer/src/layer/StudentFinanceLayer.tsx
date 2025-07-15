@@ -6,7 +6,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 function StudentFinanceLayer(): React.ReactNode {
   const student = useStudentDetails()
   const { studentDetails } = student
-  console.log(studentDetails)
+
   if (studentDetails == null) {
     return <Outlet />
   }
