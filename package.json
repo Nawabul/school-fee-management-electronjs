@@ -21,7 +21,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "scriptinstall": "node scripts/fix-tailwind-version.js"
+    "scriptinstall": "node scripts/fix-tailwind-version.js",
+    "tailwind:build": "tailwindcss -c tailwind.config.ts -i ./src/renderer/src/index.css -o ./dist/output.css"
   },
   "repository": {
     "type": "git",
@@ -70,7 +71,8 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.2",
     "electron-updater": "^6.3.9",
-    "flowbite-react": "^0.11.7",
+    "flowbite": "^3.1.2",
+    "flowbite-react": "^0.11.9",
     "i": "^0.3.7",
     "lucide-react": "^0.511.0",
     "npm": "^11.4.1",
@@ -78,7 +80,6 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.1",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.8",
     "zod": "^3.25.36"
   },
   "devDependencies": {
@@ -99,11 +100,13 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "postcss": "^8.5.4",
+    "postcss": "^8.5.6",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.11",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vite": "^6.2.6"
   }

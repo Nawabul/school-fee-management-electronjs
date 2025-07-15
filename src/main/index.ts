@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -11,6 +11,7 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
+    // backgroundColor: '#121212',
     title: 'School Fee Management',
     frame: false, // Disable the default frame
 
@@ -22,6 +23,11 @@ function createWindow(): void {
       devTools: true
     }
   })
+  const dark = nativeTheme.shouldUseDarkColors
+  if (!dark) {
+    nativeTheme.themeSource = 'dark'
+
+  }
 
   // routes
   routes()
