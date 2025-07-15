@@ -16,6 +16,15 @@ class InitController {
     return true
   }
 
+  async is_dark_mode(): Promise<boolean> {
+    const result = await window.init.is_dark_mode()
+
+    if (!result.success) {
+      return false
+    }
+    return result.data
+  }
+
   // check updte
   async app_update(): Promise<boolean> {
     await window.init.app_update()

@@ -3,6 +3,9 @@
 @source "../../../.flowbite-react/class-list.json";
 
 
+@import 'flowbite';
+
+
 /* scroll bar */
 
 *::-webkit-scrollbar-track
