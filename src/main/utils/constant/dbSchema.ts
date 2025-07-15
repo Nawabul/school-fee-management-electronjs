@@ -205,7 +205,7 @@ const versionSchemaStatements: Record<string, string[]> = {
     `ALTER TABLE mis_charges ADD COLUMN paid integer DEFAULT 0 NOT NULL;`,
     `DROP INDEX IF EXISTS admission_student_class_unique;`
   ],
-  // 1.0.3: Custom monthly charge
+  // 1.1.0: Custom monthly charge
   '1.0.3': [
     `ALTER TABLE students ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
     `ALTER TABLE admission ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
@@ -217,13 +217,13 @@ export const getVersionSchemaStatements = (version: string): string[] => {
   const versionsKeys = Object.keys(versionSchemaStatements)
 
   // filter all higher versions
-  const index = versionsKeys.indexOf(version)
-  if (index === -1) {
+  const versions = versionsKeys.filter((item) => item > version) || []
+  if (versions.length == 0) {
     return []
   }
   const statements: string[] = []
-  for (let i = index + 1; i < versionsKeys.length; i++) {
-    statements.push(...versionSchemaStatements[versionsKeys[i]])
+  for (let i = 0; i < versions.length; i++) {
+    statements.push(...versionSchemaStatements[versions[i]])
   }
   statements.push(`UPDATE versions SET value = '${app_version}' WHERE name = '${DB_VERSION_NAME}';`)
 

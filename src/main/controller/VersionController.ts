@@ -49,6 +49,7 @@ class VersionController {
       return apiSuccess(true, 'DB Check pass successfully')
     } catch (error) {
       if (error instanceof Error) {
+        console.log(error.message)
         return apiError(error.message)
       } else {
         return apiError('DB Checking fail')
