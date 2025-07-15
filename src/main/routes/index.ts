@@ -9,6 +9,7 @@ import VersionController from '../controller/VersionController'
 import InitController from '../controller/InitController'
 import AddmissionController from '@main/controller/AddmissionController'
 import SessionController from '@main/controller/SessionController'
+import DashboradController from '@main/controller/DashboradController'
 
 export default async function routes(): Promise<void> {
   // class
@@ -65,6 +66,10 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('init:app:update', InitController.checkForUpdates)
   // system is dark mode
   ipcMain.handle('init:theme:mode:dark', InitController.isDarkMode)
+
+  // dashboard
+  ipcMain.handle('dashboard:statics', DashboradController.statics)
+  ipcMain.handle('dashboard:payment:chart', DashboradController.paymentChart)
 
   // session
   ipcMain.handle('session:end:check', SessionController.isEndSet)

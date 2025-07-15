@@ -17,6 +17,7 @@ import {
 } from '../types/interfaces/mis_charge'
 import { Monthly_Fee_Record } from '../types/interfaces/monthly_fee'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import { PaymentChart, statics } from '@type/interfaces/dashboard'
 // Custom APIs for renderer
 const api = {}
 
@@ -157,6 +158,13 @@ if (process.contextIsolated) {
       is_dark_mode: async (): Promise<successResponse<boolean> | errorResponse> =>
         ipcRenderer.invoke('init:theme:mode:dark'),
       app_update: async (): Promise<void> => ipcRenderer.invoke('init:app:update')
+    })
+    // dashboard
+    contextBridge.exposeInMainWorld('dashboard', {
+      statics: async (): Promise<successResponse<statics> | errorResponse> =>
+        ipcRenderer.invoke('dashboard:statics'),
+      payment_chart: async (): Promise<successResponse<PaymentChart> | errorResponse> =>
+        ipcRenderer.invoke('dashboard:payment:chart')
     })
 
     // session

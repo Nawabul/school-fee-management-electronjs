@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
+import { PaymentChart, statics } from '@type/interfaces/dashboard'
 import { Payment_Type } from '@type/interfaces/payment'
 import { Class } from '@types/interfaces/class'
 import { Mis_Charge_Read, Mis_Charge_Record, Mis_Charge_Write } from '@types/interfaces/mis_charge'
@@ -85,6 +86,10 @@ declare global {
       monthly_fee: () => Promise<successResponse<boolean> | errorResponse>
       app_update: () => Promise<void>
       is_dark_mode: () => Promise<successResponse<boolean> | errorResponse>
+    }
+    dashboard: {
+      statics: () => Promise<successResponse<statics> | errorResponse>
+      payment_chart: () => Promise<successResponse<PaymentChart[]> | errorResponse>
     }
 
     // session
