@@ -57,7 +57,8 @@ class AddmissionController {
         const monthUsed = month.count * monthly
         const totalCharge = data.amount + monthUsed
         // update student
-        StudentService.last_fee_date_update(studentId, month.end, tx)
+        const updatedDate = startDate < month.end ? month.end : startDate
+        StudentService.last_fee_date_update(studentId, updatedDate, tx)
         // adjust Student amount
         StudentService.decrementBalance(tx, data.student_id, totalCharge)
 
