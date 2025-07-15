@@ -6,7 +6,7 @@ import { useController } from 'react-hook-form'
 
 type TextInputType = ComponentProps<typeof TextInput>['type']
 
-interface Props {
+interface Props extends ComponentProps<typeof TextInput> {
   name: string
   label?: string
   placeholder: string

@@ -117,25 +117,18 @@ class StudentService {
   }
 
   // transfer
-  async transfer(
+  transfer(
     studentId: number,
     date: string,
     tx: BetterSQLite3Database<Record<string, never>> | null = null
-  ): Promise<boolean> {
-    try {
-      const dbInstance = tx || this.db
-      const result = await dbInstance
-        .update(students)
-        .set({ transfer_date: date })
-        .where(eq(students.id, studentId))
-        .run()
-      return result.changes > 0
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating transfer: ' + error.message)
-      }
-      throw new Error('Error while updating transfer: ')
-    }
+  ): boolean {
+    const dbInstance = tx || this.db
+    const result = dbInstance
+      .update(students)
+      .set({ transfer_date: date })
+      .where(eq(students.id, studentId))
+      .run()
+    return result.changes > 0
   }
   // continue study
   async continueStudy(

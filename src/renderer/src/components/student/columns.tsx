@@ -4,7 +4,7 @@ import FilterClass from '../table/FilterClass'
 import { Student_Record } from '@renderer/types/ts/student'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
-import { ClipboardList, Pen, Trash2 } from 'lucide-react'
+import { CircleDot, ClipboardList, Pen, Trash2 } from 'lucide-react'
 
 export const studentColumns = (
   item: Record<string, (id: number, data: Student_Record) => void>
@@ -103,9 +103,15 @@ export const studentColumns = (
     enableHiding: false,
     cell: ({ row }) => (
       <div className="flex gap-2 ">
-        <Pen onClick={(): void => item.update(row.original.id, row.original)} />
+        <Pen fill="blue" onClick={(): void => item.update(row.original.id, row.original)} />
         <ClipboardList onClick={(): void => item.payment(row.original.id, row.original)} />
-        <Trash2 onClick={(): void => item.delete(row.original.id, row.original)} />
+        <Trash2 fill="red" onClick={(): void => item.delete(row.original.id, row.original)} />
+        {row.original.transfer_date != null && (
+          <CircleDot onClick={() => item.continue(row.original.id, row.original)} fill="red" />
+        )}
+        {row.original.transfer_date == null && (
+          <CircleDot onClick={() => item.transfer(row.original.id, row.original)} fill="green" />
+        )}
       </div>
     )
   }

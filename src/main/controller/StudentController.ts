@@ -4,11 +4,12 @@ import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
 import MonthlyFeeController from './MonthlyFeeController'
 import AdmissionService from '@main/service/AdmissionService'
-import { format } from 'date-fns'
+import { addMonths, format } from 'date-fns'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
 import { Transaction } from '@type/interfaces/db'
 import PaymentService from '@main/service/PaymentService'
 import MonthlyFeeService from '@main/service/MonthlyFeeService'
+import { c } from 'vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf'
 
 interface studentCreate extends Student_Write {
   admission_charge: number
@@ -119,7 +120,7 @@ class StudentController {
   async transfer(
     _event: IpcMainInvokeEvent,
     id: number,
-    data: { date: string }
+    data: { date: string; month_charge: boolean }
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
       // Validate that the student exists before updating
@@ -128,7 +129,38 @@ class StudentController {
         return apiError('Student not found')
       }
 
-      const result: boolean = await StudentService.transfer(id, data.date)
+      const result = StudentService.db.transaction((tx: Transaction) => {
+        StudentService.transfer(id, data.date, tx)
+        const last_fee = student.last_fee_date
+        const currentMonth = new Date().getMonth()
+        const lastFeeMonth = new Date(last_fee).getMonth()
+        if (data.month_charge && lastFeeMonth <= currentMonth) {
+          const next_last_fee = format(addMonths(new Date(last_fee), 1), DB_DATE_FORMAT)
+          const fee = student.monthly
+          const haveAmount = student.current_balance > 0 ? student.current_balance : 0
+          const classId = student.class_id
+          const studentId = student.id
+          const monthInput = {
+            student_id: studentId,
+            class_id: classId,
+            from: last_fee,
+            count: 1,
+            fee,
+            haveAmount
+          }
+
+          // create on month fee
+          MonthlyFeeService.createBulkWithPayment(monthInput, tx)
+
+          // adjust student amount
+          StudentService.decrementBalance(tx, studentId, fee)
+
+          // last fee date
+          StudentService.last_fee_date_update(studentId, next_last_fee, tx)
+        }
+
+        return true
+      })
 
       return apiSuccess(result, 'Student transfer successfully')
     } catch (error: unknown) {

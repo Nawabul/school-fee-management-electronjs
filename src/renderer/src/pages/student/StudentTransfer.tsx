@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { Button } from 'flowbite-react'
+import { Button, ToggleSwitch } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import StudentController from '@renderer/controller/StudentController'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -10,17 +10,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { todayISODate } from '@renderer/types/constant/date'
+import { useMemo } from 'react'
 
 const Schema = z.object({
   date: z.string({
     required_error: 'Date is required'
-  })
+  }),
+  month_charge: z.boolean().default(false)
 })
 
 const StudentTransfer = (): React.JSX.Element => {
   const navigate = useNavigate()
   const studentId = useParams().id
-  const { control, handleSubmit } = useForm<z.infer<typeof Schema>>({
+  const { control, handleSubmit, setValue, watch } = useForm<z.infer<typeof Schema>>({
     //@ts-ignore ites working well
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -40,6 +42,21 @@ const StudentTransfer = (): React.JSX.Element => {
     }
   })
 
+  const dateRange = useMemo(() => {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const maxDate = new Date(year, month, 0)
+    const smonth = String(month).padStart(2, 0)
+
+    const min = `${year}-${smonth}-01`
+    const max = `${year}-${smonth}-${maxDate.getDate()}`
+    return {
+      min,
+      max
+    }
+  }, [])
+
   const onSubmit = (data): void => {
     studentMutation.mutate(data)
   }
@@ -49,7 +66,7 @@ const StudentTransfer = (): React.JSX.Element => {
       <div className="flex gap-2 justify-between items-center mb-4 bg-gray-700 rounded-t-xl md:p-5">
         <div className="flex gap-2 items-center">
           <HiAcademicCap size={40} />
-          <h1 className="text-2xl font-bold">Student Insert</h1>
+          <h1 className="text-2xl font-bold">Leave Student</h1>
         </div>
         <div>
           <Link to={'/student'}>
@@ -67,11 +84,22 @@ const StudentTransfer = (): React.JSX.Element => {
         >
           {/* Registration Number */}
           <FormInput
+            min={`${dateRange.min}`}
+            max={dateRange.max}
             name="date"
             label="Date"
             placeholder="Transfer Date"
             type="date"
             control={control}
+          />
+          <ToggleSwitch
+            name="month_charge"
+            label="Include Current Month Fee"
+            className="mt-8 pl-5"
+            checked={watch('month_charge')}
+            onChange={(checked) => setValue('month_charge', checked)}
+            color="green"
+            sizing="md"
           />
 
           {/* Submit */}
