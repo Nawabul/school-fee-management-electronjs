@@ -1,5 +1,4 @@
 import { addMonths, differenceInMonths, format } from 'date-fns'
-import ClassService from '../service/ClassService'
 import MonthlyFeeService from '../service/MonthlyFeeService'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import StudentService from '../service/StudentService'
@@ -20,12 +19,6 @@ type MonthlyFeeAddInput = {
 }
 type DeleteMonthlyFeeRequest = Omit<MonthlyFeeAddInput, 'class_id'>
 class MonthlyFeeController {
-  private classService: typeof ClassService
-
-  constructor(classService: typeof ClassService) {
-    this.classService = classService
-  }
-
   async create(
     data: MonthlyFeeAddInput,
     amountToPaid: number = -1,
@@ -168,4 +161,4 @@ class MonthlyFeeController {
   }
 }
 
-export default new MonthlyFeeController(ClassService)
+export default new MonthlyFeeController()

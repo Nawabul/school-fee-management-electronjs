@@ -7,7 +7,7 @@ import {
 } from '../../types/interfaces/student'
 import db from '../db/db'
 import Database from 'better-sqlite3'
-import { addYears, format, set } from 'date-fns'
+import { format, set } from 'date-fns'
 import { eq, sql } from 'drizzle-orm'
 import { students } from '../db/schema/student'
 import { InferInsertModel } from 'drizzle-orm'
@@ -18,7 +18,6 @@ import { monthly_fee } from '../db/schema/monthly_fee'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import { admission } from '@main/db/schema/admission'
 import { Transaction } from '@type/interfaces/db'
-import { Session } from 'inspector/promises'
 import SessionService from './SessionService'
 
 type StudentUpdateInput = Partial<Student_Write> & {

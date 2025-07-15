@@ -1,4 +1,9 @@
-import { Student_Details, Student_Get, Student_Record, Student_Write } from '../../types/interfaces/student'
+import {
+  Student_Details,
+  Student_Get,
+  Student_Record,
+  Student_Write
+} from '../../types/interfaces/student'
 import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
@@ -21,7 +26,6 @@ class StudentController {
     try {
       const { admission_charge, ...body } = data
       const id = StudentService.db.transaction((tx: Transaction) => {
-
         const student = StudentService.create(body, tx)
 
         const last_date = student.last_date
@@ -251,7 +255,7 @@ class StudentController {
     id: number
   ): Promise<successResponse<Student_Details> | errorResponse> {
     try {
-      const result =  StudentService.detials(id)
+      const result = StudentService.detials(id)
 
       if (!result) {
         return apiError('Student not found')
@@ -264,7 +268,6 @@ class StudentController {
       return apiError('Error while fetching student')
     }
   }
-
 }
 
 export default new StudentController()

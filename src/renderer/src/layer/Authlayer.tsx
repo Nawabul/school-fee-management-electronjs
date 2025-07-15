@@ -91,8 +91,8 @@ const Authlayer = (): React.ReactElement => {
             setCompleted({ status: false, message: step.value.message })
             return
           }
+          //@ts-ignore no need to used e
         } catch (e) {
-
           setCompleted({ status: false, message: step.value.message })
           return
         }

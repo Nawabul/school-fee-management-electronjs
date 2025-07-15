@@ -60,8 +60,6 @@ class SessionController {
       return apiError('Error while creating Session End')
     }
   }
-
-
 }
 
 export default new SessionController()

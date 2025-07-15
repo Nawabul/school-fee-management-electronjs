@@ -5,10 +5,7 @@ import { queryKey } from '@renderer/types/constant/queryKey'
 import { useQuery } from '@tanstack/react-query'
 import {
   Users,
-  DollarSign,
-  Shapes,
   LayoutDashboard,
-  History,
   UserCheck,
   PiggyBank,
   Receipt,
@@ -147,17 +144,17 @@ export default Home
 //   { name: 'Staff Update', action: 'New science teacher, Mrs. Kavita, joined.', time: '3 hours ago' }
 // ]
 
-const chartData = [
-  { name: 'Jan', value: 120000 },
-  { name: 'Feb', value: 150000 },
-  { name: 'Mar', value: 100000 },
-  { name: 'Apr', value: 170000 },
-  { name: 'May', value: 180000 },
-  { name: 'Jun', value: 190000 },
-  { name: 'Jul', value: 140000 },
-  { name: 'Aug', value: 160000 },
-  { name: 'Sep', value: 130000 },
-  { name: 'Oct', value: 200000 },
-  { name: 'Nov', value: 220000 },
-  { name: 'Dec', value: 180000 }
-]
+// const chartData = [
+//   { name: 'Jan', value: 120000 },
+//   { name: 'Feb', value: 150000 },
+//   { name: 'Mar', value: 100000 },
+//   { name: 'Apr', value: 170000 },
+//   { name: 'May', value: 180000 },
+//   { name: 'Jun', value: 190000 },
+//   { name: 'Jul', value: 140000 },
+//   { name: 'Aug', value: 160000 },
+//   { name: 'Sep', value: 130000 },
+//   { name: 'Oct', value: 200000 },
+//   { name: 'Nov', value: 220000 },
+//   { name: 'Dec', value: 180000 }
+// ]
