@@ -1,103 +1,77 @@
-import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import db from '@main/db/db'
-import Database from 'better-sqlite3'
-import { classes } from '@main/db/schema/class'
-import { eq, inArray } from 'drizzle-orm'
+import ClassNotFoundException from '@main/exception.ts/ClassNotFoundException'
+import { BaseService } from './BaseService'
+import ClassRepository from '@main/repository/ClassRepository'
 import { Class } from '@type/interfaces/class'
 
-class ClassService {
-  db: BetterSQLite3Database<Record<string, never>> & {
-    $client: Database.Database
-  }
+class ClassService extends BaseService {
+  private repo: ClassRepository
+
   constructor() {
-    this.db = db
+    super()
+    this.repo = new ClassRepository()
   }
+
+  // ✅ Create class
   async create(data: Omit<Class, 'id'>): Promise<number> {
     try {
-      const result = this.db.insert(classes).values(data).returning({ id: classes.id }).get()
-      if (!result || !result.id) {
-        throw new Error('Failed to create class, no ID returned')
-      }
+      const result = this.repo.create(data)
       return result.id
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while creating class: ' + error.message)
-      } else {
-        console.error('Unknown error while creating class:', error)
-        throw new Error('Unknown error while creating class')
-      }
+      throw super.processError(error)
     }
   }
+
+  // ✅ Update class
   async update(id: number, data: Omit<Class, 'id'>): Promise<boolean> {
     try {
-      const result = this.db.update(classes).set(data).where(eq(classes.id, id)).run()
-
-      // .run() returns info about rows affected, not the updated row itself
-      return result.changes > 0
+      const result = this.repo.update(id, data)
+      return !!result
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating class: ' + error.message)
-      } else {
-        console.error('Unknown error while updating class:', error)
-        throw new Error('Unknown error while updating class')
-      }
+      throw super.processError(error)
     }
   }
+
+  // ✅ Delete class
   async delete(id: number | number[]): Promise<boolean> {
     try {
-      const result = this.db
-        .delete(classes)
-        .where(inArray(classes.id, Array.isArray(id) ? id : [id]))
-        .run()
-
-      // .run() returns info about rows affected, not the updated row itself
-      return result.changes > 0
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while deleting class: ' + error.message)
-      } else {
-        console.error('Unknown error while deleting class:', error)
-        throw new Error('Unknown error while deleting class')
+      if (Array.isArray(id)) {
+        let success = true
+        for (const singleId of id) {
+          const res = this.repo.delete(singleId)
+          if (!res) success = false
+        }
+        return success
       }
+      return !!this.repo.delete(id)
+    } catch (error: unknown) {
+      throw super.processError(error)
     }
   }
-  async list(id: number | number[] | null = null): Promise<Class[]> {
+
+  // ✅ List classes
+  async list(ids: number[] | null = null): Promise<Class[]> {
     try {
-      const result = this.db
-        .select({
-          id: classes.id,
-          name: classes.name,
-          amount: classes.amount,
-          admission_charge: classes.admission_charge
-        })
-        .from(classes)
-        .orderBy(classes.name)
-      if (id) {
-        return result.where(inArray(classes.id, Array.isArray(id) ? id : [id])) || []
+      const all = this.repo.findAll()
+      if (ids) {
+        return all.filter((c) => ids.includes(c.id))
       }
-      return result.all() || []
+      return all
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while fetching class: ' + error.message)
-      } else {
-        throw new Error('Error  while fetching class')
-      }
+      throw super.processError(error)
     }
   }
 
+  // ✅ Get single class
   get(id: number): Class | null {
-    const charge = this.db
-      .select({
-        id: classes.id,
-        name: classes.name,
-        amount: classes.amount,
-        admission_charge: classes.admission_charge
-      })
-      .from(classes)
-      .where(eq(classes.id, id))
-      .get()
-
-    return charge || null
+    try {
+      const cls = this.repo.findById(id)
+      if (!cls) {
+        throw new ClassNotFoundException()
+      }
+      return cls || null
+    } catch (error: unknown) {
+      throw super.processError(error)
+    }
   }
 }
 

@@ -13,11 +13,11 @@ import DashboradController from '@main/controller/DashboradController'
 
 export default async function routes(): Promise<void> {
   // class
-  ipcMain.handle('class:create', ClassController.create)
-  ipcMain.handle('class:list', ClassController.list)
-  ipcMain.handle('class:fetch', ClassController.fetch)
-  ipcMain.handle('class:update', ClassController.update)
-  ipcMain.handle('class:delete', ClassController.delete)
+  ipcMain.handle('class:create', (event, data) => ClassController.create(event, data))
+  ipcMain.handle('class:list', () => ClassController.list())
+  ipcMain.handle('class:fetch', (event, id) => ClassController.fetch(event, id))
+  ipcMain.handle('class:update', (event, id, data) => ClassController.update(event, id, data))
+  ipcMain.handle('class:delete', (event, id) => ClassController.delete(event, id))
 
   // student
   ipcMain.handle('student:create', StudentController.create)

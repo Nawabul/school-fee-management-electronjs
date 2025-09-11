@@ -1,69 +1,73 @@
 import { Class as ClassTS } from '../../types/interfaces/class'
-import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
+import { successResponse, errorResponse } from '../../types/utils/apiReturn'
 import ClassService from '../service/ClassService'
 import { IpcMainInvokeEvent } from 'electron'
-class ClassController {
+import { BaseController } from './BaseController'
+
+class ClassController extends BaseController {
+  private service: typeof ClassService
+
+  constructor() {
+    super()
+    this.service = ClassService
+
+    this.create.bind(this)
+    this.update.bind(this)
+    this.delete.bind(this)
+    this.list.bind(this)
+    this.fetch.bind(this)
+  }
+
   async create(
     _event: IpcMainInvokeEvent,
     data: Omit<ClassTS, 'id'>
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      const result: number = await ClassService.create(data)
-
-      return apiSuccess(result, 'Class created successfully')
+      const result: number = await this.service.create(data)
+      return super.processSuccess(result, 'Class created successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while creating class: ' + error.message)
-      }
-      return apiError('Error while creating class')
+      return super.processError(error)
     }
   }
+
   async update(
     _event: IpcMainInvokeEvent,
     id: number,
     data: Omit<ClassTS, 'id'>
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result: boolean = await ClassService.update(id, data)
+      const result: boolean = await this.service.update(id, data)
       if (!result) {
-        return apiError('Class not found or no changes made')
+        return super.processError(new Error('Class not found or no changes made'))
       }
-      return apiSuccess(result, 'Class updated successfully')
+      return super.processSuccess(result, 'Class updated successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while creating class: ' + error.message)
-      }
-      return apiError('Error while creating class')
+      throw super.processError(error)
     }
   }
+
   async delete(
     _event: IpcMainInvokeEvent,
     id: number | number[]
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result: boolean = await ClassService.delete(id)
+      const result: boolean = await this.service.delete(id)
       if (!result) {
-        return apiError('Class not found or no changes made')
+        return super.processError(new Error('Class not found or no changes made'))
       }
-      return apiSuccess(result, 'Class deleted successfully')
+      return super.processSuccess(result, 'Class deleted successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while deleting class: ' + error.message)
-      }
-      return apiError('Error while deleting class')
+      return super.processError(error)
     }
   }
+
   //@ts-ignore event name not used
   async list(): Promise<successResponse<ClassTS[]> | errorResponse> {
     try {
-      const result = await ClassService.list()
-
-      return apiSuccess(result, 'Class Fetched successfully')
+      const result: ClassTS[] = await this.service.list()
+      return super.processSuccess(result, 'Classes fetched successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching class: ' + error.message)
-      }
-      return apiError('Error while fetching class')
+      return super.processError(error)
     }
   }
 
@@ -72,17 +76,13 @@ class ClassController {
     id: number
   ): Promise<successResponse<ClassTS> | errorResponse> {
     try {
-      const result = await ClassService.list(id)
-
-      if (result.length === 0) {
-        return apiError('Class not found')
+      const result = this.service.get(id)
+      if (!result) {
+        return super.processError(new Error('Class not found'))
       }
-      return apiSuccess(result[0], 'Class Fetched successfully')
+      return super.processSuccess(result, 'Class fetched successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching class: ' + error.message)
-      }
-      return apiError('Error while fetching class')
+      return super.processError(error)
     }
   }
 }
