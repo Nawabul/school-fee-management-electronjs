@@ -5,10 +5,14 @@ import { Transaction } from '@type/interfaces/db'
 import { eq, Table } from 'drizzle-orm'
 
 abstract class BaseRepository<TTable extends Table, TEntity = TTable['_']['inferSelect']> {
-  protected db: Transaction = db
+  protected db: Transaction
   protected abstract model: TTable
 
   protected primaryKey: keyof TEntity = 'id' as keyof TEntity
+
+  constructor(dbInstance?: Transaction) {
+    this.db = dbInstance ?? db
+  }
   // ✅ Create
   create(data: TTable['_']['inferInsert'], tx: Transaction = this.db): TEntity {
     const result = tx.insert(this.model).values(data).returning().get() as TEntity
