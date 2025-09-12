@@ -4,16 +4,19 @@ import MonthlyRepository from './MonthlyRepository'
 import PaymentRepository from './PaymentRepository'
 import MisChargeRepository from './MisChargeRepository'
 import { Payment_Type } from '@type/interfaces/payment'
+import AdmissionRepository from './AdmissionRepository'
 
 export default class AdjustmentRepository {
   private monthlyRepo: MonthlyRepository
   private paymentRepo: PaymentRepository
   private misChargeRepo: MisChargeRepository
+  private admissionRepo: AdmissionRepository
 
   constructor() {
     this.monthlyRepo = new MonthlyRepository()
     this.paymentRepo = new PaymentRepository()
     this.misChargeRepo = new MisChargeRepository()
+    this.admissionRepo = new AdmissionRepository()
   }
 
   /**
@@ -117,6 +120,57 @@ export default class AdjustmentRepository {
   }
 
   /**
+   * Adjust admission fees for a student.
+   * Positive amount → pay unpaid admission fees
+   * Negative amount → reverse previously paid admission fees
+   *
+   * @param studentId - ID of the student
+   * @param amount - Amount to adjust
+   * @param tx - Optional transaction object
+   * @returns Total amount applied (positive if added, negative if reversed)
+   */
+  adjustAdmission(studentId: number, amount: number, tx: Transaction = db): number {
+    if (amount === 0) return 0
+
+    let totalAdjusted = 0
+
+    if (amount > 0) {
+      // Pay unpaid admission fees
+      const unpaidAdmissions = this.admissionRepo.unpaid_list(studentId)
+      let remainingAmount = amount
+
+      for (const admission of unpaidAdmissions) {
+        const admissionRemaining = admission.amount - admission.paid
+        if (admissionRemaining <= 0) continue
+
+        const appliedAmount = Math.min(remainingAmount, admissionRemaining)
+        this.admissionRepo.paid(admission.id, appliedAmount, tx)
+        totalAdjusted += appliedAmount
+        remainingAmount -= appliedAmount
+        if (remainingAmount <= 0) break
+      }
+    } else {
+      // Reverse paid admission fees
+      const paidAdmissions = this.admissionRepo.paid_list(studentId)
+      let remainingAmount = Math.abs(amount)
+
+      for (const admission of paidAdmissions) {
+        if (admission.paid <= 0) continue
+
+        const reversedAmount = Math.min(remainingAmount, admission.paid)
+        this.admissionRepo.unpaid(admission.id, reversedAmount, tx)
+        totalAdjusted += reversedAmount
+        remainingAmount -= reversedAmount
+        if (remainingAmount <= 0) break
+      }
+
+      totalAdjusted = -totalAdjusted
+    }
+
+    return totalAdjusted
+  }
+
+  /**
    * Adjust payment records for a student.
    * Positive amount → mark unused payments as used
    * Negative amount → reverse used payments
@@ -169,5 +223,9 @@ export default class AdjustmentRepository {
     }
 
     return totalAdjusted
+  }
+
+  public getTotalUnused(studnetId: number): number {
+    return this.paymentRepo.getUnusedTotal(studnetId)
   }
 }

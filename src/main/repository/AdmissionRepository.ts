@@ -5,12 +5,27 @@ import { admission } from '@main/db/schema/admission'
 import { classes } from '@main/db/schema/class'
 import { Transaction } from '@type/interfaces/db'
 import { Admission_Read_Paid_Unpaid, Admission_Record } from '@type/interfaces/admission'
+import { RunResult } from 'better-sqlite3'
 
 class AdmissionRepository extends BaseRepository<typeof admission> {
   protected model = admission
 
   constructor() {
     super()
+  }
+
+  /**
+   * Delete all records belonging to a specific student in this table.
+   *
+   * Intended to be used when cascading deletes are needed (e.g.
+   * removing all admissions for a student).
+   *
+   * @param studentId - The ID of the student whose records will be deleted
+   * @param tx - The active transaction context
+   * @returns RunResult - The result of the delete operation
+   */
+  public deleteAllOfStudent(studentId: number, tx: Transaction): RunResult {
+    return tx.delete(this.model).where(eq(this.model.student_id, studentId)).run()
   }
 
   /**

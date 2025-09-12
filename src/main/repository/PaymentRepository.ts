@@ -4,6 +4,7 @@ import BaseRepository from './BaseRepository'
 import { payments } from '@main/db/schema/payment'
 import { Transaction } from '@type/interfaces/db'
 import { Payment_Record, Payment_Type, Payment_Used_Unused } from '@type/interfaces/payment'
+import { RunResult } from 'better-sqlite3'
 
 /**
  * PaymentRepository
@@ -16,6 +17,22 @@ class PaymentRepository extends BaseRepository<typeof payments> {
 
   constructor() {
     super()
+  }
+
+
+
+  /**
+   * Delete all records belonging to a specific student in this table.
+   *
+   * Intended to be used when cascading deletes are needed (e.g.
+   * removing all payments for a student).
+   *
+   * @param studentId - The ID of the student whose records will be deleted
+   * @param tx - The active transaction context
+   * @returns RunResult - The result of the delete operation
+   */
+  public deleteAllOfStudent(studentId: number, tx: Transaction): RunResult {
+    return tx.delete(this.model).where(eq(this.model.student_id, studentId)).run()
   }
 
   /**
@@ -166,6 +183,17 @@ class PaymentRepository extends BaseRepository<typeof payments> {
       .where(eq(payments.id, paymentId))
       .run()
     return result.changes > 0
+  }
+
+  getUsedTotal(studentId: number): number {
+    const list = this.used_list(studentId)
+    const total = list.reduce((acc, next) => acc + next.used, 0)
+    return total
+  }
+  getUnusedTotal(studentId: number): number {
+    const list = this.used_list(studentId)
+    const total = list.reduce((acc, next) => acc + (next.amount - next.used), 0)
+    return total
   }
 }
 

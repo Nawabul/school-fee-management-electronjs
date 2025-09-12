@@ -6,12 +6,27 @@ import { Monthly_Fee_Read_Paid_Unpaid, Monthly_Fee_Record } from '@type/interfac
 import { classes } from '@main/db/schema/class'
 import { students } from '@main/db/schema/student'
 import { Transaction } from '@type/interfaces/db'
+import { RunResult } from 'better-sqlite3'
 
 class MonthlyRepository extends BaseRepository<typeof monthly_fee> {
   protected model = monthly_fee
 
   constructor() {
     super()
+  }
+
+  /**
+   * Delete all records belonging to a specific student in this table.
+   *
+   * Intended to be used when cascading deletes are needed (e.g.
+   * removing all monthly for a student).
+   *
+   * @param studentId - The ID of the student whose records will be deleted
+   * @param tx - The active transaction context
+   * @returns RunResult - The result of the delete operation
+   */
+  public deleteAllOfStudent(studentId: number, tx: Transaction): RunResult {
+    return tx.delete(this.model).where(eq(this.model.student_id, studentId)).run()
   }
 
   list(studnentId: number): Monthly_Fee_Record[] {

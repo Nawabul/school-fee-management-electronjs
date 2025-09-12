@@ -4,12 +4,27 @@ import { mis_charges } from '@main/db/schema/mis_charge'
 import { mis_items } from '@main/db/schema/mis_item'
 import { Transaction } from '@type/interfaces/db'
 import { Mis_Charge_Read_Paid_Unpaid, Mis_Charge_Record } from '@type/interfaces/mis_charge'
+import { RunResult } from 'better-sqlite3'
 
 class MisChargeRepository extends BaseRepository<typeof mis_charges> {
   protected model = mis_charges
 
   constructor() {
     super()
+  }
+
+  /**
+   * Delete all records belonging to a specific student in this table.
+   *
+   * Intended to be used when cascading deletes are needed (e.g.
+   * removing all mis. charges for a student).
+   *
+   * @param studentId - The ID of the student whose records will be deleted
+   * @param tx - The active transaction context
+   * @returns RunResult - The result of the delete operation
+   */
+  public deleteAllOfStudent(studentId: number, tx: Transaction): RunResult {
+    return tx.delete(this.model).where(eq(this.model.student_id, studentId)).run()
   }
 
   /**

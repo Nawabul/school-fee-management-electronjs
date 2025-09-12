@@ -2,7 +2,10 @@ import db from '@main/db/db'
 import ForeignKeyException from '@main/exception.ts/ForeignKeyException'
 import InsertException from '@main/exception.ts/InsertException'
 import { Transaction } from '@type/interfaces/db'
+import { RunResult } from 'better-sqlite3'
 import { eq, Table } from 'drizzle-orm'
+
+type UpdateRow = RunResult
 
 abstract class BaseRepository<TTable extends Table, TEntity = TTable['_']['inferSelect']> {
   protected db: Transaction
@@ -43,23 +46,21 @@ abstract class BaseRepository<TTable extends Table, TEntity = TTable['_']['infer
     id: number,
     data: Partial<TTable['_']['inferInsert']>,
     tx: Transaction = this.db
-  ): TEntity | undefined {
+  ): UpdateRow {
     return tx
       .update(this.model)
       .set(data)
       .where(eq(this.model[this.primaryKey as number | string], id))
-      .returning()
-      .get() as TEntity | undefined
+      .run()
   }
 
   // ✅ Delete by ID
-  delete(id: number, tx: Transaction = this.db): TEntity | undefined {
+  delete(id: number, tx: Transaction = this.db): UpdateRow {
     try {
       return tx
         .delete(this.model)
         .where(eq(this.model[this.primaryKey as number | string], id))
-        .returning()
-        .get() as TEntity | undefined
+        .run()
     } catch (error: unknown) {
       // Check for foreign key constraint error
       if (error instanceof Error && error.message.includes('FOREIGN KEY')) {

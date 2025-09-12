@@ -1,29 +1,99 @@
 // src/service/StudentService.ts
 import StudentRepository from '@main/repository/StudentRepository'
-import { Student_Write, Student_Get, Student_Record } from '@type/interfaces/student'
-import { format, set } from 'date-fns'
+import {
+  Student_Write,
+  Student_Get,
+  Student_Record,
+  Student_Details
+} from '@type/interfaces/student'
+import { format, set, subYears } from 'date-fns'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
 import SessionService from './SessionService'
 import { BaseController } from '@main/controller/BaseController'
+import AdmissionService from '@main/service/AdmissionService'
 import { Transaction } from '@type/interfaces/db'
 import db from '@main/db/db'
-import { errorResponse } from '@type/utils/apiReturn'
+import MonthlyFeeService from './MonthlyFeeService'
+import StudnetNotFoundException from '@main/exception.ts/StudentNotFoundException'
+import MisChargeRepository from '@main/repository/MisChargeRepository'
+import PaymentRepository from '@main/repository/PaymentRepository'
+
+interface StudentCreate extends Student_Write {
+  admission_charge: number
+}
 
 class StudentService extends BaseController {
   private repo: StudentRepository
+  private admissionService: typeof AdmissionService
+  private monthlyService: typeof MonthlyFeeService
+  private misChargeRepo: MisChargeRepository
+  private paymentRepo: PaymentRepository
 
   constructor() {
     super()
     this.repo = new StudentRepository()
+    this.admissionService = AdmissionService
+    this.monthlyService = MonthlyFeeService
+
+    this.misChargeRepo = new MisChargeRepository()
+
+    this.paymentRepo = new PaymentRepository()
   }
 
-  async create(data: Student_Write): Promise<number> {
+  async create(data: StudentCreate): Promise<number> {
     try {
       const result = db.transaction((tx: Transaction) => {
-        const student = this.createStudent(data)
+        const { admission_charge, ...body } = data
+
+        // 1. Create student
+        const student = this.createStudent(body, tx)
+        const { id: studentId, class_id: classId, monthly: fee } = student
+
+        const today = format(new Date(), DB_DATE_FORMAT)
+        const activeUntil = student.active_until || today
+        const lastFeeDate = student.last_fee_date
+        const admissionDate = student.admission_date
+
+        // 2. Create admission record
+        this.admissionService.create(
+          {
+            amount: admission_charge,
+            class_id: classId,
+            date: admissionDate < lastFeeDate ? lastFeeDate : admissionDate,
+            paid: 0,
+            student_id: studentId,
+            monthly: fee
+          },
+          tx
+        )
+
+        // 3. Create monthly fee records
+        const endDate = activeUntil < today ? activeUntil : today
+        const { count: countMonth, end: endLastFeeDate } = this.monthlyService.countMonth(
+          lastFeeDate,
+          endDate
+        )
+
+        this.monthlyService.createByRange(
+          {
+            studentId,
+            classId,
+            fee,
+            count: countMonth,
+            haveAmount: 0,
+            from: lastFeeDate
+          },
+          tx
+        )
+
+        // 4. Update balance
+        const total = fee * countMonth + admission_charge
+        this.repo.decrementBalance(studentId, total, tx)
+
+        // 5. Update last fee date
+        this.repo.lastFeeUpdate(studentId, endLastFeeDate, tx)
         return student
       })
-
 
       return result.id
     } catch (error) {
@@ -40,6 +110,7 @@ class StudentService extends BaseController {
       is_whatsapp: data.is_whatsapp !== undefined ? (data.is_whatsapp ? 1 : 0) : undefined
     }
 
+    // remove undefined fields
     Object.keys(dbData).forEach((k) => dbData[k] === undefined && delete dbData[k])
 
     const updated = this.repo.update(id, dbData)
@@ -48,53 +119,91 @@ class StudentService extends BaseController {
 
   async delete(id: number): Promise<boolean> {
     const student = this.repo.findById(id)
-    if (!student) throw new Error('Student not found')
+    if (!student) throw new StudnetNotFoundException()
 
-    // Delete related tables first (payments, monthly_fee, etc.)
-    // You can create separate repositories for them or handle in service
     try {
-      // Example: transaction with Drizzle's `db.transaction` if needed
-      return !!this.repo.delete(id)
+      const result = db.transaction((tx: Transaction) => {
+        // delete mis
+        this.misChargeRepo.deleteAllOfStudent(id, tx)
+        // delete monthly
+        this.monthlyService.deleteAllOfStudent(id, tx)
+        // delete admission
+        this.admissionService.deleteAllOfStudent(id, tx)
+
+        // delete all payments
+        this.paymentRepo.deleteAllOfStudent(id, tx)
+        // delete student
+        return this.repo.delete(id, tx)
+      })
+
+      return result.changes > 0
     } catch (error: unknown) {
-      if ((error as any).code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
-        throw new Error('Cannot delete student, related records exist')
-      }
-      throw error
+      throw super.processError(error)
     }
   }
 
   async list(): Promise<Student_Record[]> {
-    // For complex join queries, you can either:
-    // 1. Add custom methods in repository, or
-    // 2. Use service directly with db
-    return this.repo.findAll() as unknown as Student_Record[]
+    return this.repo.listOfAllStudent()
   }
 
-  get(id: number): Student_Get | null {
-    return this.repo.findById(id) as Student_Get | null
+  get(id: number): Student_Get {
+    try {
+      const student = this.repo.findById(id)
+
+      if (!student) {
+        throw new StudnetNotFoundException()
+      }
+
+      return {
+        ...student,
+        is_whatsapp: !!student.is_whatsapp
+      }
+    } catch (error) {
+      throw super.processError(error)
+    }
   }
 
-  // private function
-  createStudent(
+  public details(studnetId: number): Student_Details {
+    const result = this.repo.details(studnetId)
+
+    if (!result) {
+      throw new StudnetNotFoundException()
+    }
+
+    return result
+  }
+
+  // private helper
+  private createStudent(
     data: Student_Write,
     tx: Transaction = db
   ): ReturnType<StudentRepository['create']> {
-    // Prepare data
-    const date1 = set(new Date(data.admission_date), { date: 1 })
-    const fee_date = format(date1, DB_DATE_FORMAT)
-    const active_until = SessionService.endDate()
+    const admissionMonth = set(new Date(data.admission_date), { date: 1 })
+    let lastFeeDate = format(admissionMonth, DB_DATE_FORMAT)
+
+    const activeUntil = SessionService.endDate()
+
+    // session start = first day of same month last year
+    const sessionStart = format(
+      set(subYears(new Date(activeUntil), 1), { date: 1 }),
+      DB_DATE_FORMAT
+    )
+
+    // Ensure lastFeeDate is not before sessionStart
+    if (lastFeeDate < sessionStart) {
+      lastFeeDate = sessionStart
+    }
 
     const row = {
       ...data,
       is_whatsapp: data.is_whatsapp ? 1 : 0,
-      last_fee_date: fee_date,
-      active_until,
+      last_fee_date: lastFeeDate,
+      active_until: activeUntil,
       initial_balance: 0,
       current_balance: 0
     }
 
-    const student = this.repo.create(row, tx)
-    return student
+    return this.repo.create(row, tx)
   }
 }
 
