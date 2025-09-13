@@ -33,11 +33,19 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:continue', (event, id) => StudentController.continueStudy(event, id))
 
   // paymets
-  ipcMain.handle('student:payment:create', PaymentController.create)
-  ipcMain.handle('student:payment:list', PaymentController.list)
-  ipcMain.handle('student:payment:fetch', PaymentController.fetch)
-  ipcMain.handle('student:payment:update', PaymentController.update)
-  ipcMain.handle('student:payment:delete', PaymentController.delete)
+  ipcMain.handle('student:payment:create', (event, data) => PaymentController.create(event, data))
+
+  ipcMain.handle('student:payment:list', (event, studentId) =>
+    PaymentController.list(event, studentId)
+  )
+
+  ipcMain.handle('student:payment:fetch', (event, id) => PaymentController.fetch(event, id))
+
+  ipcMain.handle('student:payment:update', (event, id, data) =>
+    PaymentController.update(event, id, data)
+  )
+
+  ipcMain.handle('student:payment:delete', (event, id) => PaymentController.delete(event, id))
 
   // mis items
 

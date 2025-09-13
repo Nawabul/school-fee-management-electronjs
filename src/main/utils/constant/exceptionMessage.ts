@@ -4,6 +4,7 @@ export const exceptionMessge = {
   // not found
   class_not_found: 'Class not found',
   student_not_found: 'Student not found',
+  payment_not_found: 'Payment not found',
   admission_not_found: 'Admission not found',
   //not found end
   foreign_key_error: ' Record is used some where',
