@@ -60,11 +60,20 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('mis:item:delete', (event, id) => MIsItemController.delete(event, id))
 
   // mis charges
-  ipcMain.handle('student:mis:charge:create', MisChargeController.create)
-  ipcMain.handle('student:mis:charge:list', MisChargeController.list)
-  ipcMain.handle('student:mis:charge:fetch', MisChargeController.fetch)
-  ipcMain.handle('student:mis:charge:update', MisChargeController.update)
-  ipcMain.handle('student:mis:charge:delete', MisChargeController.delete)
+
+  ipcMain.handle('student:mis:charge:create', (event, data) =>
+    MisChargeController.create(event, data)
+  )
+
+  ipcMain.handle('student:mis:charge:list', (event, id) => MisChargeController.list(event, id))
+
+  ipcMain.handle('student:mis:charge:fetch', (event, id) => MisChargeController.fetch(event, id))
+
+  ipcMain.handle('student:mis:charge:update', (event, id, data) =>
+    MisChargeController.update(event, id, data)
+  )
+
+  ipcMain.handle('student:mis:charge:delete', (event, id) => MisChargeController.delete(event, id))
 
   // monthly fee
   ipcMain.handle('student:monthly:fee:list', MonthlyFeeController.list)

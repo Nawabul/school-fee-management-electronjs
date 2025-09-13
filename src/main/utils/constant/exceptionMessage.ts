@@ -4,6 +4,7 @@ export const exceptionMessge = {
   // not found
   class_not_found: 'Class not found',
   mis_item_not_found: 'Miscellaneous item not found',
+  mis_charge_not_found: 'Miscellaneous charge not found',
   student_not_found: 'Student not found',
   payment_not_found: 'Payment not found',
   admission_not_found: 'Admission not found',
