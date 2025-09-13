@@ -49,7 +49,7 @@ class MonthlyRepository extends BaseRepository<typeof monthly_fee> {
       .innerJoin(classes, eq(monthly_fee.class_id, classes.id))
       .innerJoin(students, eq(monthly_fee.student_id, students.id))
       .where(eq(monthly_fee.student_id, studentId))
-      .orderBy(monthly_fee.date)
+      .orderBy(desc(monthly_fee.date))
       .all() as Monthly_Fee_Record[]
   }
 

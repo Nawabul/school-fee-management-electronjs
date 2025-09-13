@@ -152,9 +152,9 @@ class PaymentService extends BaseService {
       const misCharge = oldPayment.mis_charge
       const studentId = oldPayment.student_id
       const amount = oldPayment.amount
-      this.adjustRepo.adjustAdmission(studentId, admission, tx)
-      this.adjustRepo.adjustMonthly(studentId, monthly, tx)
-      this.adjustRepo.adjustMisCharge(studentId, misCharge, tx)
+      this.adjustRepo.adjustAdmission(studentId, -admission, tx)
+      this.adjustRepo.adjustMonthly(studentId, -monthly, tx)
+      this.adjustRepo.adjustMisCharge(studentId, -misCharge, tx)
 
       this.studentRepo.decrementBalance(studentId, amount, tx)
       return this.repo.delete(id, tx)
