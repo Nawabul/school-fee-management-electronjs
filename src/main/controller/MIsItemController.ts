@@ -1,40 +1,40 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { Mis_Item_Read, Mis_Item_Record, Mis_Item_Write } from '../../types/interfaces/mis_item'
-import { successResponse, errorResponse, apiSuccess, apiError } from '../../types/utils/apiReturn'
+import { Mis_Item_Write, Mis_Item_Read, Mis_Item_Record } from '../../types/interfaces/mis_item'
+import { successResponse, errorResponse } from '../../types/utils/apiReturn'
+import { BaseController } from './BaseController'
 import MisItemService from '../service/MisItemService'
 
-class MisItemController {
+class MisItemController extends BaseController {
+  private service: typeof MisItemService
+
+  constructor() {
+    super()
+    this.service = MisItemService
+  }
+
   async create(
     _event: IpcMainInvokeEvent,
-    data: Mis_Item_Write
+    data: Omit<Mis_Item_Write, 'id'>
   ): Promise<successResponse<number> | errorResponse> {
     try {
-      const result = await MisItemService.create(data)
-      return apiSuccess(result, 'MIS Item created successfully')
+      const result = await this.service.create(data)
+      return super.processSuccess(result, 'MIS Item created successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while creating MIS Item: ' + error.message)
-      }
-      return apiError('Unknown error while creating MIS Item')
+      return super.processError(error)
     }
   }
 
   async update(
     _event: IpcMainInvokeEvent,
     id: number,
-    data: Omit<Mis_Item_Record, 'id'>
+    data: Omit<Mis_Item_Write, 'id'>
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await MisItemService.update(id, data)
-      if (!result) {
-        return apiError('MIS Item not found or no changes made')
-      }
-      return apiSuccess(result, 'MIS Item updated successfully')
+      const result = await this.service.update(id, data)
+
+      return super.processSuccess(result, 'MIS Item updated successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while updating MIS Item: ' + error.message)
-      }
-      return apiError('Unknown error while updating MIS Item')
+      return super.processError(error)
     }
   }
 
@@ -43,47 +43,35 @@ class MisItemController {
     id: number | number[]
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      const result = await MisItemService.delete(id)
-      if (!result) {
-        return apiError('MIS Item(s) not found or could not be deleted')
-      }
-      return apiSuccess(result, 'MIS Item(s) deleted successfully')
+      const result = await this.service.delete(id)
+      return super.processSuccess(result, 'MIS Item(s) deleted successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while deleting MIS Item: ' + error.message)
-      }
-      return apiError('Unknown error while deleting MIS Item')
+      return super.processError(error)
     }
   }
 
   //@ts-ignore event not used
   async list(): Promise<successResponse<Mis_Item_Record[]> | errorResponse> {
     try {
-      const result = await MisItemService.list()
-      return apiSuccess(result, 'MIS Item(s) fetched successfully')
+      const result = await this.service.list()
+      return super.processSuccess(result, 'MIS Item(s) fetched successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching MIS Item(s): ' + error.message)
-      }
-      return apiError('Unknown error while fetching MIS Item(s)')
+      return super.processError(error)
     }
   }
 
   async fetch(
     _event: IpcMainInvokeEvent,
     id: number
-  ): Promise<successResponse<Mis_Item_Read | null> | errorResponse> {
+  ): Promise<successResponse<Mis_Item_Read> | errorResponse> {
     try {
-      const result = await MisItemService.get(id)
+      const result = await this.service.get(id)
       if (!result) {
-        return apiError('MIS Item not found')
+        return super.processError(new Error('MIS Item not found'))
       }
-      return apiSuccess(result, 'MIS Item fetched successfully')
+      return super.processSuccess(result, 'MIS Item fetched successfully')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching MIS Item: ' + error.message)
-      }
-      return apiError('Unknown error while fetching MIS Item')
+      return super.processError(error)
     }
   }
 }

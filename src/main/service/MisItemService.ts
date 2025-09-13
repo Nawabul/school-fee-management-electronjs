@@ -1,102 +1,74 @@
-import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import Database from 'better-sqlite3'
-import { eq, inArray } from 'drizzle-orm'
-import db from '../db/db'
-import { mis_items } from '../db/schema/mis_item'
+import { BaseService } from './BaseService'
+import MisItemRepository from '@main/repository/MisItemRepository'
 import { Mis_Item_Write, Mis_Item_Read, Mis_Item_Record } from '../../types/interfaces/mis_item'
+import MisItemNotFoundException from '@main/exception.ts/MisItemNotFoundException'
 
-class MisItemService {
-  db: BetterSQLite3Database<Record<string, never>> & {
-    $client: Database.Database
-  }
+class MisItemService extends BaseService {
+  private repo: MisItemRepository
 
   constructor() {
-    this.db = db
+    super()
+    this.repo = new MisItemRepository()
   }
 
-  // Create new MIS Item
-  async create(data: Mis_Item_Write): Promise<number> {
+  // ✅ Create new MIS item
+  async create(data: Omit<Mis_Item_Write, 'id'>): Promise<number> {
     try {
-      const result = this.db.insert(mis_items).values(data).returning({ id: mis_items.id }).get()
-      if (!result?.id) throw new Error('Failed to create MIS item, no ID returned')
+      const result = this.repo.create(data)
       return result.id
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while creating MIS item: ' + error.message)
-      }
-      throw new Error('Unknown error while creating MIS item')
+      throw super.processError(error)
     }
   }
 
-  // Update MIS item
+  // ✅ Update MIS item
   async update(id: number, data: Omit<Mis_Item_Write, 'id'>): Promise<boolean> {
     try {
-      const result = this.db.update(mis_items).set(data).where(eq(mis_items.id, id)).run()
-      return result.changes > 0
+      const result = this.repo.update(id, data)
+      return !!result
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while updating MIS item: ' + error.message)
-      }
-      throw new Error('Unknown error while updating MIS item')
+      throw super.processError(error)
     }
   }
 
-  // Delete MIS item(s)
+  // ✅ Delete MIS item(s)
   async delete(id: number | number[]): Promise<boolean> {
     try {
-      const result = this.db
-        .delete(mis_items)
-        .where(inArray(mis_items.id, Array.isArray(id) ? id : [id]))
-        .run()
-      return result.changes > 0
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while deleting MIS item: ' + error.message)
+      if (Array.isArray(id)) {
+        let success = true
+        for (const singleId of id) {
+          const res = this.repo.delete(singleId)
+          if (!res) success = false
+        }
+        return success
       }
-      throw new Error('Unknown error while deleting MIS item')
+      return !!this.repo.delete(id)
+    } catch (error: unknown) {
+      throw super.processError(error)
     }
   }
 
-  // List MIS item(s)
-  async list(): Promise<Mis_Item_Record[]> {
+  // ✅ List MIS items
+  async list(ids: number[] | null = null): Promise<Mis_Item_Record[]> {
     try {
-      const query = this.db
-        .select({
-          id: mis_items.id,
-          name: mis_items.name,
-          amount: mis_items.amount
-        })
-        .from(mis_items)
-        .orderBy(mis_items.name)
-
-      return query.all() || []
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while fetching MIS items: ' + error.message)
+      const all = this.repo.findAll()
+      if (ids) {
+        return all.filter((item) => ids.includes(item.id))
       }
-      throw new Error('Unknown error while fetching MIS items')
+      return all
+    } catch (error: unknown) {
+      throw super.processError(error)
     }
   }
 
-  // List MIS item(s)
-  async get(id: number): Promise<Mis_Item_Read | null> {
+  // ✅ Get single MIS item
+  get(id: number): Mis_Item_Read | null {
     try {
-      const query = this.db
-        .select({
-          id: mis_items.id,
-          name: mis_items.name,
-          amount: mis_items.amount
-        })
-        .from(mis_items)
-        .where(eq(mis_items.id, id))
-        .get()
-
-      return query || null
+      const item = this.repo.findById(id)
+      if (!item) throw new MisItemNotFoundException()
+      return item
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error('Error while fetching MIS items: ' + error.message)
-      }
-      throw new Error('Unknown error while fetching MIS items')
+      throw super.processError(error)
     }
   }
 }
