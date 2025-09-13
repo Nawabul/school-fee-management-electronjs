@@ -59,3 +59,12 @@ export interface Student_Details {
   current_balance: number
 
 }
+
+
+export type StudentListLastFeeMonthAgo = {
+  student_id: number
+  last_fee_date: string
+  class_id: number
+  active_until: string | null
+  monthly: number
+}

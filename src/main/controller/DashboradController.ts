@@ -5,11 +5,26 @@ import SessionService from '@main/service/SessionService'
 import StudentService from '@main/service/StudentService'
 
 import { PaymentChart, statics } from '@type/interfaces/dashboard'
-import { apiSuccess, errorResponse, successResponse } from '@type/utils/apiReturn'
+import { errorResponse, successResponse } from '@type/utils/apiReturn'
 import { endOfMonth, format, parseISO, set } from 'date-fns'
+import { BaseController } from './BaseController'
 
-class DashboardController {
-  async statics(): Promise<successResponse<statics>> {
+class DashboardController extends BaseController {
+  private studentService: typeof StudentService
+  private classService: typeof ClassService
+  private misItemService: typeof MisItemService
+  private paymentService: typeof PaymentService
+
+  constructor() {
+    super()
+    this.classService = ClassService
+    this.studentService = StudentService
+    this.misItemService = MisItemService
+
+    this.paymentService = PaymentService
+  }
+
+  async statics(): Promise<successResponse<statics> | errorResponse> {
     const defaultValues: statics = {
       total_advance: 0,
       active_advance: 0,
@@ -23,9 +38,9 @@ class DashboardController {
 
     try {
       const [students, classes, items] = await Promise.all([
-        StudentService.list(),
-        ClassService.list(),
-        MisItemService.list()
+        this.studentService.list(),
+        this.classService.list(),
+        this.misItemService.list()
       ])
 
       if (students) {
@@ -63,13 +78,9 @@ class DashboardController {
         defaultValues.total_item = items.length
       }
 
-      return apiSuccess(defaultValues)
+      return super.processSuccess(defaultValues)
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? 'Dashboard statics error: ' + error.message
-          : 'Dashboard statics error'
-      return apiSuccess(defaultValues, message)
+      return super.processError(error)
     }
   }
   async paymentChart(): Promise<successResponse<PaymentChart[]> | errorResponse> {
@@ -104,7 +115,7 @@ class DashboardController {
       const toDate = endOfMonth(new Date(sessionEndYear, sessionEndMonth - 1))
       const to = format(toDate, 'yyyy-MM-dd')
 
-      const payments = await PaymentService.listByRange(from, to) // expects [{ amount, date }]
+      const payments = await this.paymentService.listByRange(from, to) // expects [{ amount, date }]
       for (const payment of payments) {
         const date = parseISO(payment.date)
         const key = format(date, 'yyyy-MM')
@@ -114,11 +125,9 @@ class DashboardController {
         }
       }
 
-      return apiSuccess(chartData)
+      return super.processSuccess(chartData)
     } catch (error) {
-      const message =
-        error instanceof Error ? 'Payment chart error: ' + error.message : 'Payment chart error'
-      return apiSuccess([], message)
+      return super.processError(error)
     }
   }
 }

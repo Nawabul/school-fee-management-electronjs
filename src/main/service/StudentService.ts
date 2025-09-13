@@ -4,7 +4,8 @@ import {
   Student_Write,
   Student_Get,
   Student_Record,
-  Student_Details
+  Student_Details,
+  StudentListLastFeeMonthAgo
 } from '@type/interfaces/student'
 import { format, set, subYears } from 'date-fns'
 import { DB_DATE_FORMAT } from '@main/utils/constant/date'
@@ -144,6 +145,10 @@ class StudentService extends BaseController {
 
   async list(): Promise<Student_Record[]> {
     return this.repo.listOfAllStudent()
+  }
+
+  public listOfLastFeeMonthAgo(): StudentListLastFeeMonthAgo[] {
+    return this.repo.listOfLastFeeMonthAgo()
   }
 
   get(id: number): Student_Get {

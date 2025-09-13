@@ -6,10 +6,16 @@ import { format } from 'date-fns'
 import MonthlyRepository from '@main/repository/MonthlyRepository'
 import AdjustmentRepository from '@main/repository/AdjustmentRepository'
 import { BaseService } from './BaseService'
-import { Monthly_Fee_Insert_Update } from '@type/interfaces/monthly_fee'
+import {
+  CreateMonthly,
+  Monthly_Fee_Insert_Update,
+  Monthly_Fee_Write
+} from '@type/interfaces/monthly_fee'
 import SessionService from './SessionService'
 import db from '@main/db/db'
 import StudentRepository from '@main/repository/StudentRepository'
+import StudnetNotFoundException from '@main/exception.ts/StudentNotFoundException'
+import MonthlyNotFoundException from '@main/exception.ts/MonthlyNotFoundException'
 type CreateByRange = {
   studentId: number
   classId: number
@@ -19,14 +25,6 @@ type CreateByRange = {
   haveAmount: number
 }
 
-type CreateMonthly = {
-  studentId: number
-  classId: number
-  start: string
-  end?: string | null
-  endIncluded?: boolean
-  monthly: number
-}
 class MonthlyFeeService extends BaseService {
   private repo: MonthlyRepository
   private studentRepo: StudentRepository
@@ -55,7 +53,11 @@ class MonthlyFeeService extends BaseService {
     if (end == null) {
       end = format(new Date(), DB_DATE_FORMAT)
     }
-
+    const student = this.studentRepo.findById(studentId)
+    if (!student) {
+      throw new StudnetNotFoundException()
+    }
+    const lastDate = student.last_fee_date
     const month = this.countMonth(start, end)
     let count = month.count
     const endFeeDate = month.end
@@ -86,9 +88,35 @@ class MonthlyFeeService extends BaseService {
     this.studentRepo.decrementBalance(studentId, total, tx)
 
     // update last fee date
-    this.studentRepo.lastFeeUpdate(studentId, endFeeDate, tx)
+    const lastFeeDate = lastDate > endFeeDate ? lastDate : endFeeDate
+    this.studentRepo.lastFeeUpdate(studentId, lastFeeDate, tx)
 
     return true
+  }
+
+  update(id: number, data: Partial<Monthly_Fee_Write>): boolean {
+    const old = this.repo.findById(id)
+    if (!old) {
+      throw new MonthlyNotFoundException()
+    }
+    const result = db.transaction((tx: Transaction) => {
+      const amount = data.amount ?? old.amount
+      const diff = amount - old.amount
+      const need = amount - old.paid
+      const studentId = old.student_id
+      const adjust = this.adjustRepo.adjustPayment(studentId, need, 'monthly', tx)
+      const input = {
+        amount: amount,
+        paid: old.paid + adjust
+      }
+      const update = this.repo.update(id, input, tx)
+
+      this.studentRepo.decrementBalance(studentId, diff, tx)
+
+      return update
+    })
+
+    return result.changes > 0
   }
 
   // list of monthly records of specific student

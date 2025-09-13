@@ -75,29 +75,40 @@ export default async function routes(): Promise<void> {
 
   ipcMain.handle('student:mis:charge:delete', (event, id) => MisChargeController.delete(event, id))
 
-  // monthly fee
-  ipcMain.handle('student:monthly:fee:list', MonthlyFeeController.list)
+  // student:monthly:fee
+  ipcMain.handle('student:monthly:fee:list', (event, studentId) =>
+    MonthlyFeeController.list(event, studentId)
+  )
 
   // admission
-  ipcMain.handle('student:admission:create', AddmissionController.create)
-  ipcMain.handle('student:admission:list', AddmissionController.list)
+  ipcMain.handle('student:admission:create', (event, data) =>
+    AddmissionController.create(event, data)
+  )
 
-  // init sertup
+  ipcMain.handle('student:admission:list', (event, studentId) =>
+    AddmissionController.list(event, studentId)
+  )
+
+  // init setup
   // database
-  ipcMain.handle('init:database', VersionController.dbHandler)
+  ipcMain.handle('init:database', () => VersionController.dbHandler())
+
   // monthly fee
-  ipcMain.handle('init:student:monthly:fee', InitController.generate)
+  ipcMain.handle('init:student:monthly:fee', () => InitController.generate())
+
   // app update
-  ipcMain.handle('init:app:update', InitController.checkForUpdates)
-  // system is dark mode
-  ipcMain.handle('init:theme:mode:dark', InitController.isDarkMode)
+  ipcMain.handle('init:app:update', () => InitController.checkForUpdates())
+
+  // system dark mode
+  ipcMain.handle('init:theme:mode:dark', () => InitController.isDarkMode())
 
   // dashboard
-  ipcMain.handle('dashboard:statics', DashboradController.statics)
-  ipcMain.handle('dashboard:payment:chart', DashboradController.paymentChart)
+  ipcMain.handle('dashboard:statics', () => DashboradController.statics())
+
+  ipcMain.handle('dashboard:payment:chart', () => DashboradController.paymentChart())
 
   // session
-  ipcMain.handle('session:end:check', SessionController.isEndSet)
-  ipcMain.handle('session:end:get', SessionController.getEndSet)
-  ipcMain.handle('session:end:set', SessionController.setEndMonth)
+  ipcMain.handle('session:end:check', () => SessionController.isEndSet())
+
+  ipcMain.handle('session:end:get', () => SessionController.getEndSet())
 }

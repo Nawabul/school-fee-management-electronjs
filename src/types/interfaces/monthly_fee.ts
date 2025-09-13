@@ -4,6 +4,14 @@ export interface Monthly_Fee_Write {
   date: string // ISO date string
   amount: number
 }
+export type CreateMonthly = {
+  studentId: number
+  classId: number
+  start: string
+  end?: string | null
+  endIncluded?: boolean
+  monthly: number
+}
 
 export interface Monthly_Fee_Insert_Update extends Monthly_Fee_Write {
   paid: number

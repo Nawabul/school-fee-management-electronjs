@@ -1,40 +1,45 @@
 import { format } from 'date-fns'
-import { apiError, apiSuccess, errorResponse, successResponse } from '../../types/utils/apiReturn'
-import MonthlyFeeController from './MonthlyFeeController'
+import { errorResponse, successResponse } from '../../types/utils/apiReturn'
 import { DB_DATE_FORMAT } from '../utils/constant/date'
 import StudentService from '../service/StudentService'
 import { checkAndApplyUpdates } from '@main/utils/handler/autoUpdate'
 import { nativeTheme } from 'electron'
+import { BaseController } from './BaseController'
+import MonthlyFeeService from '@main/service/MonthlyFeeService'
 
-class InitController {
-  // generate student monthly records of students
+class InitController extends BaseController {
+  private studentService: typeof StudentService
+
+  private monthlyService: typeof MonthlyFeeService
+
+  constructor() {
+    super()
+    this.studentService = StudentService
+    this.monthlyService = MonthlyFeeService
+  }
+
   async generate(): Promise<successResponse<boolean> | errorResponse> {
     try {
       // fetch list of students
-      const students = await StudentService.list_last_fee_month_ago()
+      const students = this.studentService.listOfLastFeeMonthAgo()
 
       const today = format(new Date(), DB_DATE_FORMAT)
       // loop through students
       for (const student of students) {
         const active_until = student.active_until || today
-        // create monthly fee records of each
-        const input = {
-          student_id: student.student_id,
-          class_id: student.class_id,
-          from: student.last_fee_date,
-          to: today < active_until ? today : active_until,
-          monthly: student.monthly
-        }
 
-        await MonthlyFeeController.create(input)
+        this.monthlyService.create({
+          classId: student.class_id,
+          monthly: student.monthly,
+          start: student.last_fee_date,
+          studentId: student.student_id,
+          end: today < active_until ? today : active_until
+        })
       }
 
-      return apiSuccess(true, 'Monthly records generated of all students')
+      return super.processSuccess(true, 'Monthly records generated of all students')
     } catch (error) {
-      if (error instanceof Error) {
-        return apiError('Unable to generate monthly fee records', error)
-      }
-      return apiError('Unable to generate monthly fee records')
+      return super.processError(error)
     }
   }
 
@@ -47,12 +52,9 @@ class InitController {
   async isDarkMode(): Promise<successResponse<boolean> | errorResponse> {
     try {
       const dark = nativeTheme.shouldUseDarkColors
-      return apiSuccess(dark, 'Dark mode status')
+      return super.processSuccess(dark, 'Dark mode status')
     } catch (error) {
-      if (error instanceof Error) {
-        return apiError('Unable to check dark mode status', error.message)
-      }
-      return apiError('Unable to determine dark mode status')
+      return super.processError(error)
     }
   }
 }

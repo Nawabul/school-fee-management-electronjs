@@ -4,8 +4,14 @@ import BaseRepository from './BaseRepository'
 import { students } from '@main/db/schema/student' // drizzle table schema
 import { eq, sql } from 'drizzle-orm'
 import { RunResult } from 'better-sqlite3'
-import { Student_Details, Student_Record } from '@type/interfaces/student'
+import {
+  Student_Details,
+  Student_Record,
+  StudentListLastFeeMonthAgo
+} from '@type/interfaces/student'
 import { classes } from '@main/db/schema/class'
+import { format } from 'date-fns'
+import { DB_DATE_FORMAT } from '@main/utils/constant/date'
 
 class StudentRepository extends BaseRepository<typeof students> {
   protected model = students
@@ -60,13 +66,15 @@ class StudentRepository extends BaseRepository<typeof students> {
     studentId: number,
     classId: number,
     monthly: number,
+    activeUntil: string,
     tx: Transaction
   ): boolean {
     const result = tx
       .update(this.model)
       .set({
         class_id: classId,
-        monthly
+        monthly,
+        active_until: activeUntil
       })
       .where(eq(this.model.id, studentId))
       .run()
@@ -97,6 +105,29 @@ class StudentRepository extends BaseRepository<typeof students> {
       .all()
 
     return list
+  }
+
+  public listOfLastFeeMonthAgo(): StudentListLastFeeMonthAgo[] {
+    const compareDate = format(new Date(), DB_DATE_FORMAT) // e.g., '2025-06-05'
+
+    const list = this.db
+      .select({
+        student_id: this.model.id,
+        class_id: this.model.class_id,
+        last_fee_date: this.model.last_fee_date,
+        active_until: this.model.active_until,
+        monthly: this.model.monthly
+      })
+      .from(this.model)
+      .where(
+        sql`
+      ${this.model.transfer_date} IS NULL AND
+      strftime('%Y-%m', ${this.model.last_fee_date}) < strftime('%Y-%m', ${compareDate})
+    `
+      )
+      .all()
+
+    return list || []
   }
 
   // derement current balance

@@ -12,6 +12,7 @@ import { BaseService } from './BaseService'
 import db from '@main/db/db'
 import MisChargeRepository from '@main/repository/MisChargeRepository'
 import MisChargeNotFoundException from '@main/exception.ts/MisChargeNotFoundException'
+import { Monthly_Fee_Write } from '@type/interfaces/monthly_fee'
 type Transaction = BetterSQLite3Database<Record<string, never>>
 class MisChargeService extends BaseService {
   private repo: MisChargeRepository
@@ -54,16 +55,16 @@ class MisChargeService extends BaseService {
   /**
    * Update a MIS charge and adjust the student balance accordingly (transactional).
    */
-  update(id: number, data: Mis_Charge_Write): boolean {
+  update(id: number, data: Partial<Monthly_Fee_Write>): boolean {
     const old = this.repo.findById(id)
     if (!old) {
       throw new MisChargeNotFoundException()
     }
     const result = db.transaction((tx: Transaction) => {
-      const amount = data.amount
+      const amount = data.amount ?? old.amount
       const diff = amount - old.amount
       const need = amount - old.paid
-      const studentId = data.student_id
+      const studentId = old.student_id
       const adjust = this.adjustRepo.adjustPayment(studentId, need, 'mis_charge', tx)
       const input = {
         ...data,

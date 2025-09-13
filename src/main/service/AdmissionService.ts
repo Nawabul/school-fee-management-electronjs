@@ -3,25 +3,83 @@ import {
   Admission_Insert_Update,
   Admission_Read,
   Admission_Read_Paid_Unpaid,
-  Admission_Record
+  Admission_Record,
+  Admission_Write
 } from '@type/interfaces/admission'
 import { Transaction } from '@type/interfaces/db'
 import AdmissionRepository from '@main/repository/AdmissionRepository'
 import { BaseService } from './BaseService'
 import AdjustmentRepository from '@main/repository/AdjustmentRepository'
 import AdmissionNotFoundException from '@main/exception.ts/AdmissionNotFoundException'
-
+import StudentRepository from '@main/repository/StudentRepository'
+import { DB_DATE_FORMAT } from '@main/utils/constant/date'
+import { format } from 'date-fns'
+import StudnetNotFoundException from '@main/exception.ts/StudentNotFoundException'
+import MonthlyFeeService from '@main/service/MonthlyFeeService'
+import SessionService from './SessionService'
 class AdmissionService extends BaseService {
   private repo: AdmissionRepository
+  private studentRepo: StudentRepository
   private adjustRepo: AdjustmentRepository
+  private monthlyService: typeof MonthlyFeeService
+
+  private sessionService: typeof SessionService
   constructor() {
     super()
     this.repo = new AdmissionRepository()
     this.adjustRepo = new AdjustmentRepository()
+    this.studentRepo = new StudentRepository()
+    this.monthlyService = MonthlyFeeService
+
+    this.sessionService = SessionService
   }
   create(data: Admission_Insert_Update, tx: Transaction = db): number {
     // create admission
     const result = this.repo.create(data, tx)
+    return result.id
+  }
+
+  promote(data: Admission_Write): number {
+    const studentId = data.student_id
+    const student = this.studentRepo.findById(studentId)
+    if (!student) {
+      throw new StudnetNotFoundException()
+    }
+    const result = db.transaction((tx: Transaction) => {
+      let haveAmount = this.adjustRepo.getTotalUnused(studentId)
+      const amount = data.amount
+      const paid = Math.min(haveAmount, amount)
+      haveAmount -= haveAmount > paid ? paid : 0
+      const today = format(new Date(), DB_DATE_FORMAT)
+      const last_fee = student.last_fee_date
+      const fromDate = data.date
+      const startDate = fromDate < last_fee ? last_fee : fromDate
+      const result = this.repo.create(
+        {
+          ...data,
+          paid
+        },
+        tx
+      )
+      this.adjustRepo.adjustPayment(studentId, paid, 'admission', tx)
+
+      this.monthlyService.processCreate(
+        {
+          studentId,
+          classId: data.class_id,
+          monthly: data.monthly,
+          start: startDate,
+          end: today
+        },
+        tx
+      )
+      const activeUntil = this.sessionService.endDate()
+      this.studentRepo.decrementBalance(studentId, amount, tx)
+      this.studentRepo.classUpdate(studentId, data.class_id, data.monthly, activeUntil, tx)
+
+      return result
+    })
+
     return result.id
   }
 
