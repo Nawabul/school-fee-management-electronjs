@@ -11,6 +11,13 @@ import { ToggleSwitch } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { StudentCreateSchema, StudentUpdateSchema } from '@renderer/types/schema/student'
 import { z } from 'zod'
+import { GenderEnum } from '@renderer/types/constant/gender'
+
+type GenderId = keyof typeof GenderEnum
+type GenderOption = {
+  id: GenderId
+  name: string
+}
 
 interface Props {
   // @ts-ignore schema can ve any thing
@@ -60,6 +67,21 @@ const StudentForm = ({
     }
   }, [watch, classList, setValue, isUpdate])
 
+  const genderOption: GenderOption[] = [
+    {
+      id: 1,
+      name: 'Male'
+    },
+    {
+      id: 2,
+      name: 'Female'
+    },
+    {
+      id: 3,
+      name: 'Other'
+    }
+  ]
+
   return (
     // The form now wraps the sections
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -97,6 +119,49 @@ const StudentForm = ({
               placeholder="e.g. Rajesh Verma"
               control={control}
             />
+            <FormInput
+              name="dob"
+              label="Date of birth"
+              placeholder="e.g. 01-Feb-2020"
+              control={control}
+            />
+
+            <FormSelect
+              name="gender"
+              label="Gender"
+              control={control}
+              options={genderOption}
+              placeholder="Select Gender"
+            />
+          </div>
+        </div>
+
+        {/* Student addition details */}
+        <div className="space-y-8">
+          <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
+            <h2 className="text-lg font-semibold text-white mb-6 border-b border-slate-700 pb-4">
+              Student Additional Details
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormInput
+                name="category"
+                label="Category"
+                placeholder="e.g. Gen, OBC, ST, SC"
+                control={control}
+              />
+              <FormInput
+                name="cast"
+                label="Cast"
+                placeholder="e.g. Gupta, Pathan, Singh, Bamonns"
+                control={control}
+              />
+              <FormInput
+                name="religion"
+                label="Religion"
+                placeholder="e.g. Hindu, Muslim , Sikh , Christian"
+                control={control}
+              />
+            </div>
           </div>
         </div>
 
@@ -161,6 +226,20 @@ const StudentForm = ({
               type="number"
               control={control}
             />
+            <div className="flex flex-col">
+              <p className="text-xs">
+                Amount due or advance before the student’s{' '}
+                <span className="text-sm font-bold"> first active session.</span> This will be
+                carried forward into their account.
+              </p>
+              <FormInput
+                placeholder="Enter carried forward amount"
+                name="initial_balance"
+                label="Opening Balance"
+                type="number"
+                control={control}
+              />
+            </div>
           </div>
         </div>
 

@@ -76,6 +76,12 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('student:mis:charge:delete', (event, id) => MisChargeController.delete(event, id))
 
   // student:monthly:fee
+  ipcMain.handle('student:monthly:fee:create', (event, data) =>
+    MonthlyFeeController.create(event, data)
+  )
+  ipcMain.handle('student:monthly:fee:update', (event, id, data) =>
+    MonthlyFeeController.update(event, id, data)
+  )
   ipcMain.handle('student:monthly:fee:list', (event, studentId) =>
     MonthlyFeeController.list(event, studentId)
   )

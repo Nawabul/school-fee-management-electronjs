@@ -2,7 +2,12 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { Class } from '../types/interfaces/class'
 import { successResponse, errorResponse } from '../types/utils/apiReturn'
-import { Student_Details, Student_Get, Student_Record, Student_Write } from '../types/interfaces/student'
+import {
+  Student_Details,
+  Student_Get,
+  Student_Record,
+  Student_Write
+} from '../types/interfaces/student'
 import {
   Payment_Read,
   Payment_Record,
@@ -15,7 +20,11 @@ import {
   Mis_Charge_Record,
   Mis_Charge_Write
 } from '../types/interfaces/mis_charge'
-import { Monthly_Fee_Record } from '../types/interfaces/monthly_fee'
+import {
+  CreateMonthly,
+  Monthly_Fee_Record,
+  Monthly_Fee_Write
+} from '../types/interfaces/monthly_fee'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { PaymentChart, statics } from '@type/interfaces/dashboard'
 // Custom APIs for renderer
@@ -139,7 +148,14 @@ if (process.contextIsolated) {
       list: async (
         studentId: number
       ): Promise<successResponse<Monthly_Fee_Record[]> | errorResponse> =>
-        ipcRenderer.invoke('student:monthly:fee:list', studentId)
+        ipcRenderer.invoke('student:monthly:fee:list', studentId),
+      create: async (data: CreateMonthly): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('student:monthly:fee:create', data),
+      update: async (
+        id: number,
+        data: Partial<Monthly_Fee_Write>
+      ): Promise<successResponse<number> | errorResponse> =>
+        ipcRenderer.invoke('student:monthly:fee:update', id, data)
     })
     // admission
     contextBridge.exposeInMainWorld('admission', {
