@@ -2,6 +2,7 @@ import { BaseService } from './BaseService'
 import MisItemRepository from '@main/repository/MisItemRepository'
 import { Mis_Item_Write, Mis_Item_Read, Mis_Item_Record } from '../../types/interfaces/mis_item'
 import MisItemNotFoundException from '@main/exception.ts/MisItemNotFoundException'
+import AlreadyExistException from '@main/exception.ts/AlreadyExistException'
 
 class MisItemService extends BaseService {
   private repo: MisItemRepository
@@ -14,6 +15,12 @@ class MisItemService extends BaseService {
   // ✅ Create new MIS item
   async create(data: Omit<Mis_Item_Write, 'id'>): Promise<number> {
     try {
+      const isUnique = this.repo.nameUnique(data.name)
+
+      if (!isUnique) {
+        throw new AlreadyExistException('Item already exist')
+      }
+
       const result = this.repo.create(data)
       return result.id
     } catch (error: unknown) {
@@ -24,6 +31,11 @@ class MisItemService extends BaseService {
   // ✅ Update MIS item
   async update(id: number, data: Omit<Mis_Item_Write, 'id'>): Promise<boolean> {
     try {
+      const isUnique = this.repo.nameUnique(data.name, id)
+
+      if (!isUnique) {
+        throw new AlreadyExistException('Item already exist')
+      }
       const result = this.repo.update(id, data)
       return !!result
     } catch (error: unknown) {

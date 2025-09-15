@@ -2,6 +2,7 @@ import ClassNotFoundException from '@main/exception.ts/ClassNotFoundException'
 import { BaseService } from './BaseService'
 import ClassRepository from '@main/repository/ClassRepository'
 import { Class } from '@type/interfaces/class'
+import ClassAlreadyExistException from '@main/exception.ts/ClassAlreadyExistException'
 
 class ClassService extends BaseService {
   private repo: ClassRepository
@@ -14,6 +15,12 @@ class ClassService extends BaseService {
   // ✅ Create class
   async create(data: Omit<Class, 'id'>): Promise<number> {
     try {
+      // check name is unique
+      const isUnique = this.repo.nameUnique(data.name)
+
+      if (!isUnique) {
+        throw new ClassAlreadyExistException()
+      }
       const result = this.repo.create(data)
       return result.id
     } catch (error: unknown) {
@@ -24,6 +31,13 @@ class ClassService extends BaseService {
   // ✅ Update class
   async update(id: number, data: Omit<Class, 'id'>): Promise<boolean> {
     try {
+      // check name is unique
+      const isUnique = this.repo.nameUnique(data.name, id)
+
+      if (!isUnique) {
+        throw new ClassAlreadyExistException()
+      }
+
       const result = this.repo.update(id, data)
       return !!result
     } catch (error: unknown) {

@@ -1,43 +1,25 @@
-import { successResponse } from '../../../types/utils/apiReturn'
-import { Mis_Item_Record, Mis_Item_Read } from '../../../types/interfaces/mis_item'
+import { BaseController } from './BaseController'
+import { Mis_Item_Record, Mis_Item_Read, Mis_Item_Write } from '@type/interfaces/mis_item'
 
-class MisItemController {
-  async create(data): Promise<number> {
-    const result = await window.mis_item.create(data)
+class MisItemController extends BaseController {
+  async create(data: Mis_Item_Write): Promise<number> {
+    return super.handleIpc(window.mis_item.create(data))
+  }
 
-    if (result.success) {
-      return (result as successResponse<number>).data
-    }
-    throw result.message
+  async update(id: number, data: Partial<Mis_Item_Write>): Promise<boolean> {
+    return super.handleIpc(window.mis_item.update(id, data))
   }
-  async update(id: number, data): Promise<boolean> {
-    const result = await window.mis_item.update(id, data)
-    if (result.success) {
-      return (result as successResponse<boolean>).data
-    }
-    throw result.message
-  }
+
   async delete(id: number): Promise<boolean> {
-    const result = await window.mis_item.delete(id)
-    if (result.success) {
-      return (result as successResponse<boolean>).data
-    }
-    throw result.message
+    return super.handleIpc(window.mis_item.delete(id))
   }
-  async list(): Promise<Mis_Item_Record[]> {
-    const result = await window.mis_item.list()
-    if (result.success) {
-      return (result as successResponse<Mis_Item_Record[]>).data
-    }
-    throw result.message
-  }
-  async fetch(id: number): Promise<Mis_Item_Read> {
-    const result = await window.mis_item.fetch(id)
 
-    if (result.success) {
-      return (result as successResponse<Mis_Item_Read>).data
-    }
-    throw result.message
+  async list(): Promise<Mis_Item_Record[]> {
+    return super.handleIpc(window.mis_item.list())
+  }
+
+  async fetch(id: number): Promise<Mis_Item_Read> {
+    return super.handleIpc(window.mis_item.fetch(id))
   }
 }
 

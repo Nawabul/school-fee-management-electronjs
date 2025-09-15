@@ -1,31 +1,21 @@
-import { successResponse } from '@type/utils/apiReturn'
+import { BaseController } from './BaseController'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
-class AdmissionController {
+
+class AdmissionController extends BaseController {
   async create(studentId: number, data: Omit<Admission_Write, 'student_id'>): Promise<number> {
     const body: Admission_Write = {
       student_id: studentId,
       ...data
     }
-    const result = await window.admission.create(body)
-    if (result.success) {
-      return (result as successResponse<number>).data
-    }
-    throw result.message
+    return super.handleIpc(window.admission.create(body))
   }
 
   async list(studentId: number): Promise<Admission_Record[]> {
-    const result = await window.admission.list(studentId)
-    if (result.success) {
-      return (result as successResponse<Admission_Record[]>).data
-    }
-    throw result.message
+    return super.handleIpc(window.admission.list(studentId))
   }
+
   async delete(studentId: number): Promise<boolean> {
-    const result = await window.admission.delete(studentId)
-    if (result.success) {
-      return true
-    }
-    throw result.message
+    return super.handleIpc(window.admission.delete(studentId))
   }
 }
 

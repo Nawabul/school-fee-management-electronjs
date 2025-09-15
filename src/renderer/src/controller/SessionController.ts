@@ -1,4 +1,6 @@
-class SessionController {
+import { BaseController } from './BaseController'
+
+class SessionController extends BaseController {
   async check(): Promise<boolean> {
     const result = await window.session.check()
 
@@ -17,12 +19,9 @@ class SessionController {
     return result.data
   }
   async set(month: string | number): Promise<boolean> {
-    const result = await window.session.set(month)
+    const result = super.handleIpc<boolean>(window.session.set(month))
 
-    if (!result.success) {
-      return false
-    }
-    return true
+    return result
   }
 }
 

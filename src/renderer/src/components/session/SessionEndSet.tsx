@@ -1,15 +1,18 @@
 import SessionController from '@renderer/controller/SessionController'
+import useModel from '@renderer/hooks/useModel'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 import { queryKey } from '@renderer/types/constant/queryKey'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import React, { useEffect, useState } from 'react'
 
 type props = {
   sumbitFun: () => void
   value?: string | number
+  isUpdate?: boolean
   btnStyle?: React.CSSProperties
 }
-function SessionEndSet({ sumbitFun, btnStyle }: props): React.ReactNode {
+function SessionEndSet({ sumbitFun, btnStyle, isUpdate = false }: props): React.ReactNode {
   const months = [
     { id: 1, name: 'January' },
     { id: 2, name: 'February' },
@@ -34,9 +37,9 @@ function SessionEndSet({ sumbitFun, btnStyle }: props): React.ReactNode {
       setSelectedMonth(Number(data))
     }
   }, [isSuccess, data])
-
-  const mutation = useMutation({
-    mutationFn: SessionController.set,
+  const { openModel } = useModel()
+  const mutation = useMutationHandler({
+    mutationFn: (month: number) => SessionController.set(month),
     onSuccess: () => {
       sumbitFun()
     }
@@ -44,7 +47,34 @@ function SessionEndSet({ sumbitFun, btnStyle }: props): React.ReactNode {
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault()
-    mutation.mutate(selectedMonth)
+    if (isUpdate) {
+      openModel({
+        title: 'Confirm Session End Change',
+        component: (
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>You are about to change the session end month.</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                <strong>Extend session:</strong>
+                For example, <code>6/2025 → 7/2025</code> → all students’ session end date will
+                update to <code>7/2025</code>.
+              </li>
+              <li>
+                <strong>Shorten session:</strong>
+                For example, <code>6/2025 → 3/2025</code> → all students’ session end date will move
+                to <code>3/2026</code>.
+              </li>
+            </ul>
+            <p>Do you want to apply this change?</p>
+          </div>
+        ),
+        submitTitle: 'Confirm Change',
+        closeTitle: 'Cancel',
+        submitFun: () => mutation.mutate(selectedMonth)
+      })
+    } else {
+      mutation.mutate(selectedMonth)
+    }
   }
 
   return (

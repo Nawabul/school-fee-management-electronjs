@@ -2,7 +2,7 @@
 import { Transaction } from '@type/interfaces/db'
 import BaseRepository from './BaseRepository'
 import { students } from '@main/db/schema/student' // drizzle table schema
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, not, sql } from 'drizzle-orm'
 import { RunResult } from 'better-sqlite3'
 import {
   Student_Details,
@@ -82,6 +82,18 @@ class StudentRepository extends BaseRepository<typeof students> {
     return result.changes > 0
   }
 
+  active_student_active_until_update(endDate: string, tx: Transaction): boolean {
+    const response = tx
+      .update(this.model)
+      .set({
+        active_until: endDate
+      })
+      .where(sql`${students.transfer_date} IS NULL`)
+      .run()
+
+    return response.changes > 0
+  }
+
   // list of all studnets
 
   public listOfAllStudent(): Student_Record[] {
@@ -149,6 +161,34 @@ class StudentRepository extends BaseRepository<typeof students> {
       })
       .where(eq(students.id, studentId))
       .run()
+  }
+
+  /**
+   * Checks if a class name is unique.
+   * @param name The class name to check.
+   * @param id The ID of the class to exclude from the check (optional, for update operations).
+   * @returns A boolean indicating if the name is unique.
+   */
+  regNumberUnique(reg_number: string, id: number = 0): boolean {
+    const condition = [eq(this.model.reg_number, reg_number)]
+
+    // If an ID is provided, add a condition to exclude that ID
+    if (id > 0) {
+      condition.push(not(eq(this.model.id, id)))
+    }
+
+    // Drizzle's `findFirst` is used to get a single record.
+    // We check if the name exists, and return false if a record is found.
+    const exists = this.db
+      .select({
+        name: this.model.reg_number
+      })
+      .from(this.model)
+      .where(and(...condition))
+      .get()
+
+    // If `exists` is null or undefined, the name is unique.
+    return !exists
   }
 }
 

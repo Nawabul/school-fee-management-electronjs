@@ -1,7 +1,9 @@
 import Header from '@renderer/components/Header'
 import StudentForm from '@renderer/components/student/StudentForm'
 import StudentController from '@renderer/controller/StudentController'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Student_Write } from '@type/interfaces/student'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -9,8 +11,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 const StudentUpdate = (): React.JSX.Element => {
   const id = useParams().id
   const navigate = useNavigate()
-  const studentMutation = useMutation({
-    mutationFn: (data) => StudentController.update(Number(id), data),
+  const studentMutation = useMutationHandler({
+    mutationFn: (data: Partial<Student_Write>) => StudentController.update(Number(id), data),
     onSuccess: () => {
       // Optionally reset form or show success message
       navigate('/student')

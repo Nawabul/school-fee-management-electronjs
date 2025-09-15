@@ -26,7 +26,11 @@ function Setting(): React.ReactElement {
                 label="School Session"
                 description="Month will be considered as end month of the student who are stil studing"
               >
-                <SessionEndSet sumbitFun={() => {}} btnStyle={{ width: 180, marginLeft: 'auto' }} />
+                <SessionEndSet
+                  sumbitFun={() => {}}
+                  btnStyle={{ width: 180, marginLeft: 'auto' }}
+                  isUpdate={true}
+                />
               </SettingRow>
             </>
           </SettingCard>

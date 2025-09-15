@@ -18,6 +18,8 @@ import MonthlyFeeService from './MonthlyFeeService'
 import StudnetNotFoundException from '@main/exception.ts/StudentNotFoundException'
 import MisChargeRepository from '@main/repository/MisChargeRepository'
 import PaymentRepository from '@main/repository/PaymentRepository'
+import { StudentTransferSchema } from '@main/utils/schema/student'
+import AlreadyExistException from '@main/exception.ts/AlreadyExistException'
 
 interface StudentCreate extends Student_Write {
   admission_charge: number
@@ -45,7 +47,11 @@ class StudentService extends BaseController {
     try {
       const result = db.transaction((tx: Transaction) => {
         const { admission_charge, ...body } = data
+        const isUnique = this.repo.regNumberUnique(data.reg_number)
 
+        if (!isUnique) {
+          throw new AlreadyExistException('Reg. Already exist')
+        }
         // 1. Create student
         const student = this.createStudent(body, tx)
         const { id: studentId, class_id: classId, monthly: fee } = student
@@ -104,7 +110,13 @@ class StudentService extends BaseController {
 
   async update(id: number, data: Partial<Student_Write>): Promise<boolean> {
     const student = this.repo.findById(id)
-    if (!student) throw new Error('Student not found')
+    if (!student) throw new StudnetNotFoundException('Student not found')
+
+    const isUnique = this.repo.regNumberUnique(data.reg_number!)
+
+    if (!isUnique) {
+      throw new AlreadyExistException('Reg. Already exist')
+    }
 
     const dbData = {
       ...data,
@@ -116,6 +128,60 @@ class StudentService extends BaseController {
 
     const updated = this.repo.update(id, dbData)
     return !!updated
+  }
+
+  async transfer(id: number, data: StudentTransferSchema): Promise<boolean> {
+    const student = this.repo.findById(id)
+    if (!student) throw new StudnetNotFoundException('Student not found')
+
+    const result = db.transaction((tx: Transaction) => {
+      const transfer = this.repo.update(
+        id,
+        {
+          transfer_date: data.date
+        },
+        tx
+      )
+
+      if (data.month_charge) {
+        this.monthlyService.processCreate(
+          {
+            studentId: student.id,
+            classId: student.class_id,
+            endIncluded: true,
+            monthly: student.monthly,
+            start: student.last_fee_date
+          },
+          tx
+        )
+      }
+
+      return transfer
+    })
+
+    return result.changes > 0
+  }
+  async continue(id: number): Promise<boolean> {
+    const student = this.repo.findById(id)
+    if (!student) throw new StudnetNotFoundException('Student not found')
+
+    const result = db.transaction((tx: Transaction) => {
+      const transfer = this.repo.update(
+        id,
+        {
+          transfer_date: null
+        },
+        tx
+      )
+
+      return transfer
+    })
+
+    return result.changes > 0
+  }
+
+  active_student_active_until_update(endDate: string, tx: Transaction): boolean {
+    return this.repo.active_student_active_until_update(endDate, tx)
   }
 
   async delete(id: number): Promise<boolean> {

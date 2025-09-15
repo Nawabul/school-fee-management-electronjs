@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { StudentTransferSchema } from '@renderer/types/schema/student'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { PaymentChart, statics } from '@type/interfaces/dashboard'
 import { Payment_Type } from '@type/interfaces/payment'
@@ -28,7 +29,7 @@ declare global {
       update: (id: number, data: Student_Write) => Promise<successResponse<boolean> | errorResponse>
       transfer: (
         id: number,
-        data: { date: string }
+        data: StudentTransferSchema
       ) => Promise<successResponse<boolean> | errorResponse>
       delete: (id: number) => Promise<successResponse<boolean> | errorResponse>
       continue: (id: number) => Promise<successResponse<boolean> | errorResponse>

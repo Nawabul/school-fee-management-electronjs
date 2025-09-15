@@ -3,12 +3,13 @@ import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComp
 import { JSX, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import MisItemController from '@renderer/controller/MisItemController'
 import { Mis_Item_Record } from '@renderer/types/ts/mis_item'
 import useModel from '@renderer/hooks/useModel'
 import Header from '@renderer/components/Header'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 const MisItemRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
     queryKey: queryKey.mis_item,
@@ -19,8 +20,8 @@ const MisItemRecord = (): JSX.Element => {
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
 
-  const misItemDelete = useMutation({
-    mutationFn: MisItemController.delete,
+  const misItemDelete = useMutationHandler({
+    mutationFn: (id: number) => MisItemController.delete(id),
     onSuccess: () => {
       refetch()
       setId(0)

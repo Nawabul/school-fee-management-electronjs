@@ -111,4 +111,5 @@ export default async function routes(): Promise<void> {
   ipcMain.handle('session:end:check', () => SessionController.isEndSet())
 
   ipcMain.handle('session:end:get', () => SessionController.getEndSet())
+  ipcMain.handle('session:end:set', (event, month) => SessionController.setEndMonth(event, month))
 }

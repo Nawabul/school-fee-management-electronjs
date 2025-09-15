@@ -1,7 +1,9 @@
 import Header from '@renderer/components/Header'
 import MisItemForm from '@renderer/components/mis_item/MisItemFrom'
 import MisItemController from '@renderer/controller/MisItemController'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Mis_Item_Write } from '@type/interfaces/mis_item'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { HiAcademicCap } from 'react-icons/hi'
@@ -10,8 +12,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 const MisItemUpdate = (): React.JSX.Element => {
   const id = useParams().id
   const navigate = useNavigate()
-  const classMutation = useMutation({
-    mutationFn: (data) => MisItemController.update(Number(id), data),
+  const classMutation = useMutationHandler({
+    mutationFn: (data: Partial<Mis_Item_Write>) => MisItemController.update(Number(id), data),
     onSuccess: () => {
       // Optionally reset form or show success message
       navigate('/mis_item')

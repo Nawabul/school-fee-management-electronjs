@@ -9,6 +9,7 @@ import { successResponse, errorResponse } from '../../types/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
 import StudentService from '../service/StudentService'
 import { BaseController } from './BaseController'
+import { StudentTransferSchema } from '@main/utils/schema/student'
 
 interface StudentCreate extends Student_Write {
   admission_charge: number
@@ -50,11 +51,10 @@ class StudentController extends BaseController {
   async transfer(
     _event: IpcMainInvokeEvent,
     id: number,
-    data: { date: string; month_charge: boolean }
+    data: StudentTransferSchema
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
-      // TODO: Implement service logic for transferring student
-      const result = true
+      const result = await this.service.transfer(id, data)
       return super.processSuccess(result, 'Student transferred successfully')
     } catch (error) {
       throw super.processError(error)
@@ -67,7 +67,7 @@ class StudentController extends BaseController {
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
       // TODO: Implement service logic for continuing study
-      const result = true
+      const result = await this.service.continue(id)
       return super.processSuccess(result, 'Student re-started successfully')
     } catch (error) {
       throw super.processError(error)

@@ -1,7 +1,8 @@
 import MisChargeForm from '@renderer/components/mis_charge/MisChargeForm'
 import MisChargeController from '@renderer/controller/MisChargeController'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 import { queryKey } from '@renderer/types/constant/queryKey'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
@@ -12,7 +13,7 @@ const MisChargeUpdate = (): React.JSX.Element => {
   const id = useParams().id
   const navigate = useNavigate()
 
-  const misChargeMutation = useMutation({
+  const misChargeMutation = useMutationHandler({
     mutationFn: (data) => MisChargeController.update(Number(id), data),
     onSuccess: () => {
       // Optionally reset form or show success message

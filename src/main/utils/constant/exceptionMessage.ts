@@ -1,8 +1,12 @@
 export const exceptionMessge = {
   insert_exception: 'Unable to insert data',
   server_error: 'Server Error',
+
+  already_exist: 'Already Exist',
+
   // not found
   class_not_found: 'Class not found',
+  class_alredy_exist: ' Class name already exist',
   mis_item_not_found: 'Miscellaneous item not found',
   mis_charge_not_found: 'Miscellaneous charge not found',
   student_not_found: 'Student not found',

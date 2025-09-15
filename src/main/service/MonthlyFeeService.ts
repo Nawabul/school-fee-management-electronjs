@@ -60,9 +60,15 @@ class MonthlyFeeService extends BaseService {
     const lastDate = student.last_fee_date
     const month = this.countMonth(start, end)
     let count = month.count
-    const endFeeDate = month.end
+    let endFeeDate = month.end
     if (endIncluded) {
-      count++
+      const from = new Date(start)
+      const last = new Date(end)
+
+      if (last.getMonth() >= from.getMonth()) {
+        count++
+        endFeeDate = format(addMonths(new Date(endFeeDate), 1), DB_DATE_FORMAT)
+      }
     }
     if (count < 1) {
       return true

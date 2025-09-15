@@ -1,14 +1,15 @@
 import ClassForm from '@renderer/components/class/ClassForm'
 import Header from '@renderer/components/Header'
 import ClassController from '@renderer/controller/ClassController'
-import { useMutation } from '@tanstack/react-query'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
+import { Class } from '@type/interfaces/class'
 import { HiAcademicCap } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 
 const ClassInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
-  const classMutation = useMutation({
-    mutationFn: ClassController.create,
+  const classMutation = useMutationHandler({
+    mutationFn: (data: Omit<Class, 'id'>) => ClassController.create(data),
     onSuccess: () => {
       navigate('/class')
       // Optionally reset form or show success message

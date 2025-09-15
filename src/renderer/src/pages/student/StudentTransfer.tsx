@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query'
 import { Button, ToggleSwitch } from 'flowbite-react'
 import { HiAcademicCap } from 'react-icons/hi'
 import StudentController from '@renderer/controller/StudentController'
@@ -7,32 +6,30 @@ import { Loader2 } from 'lucide-react'
 import FormInput from '@renderer/components/form/FormInput'
 import StudentDetailHeader from '@renderer/components/StudentDetailHeader'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { todayISODate } from '@renderer/types/constant/date'
 import { useMemo } from 'react'
-
-const Schema = z.object({
-  date: z.string({
-    required_error: 'Date is required'
-  }),
-  month_charge: z.boolean().default(false)
-})
+import { StudentTransferSchema } from '@renderer/types/schema/student'
+import z from 'zod'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 
 const StudentTransfer = (): React.JSX.Element => {
   const navigate = useNavigate()
   const studentId = useParams().id
-  const { control, handleSubmit, setValue, watch } = useForm<z.infer<typeof Schema>>({
-    //@ts-ignore ites working well
-    resolver: zodResolver(Schema),
-    defaultValues: {
-      date: todayISODate
+  const { control, handleSubmit, setValue, watch } = useForm<z.infer<typeof StudentTransferSchema>>(
+    {
+      //@ts-ignore ites working well
+      resolver: zodResolver(StudentTransferSchema),
+      defaultValues: {
+        date: todayISODate
+      }
     }
-  })
+  )
 
-  const studentMutation = useMutation({
+  const studentMutation = useMutationHandler({
     mutationKey: ['student', 'transfer'],
-    mutationFn: (data) => StudentController.transfer(Number(studentId), data),
+    mutationFn: (data: z.infer<typeof StudentTransferSchema>) =>
+      StudentController.transfer(Number(studentId), data),
     onSuccess: () => {
       navigate('/student')
       // Optionally reset form or show success message
@@ -57,7 +54,7 @@ const StudentTransfer = (): React.JSX.Element => {
     }
   }, [])
 
-  const onSubmit = (data): void => {
+  const onSubmit = (data: z.infer<typeof StudentTransferSchema>): void => {
     studentMutation.mutate(data)
   }
 
@@ -79,6 +76,7 @@ const StudentTransfer = (): React.JSX.Element => {
       {/* END HEADER CARD */}
       <div className="md:p-5">
         <form
+          // @ts-expect-error no worry
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto p-6 rounded-lg"
         >

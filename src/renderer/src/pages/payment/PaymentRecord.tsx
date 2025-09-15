@@ -2,11 +2,12 @@ import { paymentColumns } from '@renderer/components/payment/columns'
 import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComponent'
 import { JSX, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import PaymentController from '@renderer/controller/PaymentController'
 import { Payment_Record } from '@renderer/types/ts/payments'
 import useModel from '@renderer/hooks/useModel'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 
 const PaymentRecord = (): JSX.Element => {
   const studentId = useParams().id
@@ -19,9 +20,13 @@ const PaymentRecord = (): JSX.Element => {
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
   const { openModel } = useModel()
-  const paymentDelete = useMutation({
-    mutationFn: PaymentController.delete,
+  const queryClient = useQueryClient()
+  const paymentDelete = useMutationHandler({
+    mutationFn: (id: number) => PaymentController.delete(id),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKey.student_details
+      })
       refetch()
       setId(0)
     },

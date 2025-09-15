@@ -1,48 +1,33 @@
-import { successResponse } from '../../../types/utils/apiReturn'
-import { Payment_Record, Payment_Read, Payment_Type } from '../../../types/interfaces/payment'
+import { BaseController } from './BaseController'
+import { Payment_Record, Payment_Read, Payment_Type, Payment_Write } from '@type/interfaces/payment'
 
-class PaymentController {
-  async create(studentId, data, type: Payment_Type = 'admission'): Promise<number> {
-    const body = {
+class PaymentController extends BaseController {
+  async create(
+    studentId: number,
+    data: Omit<Payment_Write, 'student_id'>,
+    type: Payment_Type = 'admission'
+  ): Promise<number> {
+    const body: Payment_Write = {
       student_id: studentId,
       ...data
     }
-
-    const result = await window.payment.create(body, type)
-
-    if (result.success) {
-      return (result as successResponse<number>).data
-    }
-    throw result.message
+    return super.handleIpc(window.payment.create(body, type))
   }
-  async update(id: number, data): Promise<boolean> {
-    const result = await window.payment.update(id, data)
-    if (result.success) {
-      return (result as successResponse<boolean>).data
-    }
-    throw result.message
+
+  async update(id: number, data: Partial<Payment_Write>): Promise<boolean> {
+    return super.handleIpc(window.payment.update(id, data))
   }
+
   async delete(id: number): Promise<boolean> {
-    const result = await window.payment.delete(id)
-    if (result.success) {
-      return (result as successResponse<boolean>).data
-    }
-    throw result.message
+    return super.handleIpc(window.payment.delete(id))
   }
-  async list(studentId: number): Promise<Payment_Record[]> {
-    const result = await window.payment.list(studentId)
-    if (result.success) {
-      return (result as successResponse<Payment_Record[]>).data
-    }
-    throw result.message
-  }
-  async fetch(id: number): Promise<Payment_Read> {
-    const result = await window.payment.fetch(id)
 
-    if (result.success) {
-      return (result as successResponse<Payment_Read>).data
-    }
-    throw result.message
+  async list(studentId: number): Promise<Payment_Record[]> {
+    return super.handleIpc(window.payment.list(studentId))
+  }
+
+  async fetch(id: number): Promise<Payment_Read> {
+    return super.handleIpc(window.payment.fetch(id))
   }
 }
 

@@ -1,13 +1,9 @@
+import { BaseController } from './BaseController'
 import { Monthly_Fee_Record } from '@renderer/types/ts/monthly_fee'
-import { successResponse } from '../../../types/utils/apiReturn'
-class MonthlyFeeController {
-  async list(studentId: number): Promise<Monthly_Fee_Record[]> {
-    const result = await window.monthly_fee.list(studentId)
 
-    if (result.success) {
-      return (result as successResponse<Monthly_Fee_Record[]>).data
-    }
-    throw result.message
+class MonthlyFeeController extends BaseController {
+  async list(studentId: number): Promise<Monthly_Fee_Record[]> {
+    return super.handleIpc(window.monthly_fee.list(studentId))
   }
 }
 

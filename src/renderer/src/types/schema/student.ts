@@ -88,4 +88,15 @@ export const StudentCreateSchema = z.object({
     .default(0)
 })
 
+export type StudentCreateSchema = z.infer<typeof StudentCreateSchema>
+
+export const StudentTransferSchema = z.object({
+  date: z.string({
+    required_error: 'Date is required'
+  }),
+  month_charge: z.boolean().default(false)
+})
+
+export type StudentTransferSchema = z.infer<typeof StudentTransferSchema>
+
 export const StudentUpdateSchema = z.object(StudentSchema)

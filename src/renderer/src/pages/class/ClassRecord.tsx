@@ -3,12 +3,13 @@ import { SimpleTableComponent } from '@renderer/components/table/SimpleTableComp
 import { JSX, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import ClassController from '@renderer/controller/ClassController'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import { Class_Record } from '@renderer/types/ts/class'
 import useModel from '@renderer/hooks/useModel'
 import Header from '@renderer/components/Header'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 const ClassRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
     queryKey: queryKey.class,
@@ -18,8 +19,8 @@ const ClassRecord = (): JSX.Element => {
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
   const { openModel } = useModel()
-  const classDelete = useMutation({
-    mutationFn: ClassController.delete,
+  const classDelete = useMutationHandler({
+    mutationFn: (id: number) => ClassController.delete(id),
     onSuccess: () => {
       refetch()
       setId(0)

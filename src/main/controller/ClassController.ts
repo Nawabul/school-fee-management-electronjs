@@ -37,12 +37,9 @@ class ClassController extends BaseController {
   ): Promise<successResponse<boolean> | errorResponse> {
     try {
       const result: boolean = await this.service.update(id, data)
-      if (!result) {
-        return super.processError(new Error('Class not found or no changes made'))
-      }
       return super.processSuccess(result, 'Class updated successfully')
     } catch (error: unknown) {
-      throw super.processError(error)
+      return  super.processError(error)
     }
   }
 

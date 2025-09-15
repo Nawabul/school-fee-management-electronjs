@@ -1,15 +1,16 @@
 import StudentForm from '@renderer/components/student/StudentForm'
-import { useMutation } from '@tanstack/react-query'
 import StudentController from '@renderer/controller/StudentController'
 import { useNavigate } from 'react-router-dom'
 import { todayISODate } from '@renderer/types/constant/date'
 import Header from '@renderer/components/Header'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
+import { Student_Write } from '@type/interfaces/student'
 
 const StudentInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
-  const studentMutation = useMutation({
+  const studentMutation = useMutationHandler({
     mutationKey: ['student', 'insert'],
-    mutationFn: StudentController.create,
+    mutationFn: (data: Student_Write) => StudentController.create(data),
     onSuccess: () => {
       navigate('/student')
       // Optionally reset form or show success message

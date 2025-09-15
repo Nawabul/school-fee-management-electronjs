@@ -1,7 +1,9 @@
 import ClassForm from '@renderer/components/class/ClassForm'
 import Header from '@renderer/components/Header'
 import ClassController from '@renderer/controller/ClassController'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Class } from '@type/interfaces/class'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { HiAcademicCap } from 'react-icons/hi'
@@ -10,8 +12,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 const ClassUpdate = (): React.JSX.Element => {
   const id = useParams().id
   const navigate = useNavigate()
-  const classMutation = useMutation({
-    mutationFn: (data) => ClassController.update(Number(id), data),
+  const classMutation = useMutationHandler({
+    mutationFn: (data: Class) => ClassController.update(Number(id), data),
     onSuccess: () => {
       // Optionally reset form or show success message
       navigate('/class')
@@ -22,7 +24,8 @@ const ClassUpdate = (): React.JSX.Element => {
     }
   })
 
-  const handleFormSubmit = (data: any): void => {
+  // @ts-ignore every thins is ok
+  const handleFormSubmit = (data): void => {
     // Post to backend or handle in state
     classMutation.mutate(data)
   }

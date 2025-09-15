@@ -1,19 +1,24 @@
 import SessionService from '@main/service/SessionService'
 import StudentService from '@main/service/StudentService'
 import { Transaction } from '@type/interfaces/db'
-import { apiError, apiSuccess, errorResponse, successResponse } from '@type/utils/apiReturn'
+import { errorResponse, successResponse } from '@type/utils/apiReturn'
 import { IpcMainInvokeEvent } from 'electron'
+import { BaseController } from './BaseController'
 
-class SessionController {
+class SessionController extends BaseController {
+  private studentService: typeof StudentService
+
+  constructor() {
+    super()
+    this.studentService = StudentService
+  }
+
   async isEndSet(): Promise<successResponse<boolean> | errorResponse> {
     try {
       const response = SessionService.isEndMonthHave()
-      return apiSuccess(response, ' Session End month')
+      return super.processSuccess(response, 'Session is set status fetched')
     } catch (error) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching Session End: ' + error.message)
-      }
-      return apiError('Error while fetching Session End')
+      return super.processError(error)
     }
   }
 
@@ -21,12 +26,9 @@ class SessionController {
   async getEndSet(): Promise<successResponse<number> | errorResponse> {
     try {
       const response = SessionService.getEndMonth()
-      return apiSuccess(response, ' Session End month')
+      return super.processSuccess(response, ' Session End month')
     } catch (error) {
-      if (error instanceof Error) {
-        return apiError('Error while fetching Session End: ' + error.message)
-      }
-      return apiError('Error while fetching Session End')
+      return super.processError(error)
     }
   }
 
@@ -48,16 +50,13 @@ class SessionController {
         const endDate = SessionService.formatEndDate(Number(month))
         // update student active date
 
-        StudentService.active_student_active_until_update(endDate, tx)
+        this.studentService.active_student_active_until_update(endDate, tx)
 
         return true
       })
-      return apiSuccess(result, ' Session End month created')
+      return super.processSuccess(result, ' Session End month created')
     } catch (error) {
-      if (error instanceof Error) {
-        return apiError('Error while creating Session End: ' + error.message)
-      }
-      return apiError('Error while creating Session End')
+      return super.processError(error)
     }
   }
 }

@@ -1,7 +1,9 @@
 import PaymentForm from '@renderer/components/payment/PaymentForm'
 import PaymentController from '@renderer/controller/PaymentController'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 import { queryKey } from '@renderer/types/constant/queryKey'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Payment_Write } from '@type/interfaces/payment'
 import { Button } from 'flowbite-react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
@@ -11,14 +13,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 const PaymentUpdate = (): React.JSX.Element => {
   const id = useParams().id
   const navigate = useNavigate()
-  const studentMutation = useMutation({
-    mutationFn: (data) => PaymentController.update(Number(id), data),
+  const studentMutation = useMutationHandler({
+    mutationFn: (data: Partial<Payment_Write>) => PaymentController.update(Number(id), data),
     onSuccess: () => {
       // Optionally reset form or show success message
       navigate(-1)
       queryClient.invalidateQueries({
-              queryKey: queryKey.student_details
-            })
+        queryKey: queryKey.student_details
+      })
     },
     onError: (error) => {
       console.error('Error creating payment:', error)

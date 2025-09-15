@@ -7,6 +7,7 @@ class MisChargeController {
       student_id: studentId,
       ...data
     }
+    console.log('charge create ', body)
     const result = await window.mis_charge.create(body)
     if (result.success) {
       return (result as successResponse<number>).data

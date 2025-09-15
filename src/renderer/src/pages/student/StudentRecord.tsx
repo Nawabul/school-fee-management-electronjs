@@ -4,12 +4,13 @@ import { JSX, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CgUserList } from 'react-icons/cg'
 import { queryKey } from '@renderer/types/constant/queryKey'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import StudentController from '@renderer/controller/StudentController'
 import { Student_Record } from '@renderer/types/ts/student'
 import useStudentDetails from '@renderer/hooks/useStudentDetails'
 import useModel from '@renderer/hooks/useModel'
 import Header from '@renderer/components/Header'
+import useMutationHandler from '@renderer/hooks/useMutationHandler'
 
 const StudentRecord = (): JSX.Element => {
   const { data = [], refetch } = useQuery({
@@ -20,7 +21,7 @@ const StudentRecord = (): JSX.Element => {
   const [id, setId] = useState<number>(0)
   const navigate = useNavigate()
   const { setStudentDetails } = useStudentDetails()
-  const studentDelete = useMutation({
+  const studentDelete = useMutationHandler({
     mutationFn: StudentController.delete,
     onSuccess: () => {
       refetch()
@@ -30,7 +31,7 @@ const StudentRecord = (): JSX.Element => {
       setId(0)
     }
   })
-  const studyContinue = useMutation({
+  const studyContinue = useMutationHandler({
     mutationFn: StudentController.continue,
     onSuccess: () => {
       refetch()
@@ -59,11 +60,31 @@ const StudentRecord = (): JSX.Element => {
       navigate(`/admission/${id}`)
     },
     transfer: (id: number, data: Student_Record): void => {
-      setStudentDetails(data)
-      navigate(`/student/transfer/${id}`)
+      openModel({
+        title: 'Confirm Transfer',
+        description:
+          'This student will be marked as transferred and will no longer be enrolled in this school. Do you want to continue?',
+
+        submitTitle: 'Transfer',
+        closeTitle: 'Cancel',
+        submitFun: () => {
+          setStudentDetails(data)
+          navigate(`/student/transfer/${id}`)
+        }
+      })
     },
 
-    continue: handleContinue,
+    continue: (id: number) => {
+      openModel({
+        title: 'Confirm Reactivation',
+        description:
+          'The student will be marked as active again, but their fees will not be synced. Proceed?',
+
+        submitTitle: 'Continue',
+        closeTitle: 'Cancel',
+        submitFun: () => handleContinue(id)
+      })
+    },
     delete: (id: number) => {
       openModel({
         submitFun: () => handleDelete(id)

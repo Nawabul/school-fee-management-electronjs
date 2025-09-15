@@ -6,6 +6,7 @@ import PaymentController from '@renderer/controller/PaymentController'
 import PaymentForm from '@renderer/components/payment/PaymentForm'
 import { todayISODate } from '@renderer/types/constant/date'
 import { queryKey } from '@renderer/types/constant/queryKey'
+import { Payment_Write } from '@type/interfaces/payment'
 
 const PaymentInsert = (): React.JSX.Element => {
   const navigate = useNavigate()
@@ -14,13 +15,13 @@ const PaymentInsert = (): React.JSX.Element => {
   const queryClient = useQueryClient()
   const paymentMutation = useMutation({
     mutationKey: ['payment', 'insert'],
-    mutationFn: (data) => PaymentController.create(Number(studentId), data),
+    mutationFn: (data: Payment_Write) => PaymentController.create(Number(studentId), data),
     onSuccess: () => {
       navigate(-1)
       // Optionally reset form or show success message
       queryClient.invalidateQueries({
-              queryKey: queryKey.student_details
-            })
+        queryKey: queryKey.student_details
+      })
     },
     onError: (error) => {
       console.error('Error creating class:', error)
