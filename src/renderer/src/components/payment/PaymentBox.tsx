@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import PaymentController from '@renderer/controller/PaymentController'
 import { DB_DATE_FORMAT } from '@renderer/types/constant/date'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Payment_Type } from '@type/interfaces/payment'
+import { Payment_Type, Payment_Write } from '@type/interfaces/payment'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
@@ -10,6 +10,7 @@ import FormInput from '../form/FormInput'
 import { useEffect } from 'react'
 import { Button } from 'flowbite-react'
 import { queryKey } from '@renderer/types/constant/queryKey'
+import useModel from '@renderer/hooks/useModel'
 
 type props = {
   type: Payment_Type
@@ -37,10 +38,12 @@ function PaymentBox({
     resolver: zodResolver(schema)
   })
 
+  const { openModel } = useModel()
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationKey: ['payment'],
-    mutationFn: (data) => PaymentController.create(studentId, data, type),
+    mutationFn: (data: Omit<Payment_Write, 'student_id'>) =>
+      PaymentController.create(studentId, data, type),
     onSuccess: () => {
       successFn()
       queryClient.invalidateQueries({
@@ -59,8 +62,15 @@ function PaymentBox({
       amount: data.amount
     }
 
-    //@ts-ignore data structure is ok
-    mutation.mutate(input)
+    openModel({
+      title: 'Confirm payment?',
+      description: 'This payment will be list in payment section',
+      submitTitle: 'Pay',
+      closeTitle: 'Cancel',
+      submitFun() {
+        mutation.mutate(input)
+      }
+    })
   }
   return (
     <form
