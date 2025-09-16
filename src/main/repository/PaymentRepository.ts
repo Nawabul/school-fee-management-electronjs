@@ -191,7 +191,7 @@ class PaymentRepository extends BaseRepository<typeof payments> {
     return total
   }
   getUnusedTotal(studentId: number): number {
-    const list = this.used_list(studentId)
+    const list = this.unsed_list(studentId)
     const total = list.reduce((acc, next) => acc + (next.amount - next.used), 0)
     return total
   }
