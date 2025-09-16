@@ -112,7 +112,7 @@ class StudentService extends BaseController {
     const student = this.repo.findById(id)
     if (!student) throw new StudnetNotFoundException('Student not found')
 
-    const isUnique = this.repo.regNumberUnique(data.reg_number!)
+    const isUnique = this.repo.regNumberUnique(data.reg_number!, id)
 
     if (!isUnique) {
       throw new AlreadyExistException('Reg. Already exist')
@@ -120,12 +120,20 @@ class StudentService extends BaseController {
 
     const dbData = {
       ...data,
+      current_balance: student.current_balance,
       is_whatsapp: data.is_whatsapp !== undefined ? (data.is_whatsapp ? 1 : 0) : undefined
     }
 
     // remove undefined fields
     Object.keys(dbData).forEach((k) => dbData[k] === undefined && delete dbData[k])
 
+    const prevAmount = student.initial_balance
+    const currentAmount = data.initial_balance ?? prevAmount
+    const diff = currentAmount - prevAmount
+
+    if (diff != 0) {
+      dbData.current_balance = student.current_balance + diff
+    }
     const updated = this.repo.update(id, dbData)
     return !!updated
   }
@@ -270,8 +278,8 @@ class StudentService extends BaseController {
       is_whatsapp: data.is_whatsapp ? 1 : 0,
       last_fee_date: lastFeeDate,
       active_until: activeUntil,
-      initial_balance: 0,
-      current_balance: 0
+      initial_balance: data.initial_balance ?? 0,
+      current_balance: data.initial_balance ?? 0
     }
 
     return this.repo.create(row, tx)

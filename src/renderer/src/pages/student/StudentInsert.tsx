@@ -22,6 +22,7 @@ const StudentInsert = (): React.JSX.Element => {
   })
 
   const handleFormSubmit = (data): void => {
+    console.log('Student : ', data)
     studentMutation.mutate(data)
   }
 
@@ -39,7 +40,9 @@ const StudentInsert = (): React.JSX.Element => {
         onSubmit={handleFormSubmit}
         isPending={studentMutation.isPending}
         defaultValues={{
-          admission_date: todayISODate
+          admission_date: todayISODate,
+          dob: todayISODate,
+          initial_balance: 0
         }}
       />
     </div>

@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react'
 import FormSelect from '../form/FormSelect'
 import FormInput from '../form/FormInput'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { JSX, useEffect } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import ClassController from '@renderer/controller/ClassController'
@@ -41,14 +41,34 @@ const StudentForm = ({
   >({
     //@ts-ignore ites working well
     resolver: zodResolver(isUpdate ? StudentUpdateSchema : StudentCreateSchema),
-    defaultValues
+    defaultValues: {
+      ...defaultValues,
+      initial_balance: Math.abs(Number(defaultValues?.initial_balance))
+    }
   })
+
+  const [isDue, setIsDue] = useState<boolean>(
+    !isUpdate ||
+      defaultValues?.initial_balance === undefined ||
+      Number(defaultValues.initial_balance) < 0
+  )
 
   const { data: classList = [] } = useQuery({
     queryKey: queryKey.class,
     queryFn: ClassController.list
   })
 
+  const beforeSubmit = (data): void => {
+    let amount = Math.abs(data.initial_balance)
+
+    if (isDue && amount != 0) {
+      amount = -amount
+    }
+    onSubmit({
+      ...data,
+      initial_balance: amount
+    })
+  }
   useEffect(() => {
     if (isUpdate) return
 
@@ -84,7 +104,7 @@ const StudentForm = ({
 
   return (
     // The form now wraps the sections
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(beforeSubmit)}>
       <div className="space-y-8">
         {/* Student Details Section */}
         <div className="bg-slate-800 p-6 rounded-xl shadow-lg">
@@ -233,13 +253,24 @@ const StudentForm = ({
                 <span className="text-sm font-bold"> first active session.</span> This will be
                 carried forward into their account.
               </p>
-              <FormInput
-                placeholder="Enter carried forward amount"
-                name="initial_balance"
-                label="Opening Balance"
-                type="number"
-                control={control}
-              />
+              <div className="flex">
+                <FormInput
+                  placeholder="Enter carried forward amount"
+                  name="initial_balance"
+                  label="Opening Balance"
+                  type="number"
+                  control={control}
+                />
+                <ToggleSwitch
+                  name="is_due"
+                  label="is Due"
+                  className="mt-8 pl-5"
+                  checked={isDue}
+                  onChange={(checked) => setIsDue(checked)}
+                  color="green"
+                  sizing="md"
+                />
+              </div>
             </div>
           </div>
         </div>

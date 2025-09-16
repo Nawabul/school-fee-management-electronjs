@@ -6,8 +6,14 @@ export interface Student_Write {
   is_whatsapp: boolean
   admission_date: string // ISO date string
   address: string
+  caste: string | null
+  religion: string | null
+  categor: string | null
+  dob: string | null
   class_id: number
   monthly: number
+  initial_balance: number
+  gender: number
 }
 
 export interface Student_Insert extends Student_Write {
@@ -46,7 +52,7 @@ export interface Student_Get {
 }
 
 export interface Student_Details {
-   id: number
+  id: number
   reg_number: string
   student_name: string
   father_name: string
@@ -57,9 +63,7 @@ export interface Student_Details {
   address: string
   class_name: string
   current_balance: number
-
 }
-
 
 export type StudentListLastFeeMonthAgo = {
   student_id: number

@@ -1,6 +1,12 @@
 import { z } from 'zod'
 
 export const StudentSchema = {
+  class_id: z.coerce
+    .number({
+      required_error: 'Class is required',
+      invalid_type_error: 'Class  must be a Selected'
+    })
+    .min(1, 'Class must be at Selected'),
   reg_number: z
     .string({
       required_error: 'Registration number is required'
@@ -34,6 +40,15 @@ export const StudentSchema = {
       message: 'Must be exactly 10 digits'
     }),
 
+  gender: z.coerce.number({
+    required_error: 'Please select gender'
+  }),
+
+  caste: z.string().nullable().default(null),
+  religion: z.string().nullable(),
+  category: z.string().nullable(),
+  dob: z.string().nullable(),
+
   is_whatsapp: z
     .preprocess(
       (val) => !!val,
@@ -60,29 +75,23 @@ export const StudentSchema = {
       invalid_type_error: 'Monthly Charge must be a number'
     })
     .optional()
+    .default(0),
+  initial_balance: z.coerce
+    .number({
+      required_error: 'Monthly Charge is required',
+      invalid_type_error: 'Monthly Charge must be a number'
+    })
+    .gte(0, 'Select due for negative')
     .default(0)
 }
 
 export const StudentCreateSchema = z.object({
   ...StudentSchema,
-  class_id: z.coerce
-    .number({
-      required_error: 'Class is required',
-      invalid_type_error: 'Class  must be a Selected'
-    })
-    .min(1, 'Class must be at Selected'),
 
   admission_charge: z.coerce
     .number({
       required_error: 'Admission Charge is required',
       invalid_type_error: 'Admission Charge must be a number'
-    })
-    .optional()
-    .default(0),
-  monthly: z.coerce
-    .number({
-      required_error: 'Monthly Charge is required',
-      invalid_type_error: 'Monthly Charge must be a number'
     })
     .optional()
     .default(0)

@@ -44,7 +44,7 @@ class StudentController extends BaseController {
       const result = await this.service.update(id, data)
       return super.processSuccess(result, 'Student updated successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -57,7 +57,7 @@ class StudentController extends BaseController {
       const result = await this.service.transfer(id, data)
       return super.processSuccess(result, 'Student transferred successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -70,7 +70,7 @@ class StudentController extends BaseController {
       const result = await this.service.continue(id)
       return super.processSuccess(result, 'Student re-started successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -82,7 +82,7 @@ class StudentController extends BaseController {
       const result = await this.service.delete(id)
       return super.processSuccess(result, 'Student deleted successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -91,7 +91,7 @@ class StudentController extends BaseController {
       const result = await this.service.list()
       return super.processSuccess(result, 'Fetched student list')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -103,7 +103,7 @@ class StudentController extends BaseController {
       const result = await this.service.get(id)
       return super.processSuccess(result, 'Student fetched successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 
@@ -115,7 +115,7 @@ class StudentController extends BaseController {
       const result = await this.service.details(id)
       return super.processSuccess(result, 'Student details fetched successfully')
     } catch (error) {
-      throw super.processError(error)
+      return super.processError(error)
     }
   }
 }
