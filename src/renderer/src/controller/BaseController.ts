@@ -39,7 +39,6 @@ export abstract class BaseController {
   protected async handleIpc<T>(ipcCall: Promise<successResponse<T> | errorResponse>): Promise<T> {
     try {
       const result = await ipcCall
-      console.log(result)
       if (result.success) {
         return (result as successResponse<T>).data
       } else {

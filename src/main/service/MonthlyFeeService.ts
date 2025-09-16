@@ -9,6 +9,7 @@ import { BaseService } from './BaseService'
 import {
   CreateMonthly,
   Monthly_Fee_Insert_Update,
+  Monthly_Fee_Read,
   Monthly_Fee_Write
 } from '@type/interfaces/monthly_fee'
 import SessionService from './SessionService'
@@ -64,7 +65,8 @@ class MonthlyFeeService extends BaseService {
     if (endIncluded) {
       const from = new Date(start)
       const last = new Date(end)
-
+      console.log('From: ', from.getMonth())
+      console.log('Last: ', last.getMonth())
       if (last.getMonth() >= from.getMonth()) {
         count++
         endFeeDate = format(addMonths(new Date(endFeeDate), 1), DB_DATE_FORMAT)
@@ -74,6 +76,10 @@ class MonthlyFeeService extends BaseService {
       return true
     }
     const haveAmount = this.adjustRepo.getTotalUnused(studentId)
+    console.log('StudentId ', studentId)
+    console.log('Have amount ', haveAmount)
+    console.log('Start : ', start)
+    console.log('End : ', end)
     const used = this.createByRange(
       {
         studentId,
@@ -123,6 +129,16 @@ class MonthlyFeeService extends BaseService {
     })
 
     return result.changes > 0
+  }
+
+  public get(monthlyId: number): Monthly_Fee_Read {
+    const result = this.repo.findById(monthlyId)
+
+    if (!result) {
+      throw new MonthlyNotFoundException()
+    }
+
+    return result
   }
 
   // list of monthly records of specific student

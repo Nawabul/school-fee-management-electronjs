@@ -2,10 +2,12 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Monthly_Fee_Record } from '@renderer/types/ts/monthly_fee'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
+import { Pen } from 'lucide-react'
 
 //@ts-ignore no need of methods
-export const monthly_fee_columns = () // item: Record<string, (id: number) => void>
-: ColumnDef<Monthly_Fee_Record>[] => [
+export const monthly_fee_columns = (
+  item: Record<string, (id: number) => void> // item: Record<string, (id: number) => void>
+): ColumnDef<Monthly_Fee_Record>[] => [
   {
     accessorKey: 'id',
     header: 'S.NO.',
@@ -48,5 +50,15 @@ export const monthly_fee_columns = () // item: Record<string, (id: number) => vo
         return <span className="text-red-700">Unpaid</span>
       }
     }
+  },
+  {
+    accessorKey: 'Action',
+    header: 'Action',
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="flex gap-2 ">
+        <Pen onClick={(): void => item.update(row.original.id)} />
+      </div>
+    )
   }
 ]

@@ -10,7 +10,7 @@ import PaymentBox from '@renderer/components/payment/PaymentBox'
 import useModel from '@renderer/hooks/useModel'
 import { Button } from 'flowbite-react'
 import CreateMonthlyForm from '@renderer/components/monthly_fee/CreateMonthlyForm'
-import useStudentDetails from '@renderer/hooks/useStudentDetails'
+import UpdateMonthlyForm from '@renderer/components/monthly_fee/UpdateMonthlyForm'
 const MonthlyFeeRecord = (): JSX.Element => {
   const studentId = useParams().id
   const {
@@ -22,18 +22,27 @@ const MonthlyFeeRecord = (): JSX.Element => {
     queryFn: () => MonthlyFeeController.list(Number(studentId)),
     refetchOnWindowFocus: true
   })
-  const { studentDetails } = useStudentDetails()
   const { openModel, closeModel } = useModel()
 
-  const close = () => {
+  const close = (): void => {
     closeModel()
   }
 
-  const create = () => {
+  const create = (): void => {
     openModel({
       component: <CreateMonthlyForm studentId={Number(studentId)} successFun={close} />,
       componentOnly: true
     })
+  }
+  const onUpdate = (id: number): void => {
+    openModel({
+      component: <UpdateMonthlyForm monthlyId={Number(id)} successFun={close} />,
+      componentOnly: true
+    })
+  }
+
+  const action = {
+    update: onUpdate
   }
 
   const total = useMemo(() => {
@@ -46,7 +55,7 @@ const MonthlyFeeRecord = (): JSX.Element => {
       </div>
       <div className="md:p-5">
         <SimpleTableComponent<Monthly_Fee_Record>
-          columns={monthly_fee_columns()}
+          columns={monthly_fee_columns(action)}
           data={data || []}
           isLoading={false}
           id={0}

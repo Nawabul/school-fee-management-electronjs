@@ -13,6 +13,7 @@ import ClassController from '@renderer/controller/ClassController'
 import FormSelect from '../form/FormSelect'
 import StudentController from '@renderer/controller/StudentController'
 import { todayISODate } from '@type/utils/date'
+import { CreateMonthly } from '@type/interfaces/monthly_fee'
 
 interface Props {
   studentId: number
@@ -21,11 +22,7 @@ interface Props {
 
 const CreateMonthlyForm = ({ studentId, successFun }: Props): JSX.Element => {
   const { control, handleSubmit, reset } = useForm<CreateStudentMonthlySchema>({
-    resolver: zodResolver(CreateStudentMonthlySchema),
-    defaultValues: {
-      start: todayISODate,
-      end: todayISODate
-    }
+    resolver: zodResolver(CreateStudentMonthlySchema)
   })
 
   const [endIncluded, setEndIncluded] = useState<boolean>(false)
@@ -37,7 +34,8 @@ const CreateMonthlyForm = ({ studentId, successFun }: Props): JSX.Element => {
 
   const { data: student, isSuccess } = useQuery({
     queryKey: ['find', 'student'],
-    queryFn: () => StudentController.fetch(studentId)
+    queryFn: () => StudentController.fetch(studentId),
+    refetchOnMount: 'always'
   })
 
   useEffect(
@@ -45,19 +43,24 @@ const CreateMonthlyForm = ({ studentId, successFun }: Props): JSX.Element => {
       if (isSuccess) {
         reset({
           classId: student.class_id,
-          monthly: student.monthly
+          monthly: student.monthly,
+          start: todayISODate,
+          end: todayISODate
         })
       }
     },
-    [isSuccess]
+    [isSuccess, student, reset]
   )
 
   const queryClient = useQueryClient()
   const monthlyMutation = useMutationHandler({
-    mutationFn: (data: CreateStudentMonthlySchema) => MonthlyFeeController.create(studentId, data),
+    mutationFn: (data: CreateMonthly) => MonthlyFeeController.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKey.student_details
+      })
+      queryClient.invalidateQueries({
+        queryKey: queryKey.monthly_fee
       })
 
       successFun()
@@ -65,7 +68,7 @@ const CreateMonthlyForm = ({ studentId, successFun }: Props): JSX.Element => {
   })
 
   const onSubmit = (data: CreateStudentMonthlySchema): void => {
-    monthlyMutation.mutate(data)
+    monthlyMutation.mutate({ ...data, endIncluded, studentId })
   }
 
   return (
@@ -75,14 +78,23 @@ const CreateMonthlyForm = ({ studentId, successFun }: Props): JSX.Element => {
           Create Student Monthly
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormSelect
-            name="classId"
-            label="Class"
-            control={control}
-            options={data}
-            placeholder="Select Class "
-          />
+          {isSuccess && (
+            <FormSelect
+              name="classId"
+              label="Class"
+              control={control}
+              options={data}
+              placeholder="Select Class "
+            />
+          )}
 
+          <FormInput
+            name="monthly"
+            label="Amount"
+            placeholder=" "
+            type="number"
+            control={control}
+          />
           <FormInput name="start" label="Start" placeholder=" " type="date" control={control} />
           <FormInput name="end" label="End" placeholder="" type="date" control={control} />
 

@@ -2,7 +2,7 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import { StudentTransferSchema } from '@renderer/types/schema/student'
 import { Admission_Record, Admission_Write } from '@type/interfaces/admission'
 import { PaymentChart, statics } from '@type/interfaces/dashboard'
-import { CreateMonthly, Monthly_Fee_Write } from '@type/interfaces/monthly_fee'
+import { CreateMonthly, Monthly_Fee_Read, Monthly_Fee_Write } from '@type/interfaces/monthly_fee'
 import { Payment_Type } from '@type/interfaces/payment'
 import { Student_Details } from '@type/interfaces/student'
 import { Class } from '@types/interfaces/class'
@@ -78,6 +78,7 @@ declare global {
     monthly_fee: {
       list: (studentId: number) => Promise<successResponse<Monthly_Fee_Record[]> | errorResponse>
       create: (data: CreateMonthly) => Promise<successResponse<boolean> | errorResponse>
+      fetch: (id: number) => Promise<successResponse<Monthly_Fee_Read> | errorResponse>
       update: (
         id: number,
         data: Partial<Monthly_Fee_Write>

@@ -22,6 +22,7 @@ import {
 } from '../types/interfaces/mis_charge'
 import {
   CreateMonthly,
+  Monthly_Fee_Read,
   Monthly_Fee_Record,
   Monthly_Fee_Write
 } from '../types/interfaces/monthly_fee'
@@ -151,6 +152,8 @@ if (process.contextIsolated) {
         ipcRenderer.invoke('student:monthly:fee:list', studentId),
       create: async (data: CreateMonthly): Promise<successResponse<number> | errorResponse> =>
         ipcRenderer.invoke('student:monthly:fee:create', data),
+      fetch: async (id: number): Promise<successResponse<Monthly_Fee_Read> | errorResponse> =>
+        ipcRenderer.invoke('student:monthly:fee:fetch', id),
       update: async (
         id: number,
         data: Partial<Monthly_Fee_Write>

@@ -122,6 +122,7 @@ const StudentForm = ({
             <FormInput
               name="dob"
               label="Date of birth"
+              type={'date'}
               placeholder="e.g. 01-Feb-2020"
               control={control}
             />

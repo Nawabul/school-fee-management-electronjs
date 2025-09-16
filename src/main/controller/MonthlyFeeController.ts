@@ -2,6 +2,7 @@ import MonthlyFeeService from '../service/MonthlyFeeService'
 import { errorResponse, successResponse } from '../../types/utils/apiReturn'
 import {
   CreateMonthly,
+  Monthly_Fee_Read,
   Monthly_Fee_Record,
   Monthly_Fee_Write
 } from '../../types/interfaces/monthly_fee'
@@ -54,6 +55,18 @@ class MonthlyFeeController extends BaseController {
       const result = this.service.listOfStudent(student_id)
 
       return super.processSuccess(result, 'Monthly list successfully')
+    } catch (error) {
+      return super.processError(error)
+    }
+  }
+  async fetch(
+    _event: IpcMainInvokeEvent,
+    monthlyId: number
+  ): Promise<successResponse<Monthly_Fee_Read> | errorResponse> {
+    try {
+      const result = this.service.get(monthlyId)
+
+      return super.processSuccess(result, 'Monthly fetched successfully')
     } catch (error) {
       return super.processError(error)
     }
