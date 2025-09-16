@@ -1,6 +1,6 @@
 {
   "name": "school-fee-management-electronjs",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Application for managing school fees",
   "main": "./out/main/index.js",
   "author": {

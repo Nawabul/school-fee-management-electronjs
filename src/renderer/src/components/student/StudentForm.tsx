@@ -21,7 +21,7 @@ type GenderOption = {
 
 interface Props {
   // @ts-ignore schema can ve any thing
-  onSubmit: (data: any) => void
+  onSubmit: (data) => void
   defaultValues?:
     | z.infer<typeof StudentCreateSchema | typeof StudentUpdateSchema>
     | Record<string, string | number | boolean>

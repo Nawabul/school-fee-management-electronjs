@@ -1,5 +1,5 @@
 import { DB_VERSION_NAME } from './config'
-const app_version = '1.0.3'
+const app_version = '2.0.0'
 export const currentSchemaStatements: string[] = [
   `CREATE TABLE IF NOT EXISTS classes (
     id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -35,6 +35,11 @@ export const currentSchemaStatements: string[] = [
     last_fee_date text NOT NULL,
     active_until text,
     last_notification_date text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    gender integer DEFAULT 0 NOT NULL,
+    caste text,
+    religion text,
+    category text,
+    dob text,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON UPDATE NO ACTION ON DELETE RESTRICT
   );`,
 
@@ -210,6 +215,14 @@ const versionSchemaStatements: Record<string, string[]> = {
     `ALTER TABLE students ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
     `ALTER TABLE admission ADD COLUMN monthly INTEGER DEFAULT 0 NOT NULL;`,
     `UPDATE students SET monthly = ( SELECT classes.amount FROM classes WHERE classes.id = students.class_id);`
+  ],
+
+  '2.0.0': [
+    `ALTER TABLE students ADD COLUMN gender INTEGER DEFAULT 0 NOT NULL;`,
+    `ALTER TABLE students ADD COLUMN caste text;`,
+    `ALTER TABLE students ADD COLUMN religion text;`,
+    `ALTER TABLE students ADD COLUMN category text;`,
+    `ALTER TABLE students ADD COLUMN dob text;`
   ]
 }
 

@@ -22,5 +22,10 @@ export const students = sqliteTable('students', {
   active_until: text('active_until'),
   last_notification_date: text('last_notification_date')
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP`),
+  gender: integer('gender').notNull().default(0),
+  caste: text('caste'),
+  religion: text('religion'),
+  category: text('category'),
+  dob: text('dob')
 })
