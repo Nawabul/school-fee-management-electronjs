@@ -5,18 +5,20 @@ import PaymentRepository from './PaymentRepository'
 import MisChargeRepository from './MisChargeRepository'
 import { Payment_Type } from '@type/interfaces/payment'
 import AdmissionRepository from './AdmissionRepository'
+import StudentRepository from './StudentRepository'
 
 export default class AdjustmentRepository {
   private monthlyRepo: MonthlyRepository
   private paymentRepo: PaymentRepository
   private misChargeRepo: MisChargeRepository
   private admissionRepo: AdmissionRepository
-
+  private studentRepo: StudentRepository
   constructor() {
     this.monthlyRepo = new MonthlyRepository()
     this.paymentRepo = new PaymentRepository()
     this.misChargeRepo = new MisChargeRepository()
     this.admissionRepo = new AdmissionRepository()
+    this.studentRepo = new StudentRepository()
   }
 
   /**
@@ -225,7 +227,172 @@ export default class AdjustmentRepository {
     return totalAdjusted
   }
 
-  public getTotalUnused(studnetId: number): number {
-    return this.paymentRepo.getUnusedTotal(studnetId)
+  public getAmount(studnetId: number): number {
+    const student = this.studentRepo.findById(studnetId)
+
+    if (!student) {
+      return 0
+    }
+
+    return student.current_balance
+  }
+
+  public haveAmount(studentId: number): number {
+    const amount = this.getAmount(studentId)
+
+    return amount < 0 ? 0 : amount
+  }
+
+  public payAdjustment(
+    studentId: number,
+    remain: number,
+    type: Payment_Type = 'admission',
+    tx: Transaction
+  ): number {
+    let admission = 0
+    let misCharge = 0
+    let monthly = 0
+    // adjust admission
+    const services = {
+      admission: () => {
+        admission = this.adjustAdmission(studentId, remain, tx)
+        remain -= admission
+      },
+      mis_charge: () => {
+        misCharge = this.adjustMisCharge(studentId, remain, tx)
+        remain -= misCharge
+      },
+      monthly: () => {
+        monthly = this.adjustMonthly(studentId, remain, tx)
+        remain -= monthly
+      }
+    }
+    const current = this.getAmount(studentId)
+
+    const serviceName: Payment_Type[] = ['admission', 'monthly', 'mis_charge']
+
+    const index = serviceName.indexOf(type)
+    if (index == -1) {
+      type = 'admission'
+    }
+
+    if (remain < 0) {
+      return this.reverseAdjustment(studentId, remain, type, tx)
+    }
+    if (current < 0) {
+      remain = Math.min(remain, -current)
+
+      for (const service of serviceName) {
+        services[service]()
+      }
+    }
+
+    return remain
+  }
+
+  public reverseAdjustment(
+    studentId: number,
+    remain: number,
+    type: Payment_Type = 'mis_charge',
+    tx: Transaction
+  ): number {
+    let admission = 0
+    let misCharge = 0
+    let monthly = 0
+    // adjust admission
+    const services = {
+      admission: () => {
+        admission = this.adjustAdmission(studentId, remain, tx)
+        remain -= admission
+      },
+      mis_charge: () => {
+        misCharge = this.adjustMisCharge(studentId, remain, tx)
+        remain -= misCharge
+      },
+      monthly: () => {
+        monthly = this.adjustMonthly(studentId, remain, tx)
+        remain -= monthly
+      }
+    }
+    const current = this.getAmount(studentId)
+
+    const serviceName: Payment_Type[] = ['mis_charge', 'monthly', 'admission']
+
+    const index = serviceName.indexOf(type)
+    if (index == -1) {
+      type = 'admission'
+    }
+    if (remain > 0) {
+      return this.payAdjustment(studentId, remain, type, tx)
+    }
+    const newRemain = remain + current
+
+    if (newRemain < 0) {
+      remain = Math.max(remain, newRemain)
+      for (const service of serviceName) {
+        services[service]()
+      }
+    }
+
+    return remain
+  }
+
+  public processAdjustment(
+    studentId: number,
+    remain: number,
+    type: Payment_Type | null = null,
+    tx: Transaction
+  ): number {
+    if (remain == 0) {
+      return remain
+    }
+    if (remain > 0) {
+      type = type || 'admission'
+      return this.payAdjustment(studentId, remain, type, tx)
+    } else {
+      type = type || 'mis_charge'
+      return this.reverseAdjustment(studentId, remain, type, tx)
+    }
+  }
+
+  public processExpenseDown(
+    studentId: number,
+    remain: number,
+    type: Payment_Type,
+    tx: Transaction
+  ): number {
+    let admission = 0
+    let misCharge = 0
+    let monthly = 0
+    // adjust admission
+    const services = {
+      admission: () => {
+        admission = this.adjustAdmission(studentId, remain, tx)
+        remain -= admission
+      },
+      mis_charge: () => {
+        misCharge = this.adjustMisCharge(studentId, remain, tx)
+        remain -= misCharge
+      },
+      monthly: () => {
+        monthly = this.adjustMonthly(studentId, remain, tx)
+        remain -= monthly
+      }
+    }
+    remain = -remain
+    if (remain < 0) {
+      const current = this.haveAmount(studentId)
+      remain = Math.min(current, remain)
+      services[type]()
+      return 0
+    }
+
+    const serviceName: Payment_Type[] = ['mis_charge', 'monthly', 'admission']
+
+    for (const service of serviceName) {
+      services[service]()
+    }
+
+    return remain
   }
 }

@@ -109,11 +109,22 @@ class StudentRepository extends BaseRepository<typeof students> {
         // CASE WHEN transfer_date IS NULL THEN 'active' ELSE transfer_date END
         transfer_date: students.transfer_date,
         class_name: classes.name,
-        current_balance: students.current_balance
+        current_balance: students.current_balance,
+        dob: this.model.dob,
+        caste: this.model.caste,
+        category: this.model.category,
+        religion: this.model.religion,
+        gender: this.model.gender
       })
       .from(this.model)
       .innerJoin(classes, eq(students.class_id, classes.id))
-      .orderBy(classes.name, students.student_name, students.father_name)
+      .orderBy(
+        sql`${this.model.transfer_date} IS NOT NULL`, // NULL first
+        classes.name,
+        students.student_name,
+        students.father_name
+      )
+
       .all()
 
     return list
@@ -144,6 +155,7 @@ class StudentRepository extends BaseRepository<typeof students> {
 
   // derement current balance
   public decrementBalance(studentId: number, amount: number, tx: Transaction): RunResult {
+    console.log('Student Decrement : ', amount)
     return tx
       .update(students)
       .set({

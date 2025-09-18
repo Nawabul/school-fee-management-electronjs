@@ -26,48 +26,14 @@ class PaymentService extends BaseService {
 
   // PaymentService.ts
   create(data: Payment_Write, type: Payment_Type): number {
-    let remain = data.amount
+    const remain = data.amount
     const studentId = data.student_id
+
     const result = db.transaction((tx: Transaction) => {
-      let admission = 0
-      let misCharge = 0
-      let monthly = 0
-      // adjust admission
-      const services = {
-        admission: () => {
-          admission = this.adjustRepo.adjustAdmission(studentId, remain, tx)
-          remain -= admission
-        },
-        mis_charge: () => {
-          misCharge = this.adjustRepo.adjustMisCharge(studentId, remain, tx)
-          remain -= misCharge
-        },
-        monthly: () => {
-          monthly = this.adjustRepo.adjustMonthly(studentId, remain, tx)
-          remain -= monthly
-        }
-      }
+      this.adjustRepo.processAdjustment(studentId, remain, type, tx)
 
-      const serviceName: Payment_Type[] = ['admission', 'monthly', 'mis_charge']
-
-      const index = serviceName.indexOf(type)
-      if (index == -1) {
-        type = 'admission'
-      }
-
-      for (const service of serviceName) {
-        services[service]()
-      }
-
-      const used = {
-        admission: admission,
-        monthly: monthly,
-        mis_charge: misCharge
-      }
       const input = {
-        ...data,
-        ...used,
-        used: data.amount - remain
+        ...data
       }
 
       const result = this.repo.create(input, tx)
@@ -87,45 +53,12 @@ class PaymentService extends BaseService {
     }
     const result = db.transaction((tx: Transaction) => {
       const balanceDiff = data.amount - paymentRecord.amount
-      let newAdmission = paymentRecord.admission
-      let newMonthly = paymentRecord.monthly
-      let newMisCharge = paymentRecord.mis_charge
       const studentId = paymentRecord.student_id
-      let remain = data.amount - paymentRecord.used
 
-      if (remain < 0) {
-        const misPaid = this.adjustRepo.adjustMisCharge(studentId, remain, tx)
-        newMisCharge += misPaid
-        remain -= misPaid
-
-        const monthlyPaid = this.adjustRepo.adjustMonthly(studentId, remain, tx)
-        newMonthly += monthlyPaid
-        remain -= monthlyPaid
-
-        const admissionPaid = this.adjustRepo.adjustAdmission(studentId, remain, tx)
-        newAdmission += admissionPaid
-        remain -= admissionPaid
-      }
-      if (remain > 0) {
-        const admissionPaid = this.adjustRepo.adjustAdmission(studentId, remain, tx)
-        newAdmission += admissionPaid
-        remain -= admissionPaid
-
-        const monthlyPaid = this.adjustRepo.adjustMonthly(studentId, remain, tx)
-        newMonthly += monthlyPaid
-        remain -= monthlyPaid
-
-        const misPaid = this.adjustRepo.adjustMisCharge(studentId, remain, tx)
-        newMisCharge += misPaid
-        remain -= misPaid
-      }
+      this.adjustRepo.processAdjustment(studentId, balanceDiff, null, tx)
 
       const updatedData = {
-        ...data,
-        mis_charge: newMisCharge,
-        monthly: newMonthly,
-        admission: newAdmission,
-        used: data.amount - remain
+        ...data
       }
 
       // update payment
@@ -147,14 +80,10 @@ class PaymentService extends BaseService {
     }
 
     const result = db.transaction((tx: Transaction) => {
-      const admission = oldPayment.admission
-      const monthly = oldPayment.monthly
-      const misCharge = oldPayment.mis_charge
       const studentId = oldPayment.student_id
       const amount = oldPayment.amount
-      this.adjustRepo.adjustAdmission(studentId, -admission, tx)
-      this.adjustRepo.adjustMonthly(studentId, -monthly, tx)
-      this.adjustRepo.adjustMisCharge(studentId, -misCharge, tx)
+
+      this.adjustRepo.processAdjustment(studentId, -amount, null, tx)
 
       this.studentRepo.decrementBalance(studentId, amount, tx)
       return this.repo.delete(id, tx)

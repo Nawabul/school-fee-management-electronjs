@@ -30,6 +30,11 @@ export interface Student_Record {
   transfer_date?: string | null // either an ISO date string or the literal "active"
   address: string
   class_name: string
+  gender: number
+  caste: string | null
+  category: string | null
+  religion: string | null
+  dob: string | null
   current_balance: number
 }
 

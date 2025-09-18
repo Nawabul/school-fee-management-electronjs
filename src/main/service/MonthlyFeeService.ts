@@ -75,12 +75,8 @@ class MonthlyFeeService extends BaseService {
     if (count < 1) {
       return true
     }
-    const haveAmount = this.adjustRepo.getTotalUnused(studentId)
-    console.log('StudentId ', studentId)
-    console.log('Have amount ', haveAmount)
-    console.log('Start : ', start)
-    console.log('End : ', end)
-    const used = this.createByRange(
+    const haveAmount = this.adjustRepo.haveAmount(studentId)
+    this.createByRange(
       {
         studentId,
         classId,
@@ -91,9 +87,6 @@ class MonthlyFeeService extends BaseService {
       },
       tx
     )
-
-    // adjust payment used
-    this.adjustRepo.adjustPayment(studentId, used, 'monthly', tx)
 
     // decrease amount
     const total = monthly * count
@@ -116,7 +109,8 @@ class MonthlyFeeService extends BaseService {
       const diff = amount - old.amount
       const need = amount - old.paid
       const studentId = old.student_id
-      const adjust = this.adjustRepo.adjustPayment(studentId, need, 'monthly', tx)
+      const haveAmount = this.adjustRepo.haveAmount(studentId)
+      const adjust = Math.min(haveAmount, need)
       const input = {
         amount: amount,
         paid: old.paid + adjust
@@ -124,6 +118,9 @@ class MonthlyFeeService extends BaseService {
       const update = this.repo.update(id, input, tx)
 
       this.studentRepo.decrementBalance(studentId, diff, tx)
+      if (need < 0) {
+        this.adjustRepo.processExpenseDown(studentId, need, 'monthly', tx)
+      }
 
       return update
     })

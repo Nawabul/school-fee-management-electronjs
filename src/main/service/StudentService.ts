@@ -20,6 +20,7 @@ import MisChargeRepository from '@main/repository/MisChargeRepository'
 import PaymentRepository from '@main/repository/PaymentRepository'
 import { StudentTransferSchema } from '@main/utils/schema/student'
 import AlreadyExistException from '@main/exception.ts/AlreadyExistException'
+import AdjustmentRepository from '@main/repository/AdjustmentRepository'
 
 interface StudentCreate extends Student_Write {
   admission_charge: number
@@ -31,13 +32,13 @@ class StudentService extends BaseController {
   private monthlyService: typeof MonthlyFeeService
   private misChargeRepo: MisChargeRepository
   private paymentRepo: PaymentRepository
-
+  private adjustRepo: AdjustmentRepository
   constructor() {
     super()
     this.repo = new StudentRepository()
     this.admissionService = AdmissionService
     this.monthlyService = MonthlyFeeService
-
+    this.adjustRepo = new AdjustmentRepository()
     this.misChargeRepo = new MisChargeRepository()
 
     this.paymentRepo = new PaymentRepository()
@@ -130,12 +131,18 @@ class StudentService extends BaseController {
     const prevAmount = student.initial_balance
     const currentAmount = data.initial_balance ?? prevAmount
     const diff = currentAmount - prevAmount
+    const result = db.transaction((tx: Transaction) => {
+      if (diff != 0) {
+        dbData.current_balance = student.current_balance + diff
+      }
 
-    if (diff != 0) {
-      dbData.current_balance = student.current_balance + diff
-    }
-    const updated = this.repo.update(id, dbData)
-    return !!updated
+      this.adjustRepo.processAdjustment(id, diff, null, tx)
+      const updated = this.repo.update(id, dbData, tx)
+
+      return !!updated
+    })
+
+    return result
   }
 
   async transfer(id: number, data: StudentTransferSchema): Promise<boolean> {

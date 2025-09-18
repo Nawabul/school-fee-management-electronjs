@@ -75,13 +75,6 @@ export const StudentSchema = {
       invalid_type_error: 'Monthly Charge must be a number'
     })
     .optional()
-    .default(0),
-  initial_balance: z.coerce
-    .number({
-      required_error: 'Monthly Charge is required',
-      invalid_type_error: 'Monthly Charge must be a number'
-    })
-    .gte(0, 'Select due for negative')
     .default(0)
 }
 

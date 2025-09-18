@@ -32,7 +32,7 @@ class MisChargeService extends BaseService {
   create(data: Mis_Charge_Write): number {
     const result = db.transaction((tx: Transaction) => {
       const studentId = data.student_id
-      const haveAmount = this.adjustRepo.getTotalUnused(studentId)
+      const haveAmount = this.adjustRepo.haveAmount(studentId)
       const paid = Math.min(haveAmount, data.amount)
 
       const create = this.repo.create(
@@ -42,8 +42,6 @@ class MisChargeService extends BaseService {
         },
         tx
       )
-
-      this.adjustRepo.adjustPayment(studentId, paid, 'mis_charge', tx)
 
       this.studentRepo.decrementBalance(studentId, data.amount, tx)
       return create
@@ -65,14 +63,19 @@ class MisChargeService extends BaseService {
       const diff = amount - old.amount
       const need = amount - old.paid
       const studentId = old.student_id
-      const adjust = this.adjustRepo.adjustPayment(studentId, need, 'mis_charge', tx)
+      this.studentRepo.decrementBalance(studentId, diff, tx)
+      const haveAmount = this.adjustRepo.haveAmount(studentId)
+      const adjust = Math.min(haveAmount, need)
+      console.log('Diff: ', diff)
+      console.log('Need: ', need)
       const input = {
         ...data,
         paid: old.paid + adjust
       }
       const update = this.repo.update(id, input, tx)
-
-      this.studentRepo.decrementBalance(studentId, diff, tx)
+      if (need < 0) {
+        this.adjustRepo.processExpenseDown(studentId, need, 'mis_charge', tx)
+      }
 
       return update
     })
@@ -93,7 +96,7 @@ class MisChargeService extends BaseService {
       const amount = old.amount
       const paid = old.paid
 
-      this.adjustRepo.adjustPayment(studentId, -paid, 'mis_charge', tx)
+      this.adjustRepo.processExpenseDown(studentId, -paid, 'mis_charge', tx)
 
       this.studentRepo.incrementBalance(studentId, amount, tx)
 

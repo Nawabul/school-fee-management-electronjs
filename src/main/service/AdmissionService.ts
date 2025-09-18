@@ -46,10 +46,10 @@ class AdmissionService extends BaseService {
       throw new StudnetNotFoundException()
     }
     const result = db.transaction((tx: Transaction) => {
-      let haveAmount = this.adjustRepo.getTotalUnused(studentId)
+      let haveAmount = this.adjustRepo.haveAmount(studentId)
       const amount = data.amount
       const paid = Math.min(haveAmount, amount)
-      haveAmount -= haveAmount > paid ? paid : 0
+      haveAmount -= paid
       const today = format(new Date(), DB_DATE_FORMAT)
       const last_fee = student.last_fee_date
       const fromDate = data.date
@@ -61,7 +61,6 @@ class AdmissionService extends BaseService {
         },
         tx
       )
-      this.adjustRepo.adjustPayment(studentId, paid, 'admission', tx)
 
       this.monthlyService.processCreate(
         {
@@ -89,14 +88,20 @@ class AdmissionService extends BaseService {
       throw new AdmissionNotFoundException()
     }
     const result = db.transaction((tx: Transaction) => {
-      const result = this.repo.update(id, data, tx)
+      const need = data.amount - oldData.paid
       const studentId = oldData.student_id
-      const diff = data.amount - oldData.amount
-
-      const amount = this.adjustRepo.adjustPayment(studentId, diff, 'admission')
-      // adjust
-      this.adjustRepo.adjustAdmission(studentId, amount, tx)
-      return result
+      const haveAmount = this.adjustRepo.haveAmount(studentId)
+      const adjust = Math.min(haveAmount, need)
+      const input = {
+        ...data,
+        paid: oldData.paid + adjust
+      }
+      const update = this.repo.update(id, input, tx)
+      if (need < 0) {
+        this.adjustRepo.processExpenseDown(studentId, need, 'admission', tx)
+      }
+      this.adjustRepo.processExpenseDown(studentId, need, 'admission', tx)
+      return update
     })
 
     // .run() returns info about rows affected, not the updated row itself
@@ -111,7 +116,7 @@ class AdmissionService extends BaseService {
       const result = this.repo.delete(id)
       const paid = oldData.paid
 
-      this.adjustRepo.adjustPayment(oldData.student_id, -paid, 'admission', tx)
+      this.adjustRepo.processExpenseDown(oldData.student_id, -paid, 'admission', tx)
 
       return result
     })

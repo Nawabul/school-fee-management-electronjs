@@ -5,6 +5,7 @@ import { Student_Record } from '@renderer/types/ts/student'
 import { format } from 'date-fns'
 import { date_format } from '@renderer/types/constant/date'
 import { CircleDot, ClipboardList, Pen, Trash2 } from 'lucide-react'
+import { GenderEnum } from '@renderer/types/constant/gender'
 
 export const studentColumns = (
   item: Record<string, (id: number, data: Student_Record) => void>
@@ -23,7 +24,27 @@ export const studentColumns = (
   {
     accessorKey: 'student_name',
     header: 'Name',
-    enableHiding: false
+    enableHiding: false,
+    cell: ({ row }) => {
+      const gender = GenderEnum[row.original.gender] ?? null
+      let genderTag
+
+      if (gender == 'Male') {
+        genderTag = <span className="to-blue-700">Male</span>
+      } else if (gender == 'Female') {
+        genderTag = <span className="bg-pink-700">Female</span>
+      } else if (gender == 'Other') {
+        genderTag = <span className="bg-yellow-500">Other</span>
+      } else {
+        genderTag = <span className="bg-black">Not Mentioned</span>
+      }
+      return (
+        <>
+          {row.original.student_name}
+          {genderTag}
+        </>
+      )
+    }
   },
   {
     accessorKey: 'father_name',
