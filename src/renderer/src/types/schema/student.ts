@@ -75,7 +75,8 @@ export const StudentSchema = {
       invalid_type_error: 'Monthly Charge must be a number'
     })
     .optional()
-    .default(0)
+    .default(0),
+  initial_balance: z.coerce.number().default(0)
 }
 
 export const StudentCreateSchema = z.object({

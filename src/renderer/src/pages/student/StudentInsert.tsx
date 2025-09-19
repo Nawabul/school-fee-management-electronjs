@@ -40,7 +40,8 @@ const StudentInsert = (): React.JSX.Element => {
         isPending={studentMutation.isPending}
         defaultValues={{
           admission_date: todayISODate,
-          dob: todayISODate
+          dob: todayISODate,
+          initial_balance: 0
         }}
       />
     </div>

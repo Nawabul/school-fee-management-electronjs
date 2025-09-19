@@ -89,6 +89,7 @@ export default class AdjustmentRepository {
 
     if (amount > 0) {
       const unpaidCharges = this.misChargeRepo.unpaid_list(studentId)
+      console.log('LIst : ', unpaidCharges)
       let remainingAmount = amount
 
       for (const charge of unpaidCharges) {
@@ -387,7 +388,7 @@ export default class AdjustmentRepository {
       return 0
     }
 
-    const serviceName: Payment_Type[] = ['mis_charge', 'monthly', 'admission']
+    const serviceName: Payment_Type[] = ['admission', 'monthly', 'mis_charge']
 
     for (const service of serviceName) {
       services[service]()

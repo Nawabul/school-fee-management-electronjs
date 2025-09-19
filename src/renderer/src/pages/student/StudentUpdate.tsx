@@ -61,7 +61,7 @@ const StudentUpdate = (): React.JSX.Element => {
         <StudentForm
           onSubmit={handleFormSubmit}
           isPending={studentMutation.isPending}
-          defaultValues={data}
+          defaultValues={data || {}}
           isUpdate={true}
         />
       )}

@@ -63,16 +63,15 @@ class MisChargeService extends BaseService {
       const diff = amount - old.amount
       const need = amount - old.paid
       const studentId = old.student_id
-      this.studentRepo.decrementBalance(studentId, diff, tx)
       const haveAmount = this.adjustRepo.haveAmount(studentId)
       const adjust = Math.min(haveAmount, need)
-      console.log('Diff: ', diff)
-      console.log('Need: ', need)
+
       const input = {
         ...data,
         paid: old.paid + adjust
       }
       const update = this.repo.update(id, input, tx)
+      this.studentRepo.decrementBalance(studentId, diff, tx)
       if (need < 0) {
         this.adjustRepo.processExpenseDown(studentId, need, 'mis_charge', tx)
       }
@@ -96,11 +95,12 @@ class MisChargeService extends BaseService {
       const amount = old.amount
       const paid = old.paid
 
+      const deleteData = this.repo.delete(id, tx)
       this.adjustRepo.processExpenseDown(studentId, -paid, 'mis_charge', tx)
 
       this.studentRepo.incrementBalance(studentId, amount, tx)
 
-      return this.repo.delete(id, tx)
+      return deleteData
     })
     return result.changes > 0
   }

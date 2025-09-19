@@ -26,7 +26,6 @@ function createWindow(): void {
   const dark = nativeTheme.shouldUseDarkColors
   if (!dark) {
     nativeTheme.themeSource = 'dark'
-
   }
 
   // routes
@@ -34,6 +33,10 @@ function createWindow(): void {
   titleBar(ipcMain, mainWindow)
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  mainWindow.webContents.session.clearCache().then(() => {
+    console.log('Cache cleared!')
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

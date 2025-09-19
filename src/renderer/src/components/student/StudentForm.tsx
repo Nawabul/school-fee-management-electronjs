@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react'
 import FormSelect from '../form/FormSelect'
 import FormInput from '../form/FormInput'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { JSX, useEffect } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { queryKey } from '@renderer/types/constant/queryKey'
 import ClassController from '@renderer/controller/ClassController'
@@ -12,7 +12,6 @@ import { Loader2 } from 'lucide-react'
 import { StudentCreateSchema, StudentUpdateSchema } from '@renderer/types/schema/student'
 import { z } from 'zod'
 import { GenderEnum } from '@renderer/types/constant/gender'
-import { Student_Get } from '@type/interfaces/student'
 
 type GenderId = keyof typeof GenderEnum
 type GenderOption = {
@@ -25,7 +24,6 @@ interface Props {
   onSubmit: (data) => void
   defaultValues?:
     | z.infer<typeof StudentCreateSchema | typeof StudentUpdateSchema>
-    | Student_Get
     | Record<string, string | number | boolean>
   isPending?: boolean
   isUpdate?: boolean
@@ -43,8 +41,17 @@ const StudentForm = ({
   >({
     //@ts-ignore ites working well
     resolver: zodResolver(isUpdate ? StudentUpdateSchema : StudentCreateSchema),
-    defaultValues: defaultValues ? defaultValues : {}
+    defaultValues: {
+      ...defaultValues,
+      initial_balance: Math.abs(Number(defaultValues?.initial_balance))
+    }
   })
+
+  const [isDue, setIsDue] = useState<boolean>(
+    !isUpdate ||
+      defaultValues?.initial_balance === undefined ||
+      Number(defaultValues.initial_balance) < 0
+  )
 
   const { data: classList = [] } = useQuery({
     queryKey: queryKey.class,
@@ -52,8 +59,14 @@ const StudentForm = ({
   })
 
   const beforeSubmit = (data): void => {
+    let amount = Math.abs(data.initial_balance)
+
+    if (isDue && amount != 0) {
+      amount = -amount
+    }
     onSubmit({
-      ...data
+      ...data,
+      initial_balance: amount
     })
   }
   useEffect(() => {
@@ -88,8 +101,7 @@ const StudentForm = ({
       name: 'Other'
     }
   ]
-  const categoryList = ['GEN', 'OBC', 'ST', 'ST']
-  const religionList = ['HINDU', 'MUSLIM', 'SIKH', 'CHRISTIAN']
+
   return (
     // The form now wraps the sections
     <form onSubmit={handleSubmit(beforeSubmit)}>
@@ -154,16 +166,10 @@ const StudentForm = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInput
                 name="category"
-                list="student-category"
                 label="Category"
                 placeholder="e.g. Gen, OBC, ST, SC"
                 control={control}
               />
-              <datalist id="student-category">
-                {categoryList.map((s, i) => (
-                  <option key={i} value={s} />
-                ))}
-              </datalist>
               <FormInput
                 name="cast"
                 label="Cast"
@@ -172,17 +178,10 @@ const StudentForm = ({
               />
               <FormInput
                 name="religion"
-                list="student-religion"
                 label="Religion"
                 placeholder="e.g. Hindu, Muslim , Sikh , Christian"
                 control={control}
               />
-
-              <datalist id="student-religion">
-                {religionList.map((s, i) => (
-                  <option key={i} value={s} />
-                ))}
-              </datalist>
             </div>
           </div>
         </div>
@@ -248,6 +247,31 @@ const StudentForm = ({
               type="number"
               control={control}
             />
+            <div className="flex flex-col">
+              <p className="text-xs">
+                Amount due or advance before the student’s{' '}
+                <span className="text-sm font-bold"> first active session.</span> This will be
+                carried forward into their account.
+              </p>
+              <div className="flex">
+                <FormInput
+                  placeholder="Enter carried forward amount"
+                  name="initial_balance"
+                  label="Opening Balance"
+                  type="number"
+                  control={control}
+                />
+                <ToggleSwitch
+                  name="is_due"
+                  label="is Due"
+                  className="mt-8 pl-5"
+                  checked={isDue}
+                  onChange={(checked) => setIsDue(checked)}
+                  color="green"
+                  sizing="md"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

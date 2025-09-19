@@ -155,7 +155,6 @@ class StudentRepository extends BaseRepository<typeof students> {
 
   // derement current balance
   public decrementBalance(studentId: number, amount: number, tx: Transaction): RunResult {
-    console.log('Student Decrement : ', amount)
     return tx
       .update(students)
       .set({
