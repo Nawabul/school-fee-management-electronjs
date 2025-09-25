@@ -12,21 +12,31 @@ interface ToastProviderProps {
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
-  const showToast = (message: string, type: ToastType = 'success') => {
+  const showToast = (message: string, type: ToastType = 'success'): void => {
     const id = Date.now()
     setToasts((currentToasts) => [...currentToasts, { id, message, type }])
 
+    // Auto-dismiss the toast after 5 seconds
     setTimeout(() => {
-      setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id))
-    }, 3000) // 3 seconds
+      removeToast(id)
+    }, 5000)
+  }
+
+  const removeToast = (id: number): void => {
+    setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id))
   }
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-5 right-5 z-50 space-y-3">
+      <div className="fixed top-16 right-5 z-50 flex flex-col-reverse items-end space-y-3 space-y-reverse">
         {toasts.map((toast) => (
-          <Toast key={toast.id} message={toast.message} type={toast.type} />
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onDismiss={() => removeToast(toast.id)}
+          />
         ))}
       </div>
     </ToastContext.Provider>
@@ -40,6 +50,5 @@ const useToast = (): ToastContextType => {
   }
   return context
 }
-
 
 export default useToast
