@@ -109,9 +109,9 @@ export const studentColumns = (
 
       switch (condition) {
         case 'gt':
-          return rowValue > value
+          return rowValue >= Math.abs(value)
         case 'lt':
-          return rowValue < value
+          return rowValue <= -Math.abs(value)
         case 'eq':
           return rowValue === value
         default:
